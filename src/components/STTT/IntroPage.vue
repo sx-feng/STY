@@ -1,0 +1,86 @@
+<template>
+    <div class="info-page">
+      <!-- 功能按钮区 -->
+      <div class="menu-grid">
+        <div class="menu-item" v-for="(item, index) in menuList" :key="index">
+          <span class="icon">{{ item.icon }}</span>
+          <span class="text">{{ item.label }}</span>
+        </div>
+      </div>
+  
+      <!-- 白色卡片区 -->
+      <div class="info-card">
+        <p>矿机玩法说明： <span>{{ playDesc }}</span></p>
+        <p>收益详情说明： <span>{{ incomeDesc }}</span></p>
+      </div>
+    </div>
+  </template>
+  
+  <script setup>
+  import { ref } from "vue"
+  
+  const menuList = ref([
+    { icon: "🏠", label: "公司简介" },
+    { icon: "📘", label: "STY介绍" },
+    { icon: "🌐", label: "未来生态" },
+    { icon: "💰", label: "币种共识" },
+    { icon: "💳", label: "STY转账" },
+    { icon: "🔄", label: "会员交易" },
+  ])
+  
+  // 后端传过来的说明内容
+  const playDesc = ref("请输入...")
+  const incomeDesc = ref("请输入...")
+  </script>
+  
+  <style scoped>
+  .info-page {
+    background: #000;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* 按钮区 */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border-radius: 20px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: #d4af37; /* 金色文字 */
+  }
+  
+  .menu-item .icon {
+    font-size: 18px;
+  }
+  
+  /* 白色卡片 */
+  .info-card {
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
+  }
+  </style>
+  
