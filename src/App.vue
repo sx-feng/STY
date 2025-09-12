@@ -1,9 +1,13 @@
 <template>
   <el-config-provider :locale="epLocale">
+    
+<AppSidenav v-model="drawerOpen" />
+
     <div class="main">
+     
       <!-- //顶部导航栏 -->
       <div class="top-bar">
-        <button class="menu-btn">☰</button>
+        <button  @click="drawerOpen = true"  class="menu-btn">☰</button>
         <button class="action-btn" @click="toggleLang">
           <span class="icon">￥</span>
           <span>{{ t('btn.lang') }}</span>
@@ -79,6 +83,7 @@
 
 
     </div>
+ 
 
 
 
@@ -87,6 +92,7 @@
   <router-view />
   <IntroPage/>
   <FundsPage/>
+  <SpotlightMember/>
 </template>
 
 <script setup>
@@ -98,8 +104,9 @@ import enUS from 'element-plus/dist/locale/en.mjs'
 import { ref } from 'vue';
 import IntroPage from './components/STTT/IntroPage.vue';
 import FundsPage from './components/STTT/FundsPage.vue';
-
-
+import SpotlightMember from './components/STTT/SpotlightMember.vue';
+import AppSidenav from './components/STTT/AppSidenav.vue';
+const drawerOpen = ref(false) 
 const currentTab = ref('mine')
 
 
@@ -154,6 +161,7 @@ function toggleLang() {
   gap: 20px;
   z-index: 1;
   margin-bottom: 20px;
+  margin-top: -30px;
 }
 
 .menu-btn {
@@ -162,6 +170,7 @@ function toggleLang() {
   border-radius: 50%;
   width: 40px;
   height: 40px;
+
   font-size: 20px;
   color: gold;
   cursor: pointer;

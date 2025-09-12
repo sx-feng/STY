@@ -46,7 +46,7 @@ importers:
         specifier: ^7.32.0
         version: 7.32.0
       eslint-plugin-vue:
-        specifier: ^8.0.3
+        specifier: ^8.7.1
         version: 8.7.1(eslint@7.32.0)
 
 packages:

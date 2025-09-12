@@ -48,9 +48,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    margin-bottom: 20px;
-    width: 100%;
+    margin-bottom: 50px;
+    width: 90%;
     max-width: 400px;
+    margin-top: 40px;
   }
   
   .menu-item {
@@ -58,8 +59,8 @@
     align-items: center;
     gap: 8px;
     background: #fff;
-    border-radius: 20px;
-    padding: 10px 14px;
+    border-radius: 30px;
+    padding: 16px 30px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -73,7 +74,7 @@
   
   /* 白色卡片 */
   .info-card {
-    width: 100%;
+    width: 80%;
     max-width: 400px;
     background: #fff;
     border-radius: 18px;

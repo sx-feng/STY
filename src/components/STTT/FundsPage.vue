@@ -1,22 +1,19 @@
 
 <template>
     <div class="funds-page">
-      <!-- 顶部：入金 / 出金 -->
       <div class="action-switch">
         <button
           class="pill"
           :class="{ active: mode==='deposit' }"
           @click="mode='deposit'"
         >📦 入金</button>
-  
         <button
           class="pill"
           :class="{ active: mode==='withdraw' }"
           @click="mode='withdraw'"
         >📒 出金</button>
       </div>
-  
-      <!-- 金额输入 -->
+
       <input
         class="amount-input"
         type="number"
@@ -25,14 +22,11 @@
         v-model.trim="amount"
       />
   
-      <!-- 确认 -->
       <button class="confirm-btn" @click="onConfirm">确认</button>
   
-      <!-- 列表卡片（黑金聚光灯） -->
       <div class="list-card">
         <div class="gold-spotlight"><i class="gold-core"></i></div>
   
-        <!-- 切换：充值列表 / 提现列表 -->
         <div class="list-tabs">
           <button
             class="tab"
@@ -46,13 +40,11 @@
           >📒 提现列表</button>
         </div>
   
-        <!-- 表头 -->
         <div class="thead">
           <span>{{ listType==='recharge' ? '充值数量' : '提现数量' }}</span>
           <span>{{ listType==='recharge' ? '充值日期' : '提现日期' }}</span>
         </div>
   
-        <!-- 数据行（示例，替换为后端数据） -->
         <div class="rows">
           <div class="row" v-for="(item,i) in rows" :key="i">
             <span>{{ item.amount }}</span>
@@ -67,11 +59,10 @@
   <script setup>
   import { ref, computed } from 'vue'
   
-  const mode = ref('deposit')           // 'deposit' | 'withdraw'
-  const listType = ref('recharge')      // 'recharge' | 'withdraw'
+  const mode = ref('deposit')          
+  const listType = ref('recharge')      
   const amount = ref('')
-  
-  // 假数据：实际请替换为接口返回
+
   const rechargeList = ref([
     { amount: '100.00', date: '2025-09-10 12:20' },
     { amount: '58.50',  date: '2025-09-09 09:05' }
@@ -86,8 +77,7 @@
   
   function onConfirm() {
     if (!amount.value) return alert('请输入金额')
-    // TODO: 调用入金/出金接口
-    // 示例：确认后清空
+ 
     alert(`${mode.value === 'deposit' ? '入金' : '出金'}成功：${amount.value}`)
     amount.value = ''
   }
@@ -97,7 +87,7 @@
   .funds-page{
     min-height: 100vh;
     background: #000;
-    padding: 18px 16px 28px;
+    padding: 18px 30px 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -113,40 +103,46 @@
     grid-template-columns: 1fr 1fr;
     gap: 14px;
     margin: 6px 0 18px;
+    margin-top: 40px;
   }
   .pill{
     background: #fff;
     border: 1px solid #d8d8d8;
     border-radius: 999px;
-    padding: 10px 14px;
+    padding: 16px 14px;
     font-weight: 600;
+    font-size: medium;
     cursor: pointer;
+    width: 90%;
   }
   .pill.active{
-    border-color: #FFD24D;
-    color: #000;
-    box-shadow: 0 0 12px rgba(255,210,77,.45);
-  }
+  background: linear-gradient(135deg, #ecd693, #f1d789, #f5e5a4);
+  border-color: #FFD24D;
+  color: #000;
+  box-shadow: 0 0 12px rgba(255, 210, 77, .55);
+}
+
+  
   
   /* 输入 & 确认 */
   .amount-input{
-    width: 100%;
+    margin-top: 40px;
+    width: 86%;
     max-width: 430px;
     background: #fff;
     border: none;
-    border-radius: 12px;
-    padding: 12px 14px;
+    border-radius: 20px;
+    padding: 16px 10px;
     font-size: 15px;
     outline: none;
     margin-bottom: 14px;
   }
   .confirm-btn{
-    width: 100%;
-    max-width: 430px;
+    width: 86%;
     background: #f6c244;
     border: none;
     border-radius: 999px;
-    padding: 12px 0;
+    padding: 12px 14px;
     font-size: 18px;
     font-weight: 800;
     color: #000;
@@ -154,7 +150,7 @@
     margin-bottom: 18px;
   }
   
-  /* 列表卡片容器 */
+ /* 充值列表 */
   .list-card{
     position: relative;
     width: 100%;
@@ -165,9 +161,10 @@
     padding: 14px 12px 16px;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
     overflow: hidden;
+    margin-top: 30px;
   }
   
-  /* 金色聚光灯 + 中央竖线 */
+
   .gold-spotlight{
     --w: 180%;
     --h: 220%;
@@ -227,6 +224,7 @@
   .tab.on{
     border-color: #FFD24D;
     box-shadow: 0 0 10px rgba(255,210,77,.4);
+    background-color: #f5e5a4;
   }
   
   /* 表头 & 行 */
