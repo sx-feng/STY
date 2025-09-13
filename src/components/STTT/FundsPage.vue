@@ -1,6 +1,8 @@
 
 <template>
     <div class="funds-page">
+      <TopBar/>
+      <div>
       <div class="action-switch">
         <button
           class="pill"
@@ -23,7 +25,7 @@
       />
   
       <button class="confirm-btn" @click="onConfirm">确认</button>
-  
+    </div>
       <div class="list-card">
         <div class="gold-spotlight"><i class="gold-core"></i></div>
   
@@ -58,6 +60,7 @@
   
   <script setup>
   import { ref, computed } from 'vue'
+import TopBar from './TopBar.vue'
   
   const mode = ref('deposit')          
   const listType = ref('recharge')      
@@ -104,6 +107,7 @@
     gap: 14px;
     margin: 6px 0 18px;
     margin-top: 40px;
+
   }
   .pill{
     background: #fff;
@@ -126,8 +130,8 @@
   
   /* 输入 & 确认 */
   .amount-input{
-    margin-top: 40px;
-    width: 86%;
+    margin-top: 20px;
+    width: 100%;
     max-width: 430px;
     background: #fff;
     border: none;
@@ -138,8 +142,8 @@
     margin-bottom: 14px;
   }
   .confirm-btn{
-    width: 86%;
-    background: #f6c244;
+    width: 100%;
+    background: #e49f00;
     border: none;
     border-radius: 999px;
     padding: 12px 14px;
@@ -153,7 +157,7 @@
  /* 充值列表 */
   .list-card{
     position: relative;
-    width: 100%;
+    width: 94%;
     max-width: 430px;
     background: rgba(0,0,0,0.7);
     border: 1px solid rgba(255,255,255,0.12);
@@ -166,7 +170,7 @@
   
 
   .gold-spotlight{
-    --w: 180%;
+    --w: 100%;
     --h: 220%;
     --scaleY: .56;
     --blur: 90px;

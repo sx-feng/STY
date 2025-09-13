@@ -1,6 +1,7 @@
 <template>
     <div class="finance-page">
       <!-- 顶部按钮 -->
+       <TopBar/>
       <div class="top-actions">
         <button class="tab-btn active">📦 STY理财宝</button>
         <button class="tab-btn">📒 理财宝说明</button>
@@ -42,6 +43,8 @@
   </template>
   
   <script setup>
+import TopBar from './TopBar.vue';
+
   const staticList = [
     { period: "3天周期" },
     { period: "10天周期" },
@@ -58,7 +61,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 30px;
     font-family: "Microsoft YaHei", sans-serif;
     position: relative;
     overflow: hidden;
@@ -71,7 +74,7 @@
     top: -20%;
     left: 50%;
     transform: translateX(-50%) scaleY(0.55);
-    width: 180%;
+    width: 100%;
     height: 200%;
     background: radial-gradient(
       ellipse at 50% 0%,
@@ -85,12 +88,13 @@
   }
   
   .top-actions {
+    margin-top: 40px;
     display: flex;
     justify-content: center;
     gap: 20px;
     margin-bottom: 20px;
     z-index: 1;
-    margin-top: 35px;
+    
   }
   
   .tab-btn {

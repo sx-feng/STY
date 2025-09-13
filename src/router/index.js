@@ -3,11 +3,21 @@ import StyFinance from '@/components/STTT/StyFinance.vue'
 import introPage from '@/components/STTT/IntroPage.vue'
 import FundsPage from '@/components/STTT/FundsPage.vue'
 import SpotlightMember from '@/components/STTT/SpotlightMember.vue'
-import AppSidenav from '@/components/STTT/AppSidenav.vue'
+import TopBar from '@/components/STTT/TopBar.vue'
+import HomePage from '@/components/STTT/HomePage.vue'
+import SignCanLen from '@/components/STTT/SignCanLen.vue'
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{ path: '/', redirect: '/finance' },
-     { path: '/finance', component: StyFinance },
+  routes: [
+    {  
+      path: '/',
+       name: 'home',
+        component:HomePage
+      },
+     { path: '/finance',
+      name: 'StyFinance', 
+       component: StyFinance
+       },
      {
         path: '/info',
         name: 'introPage',
@@ -23,9 +33,17 @@ const router = createRouter({
       name:'SpotlightMember',
       component:SpotlightMember
     },{
-      path:'/app',
-      name:'AppSidenav',
-      component:AppSidenav
+      path:'/top',
+      name:'TopBar',
+      component:TopBar
+    },{
+      path:'/sign',
+      name:'SignCanLen',
+      component:SignCanLen
+
+
+
+
     }]
 })
 export default router

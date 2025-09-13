@@ -1,5 +1,6 @@
 <template>
     <div class="info-page">
+      <TopBar/>
       <!-- 功能按钮区 -->
       <div class="menu-grid">
         <div class="menu-item" v-for="(item, index) in menuList" :key="index">
@@ -18,6 +19,7 @@
   
   <script setup>
   import { ref } from "vue"
+import TopBar from "./TopBar.vue"
   
   const menuList = ref([
     { icon: "🏠", label: "公司简介" },
@@ -37,10 +39,10 @@
   .info-page {
     background: #000;
     min-height: 100vh;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 20px;
   }
   
   /* 按钮区 */
@@ -52,6 +54,7 @@
     width: 90%;
     max-width: 400px;
     margin-top: 40px;
+ 
   }
   
   .menu-item {
