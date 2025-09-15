@@ -11,8 +11,8 @@ const saved =
   localStorage.getItem("lang") ||
   (navigator.language.startsWith("zh") ? "zh" : "en");
 const i18n = createI18n({
-  legacy: false, // 组合式 API
-  locale: saved, // 当前语言
+  legacy: false,
+  locale: saved, 
   fallbackLocale: "en",
   messages: { zh, en },
 });
@@ -21,7 +21,7 @@ const app = createApp(App);
 app.use(ElementPlus);
 app.use(i18n);
 app.use(router)
-// 注册所有图标（可选）
+
 for (const [key, component] of Object.entries(Icons)) {
   app.component(key, component);
 }

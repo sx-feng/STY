@@ -1,8 +1,92 @@
 {
-    "btn": {
-      "lang": "Language",
-      "connect": "Connect Wallet"
-    },
-    "welcome": "Welcome to the Black-Gold Page"
+  "btn": {
+    "lang": "Language Switch",
+    "connect": "Connect Wallet"
+  },
+  "tab": {
+    "mine": "My Miner",
+    "team": "Team Details"
+  },
+  "card": {
+    "yesterdayOutput": "Yesterday Output",
+    "yesterdayReward": "Yesterday Reward",
+    "teamReward": "Team Reward Total",
+    "totalIncome": "Total Income"
+  },
+  "exchange": {
+    "flash": "Flash Exchange",
+    "balance": "Balance",
+    "all": "All",
+    "confirm": "Confirm",
+    "inputPlaceholder": "Please enter content"
+
+  },
+  "footer": {
+    "profitDetail": "Profit Details",
+    "profitDetailMore": "Profit Details >>",
+    "time": "Time",
+    "model": "Miner Model",
+    "output": "Output"
+  },
+  "funds": {
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "depositPlaceholder": "Enter deposit amount",
+    "withdrawPlaceholder": "Enter withdraw amount",
+    "confirm": "Confirm",
+    "rechargeList": "Deposit List",
+    "withdrawList": "Withdraw List",
+    "rechargeAmount": "Deposit Amount",
+    "withdrawAmount": "Withdraw Amount",
+    "rechargeDate": "Deposit Date",
+    "withdrawDate": "Withdraw Date",
+    "noRecord": "No records",
+    "enterAmount": "Please enter an amount",
+"success": "Success"
+  },
+  "info": {
+    "company": "Company Profile",
+    "styIntro": "STY Introduction",
+    "ecosystem": "Future Ecosystem",
+    "consensus": "Token Consensus",
+    "transfer": "STY Transfer",
+    "trade": "Member Trade",
+    "playRule": "Mining Rules",
+    "incomeRule": "Income Details"
+  },
+  "sign": {
+    "year": "Year",
+    "month": "Month",
+    "streak": "Streak Days",
+    "missed": "Missed Days",
+    "signNow": "Sign Now",
+    "streakDays": "Streak Days",     
+    "missedDays": "Missed Days",         
+    "signedToday": "Already signed today",
+    "locked": "Exceeded {max} misses, sign-in reset this month",
+    "success": "Signed in successfully!",
+    "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  },
+  "light": {
+    "member": "Node Member",
+    "memberIntro": "Node Member Intro"
+  },
+  "finance": {
+    "styTreasure": "STY Finance Treasure",
+    "styIntro": "Finance Treasure Intro",
+    "dynamic": "Dynamic Finance",
+    "static": "Static Finance",
+    "currentRate": "Current Yield",
+    "detail": "View Details »",
+    "buy": "Buy STY",
+    "sell": "Sell STY",
+    "buyRecord": "Buy STY Records",
+    "sellRecord": "Sell STY Records",
+    "period1": "3 Days",
+    "period2": "10 Days",
+    "period3": "22 Days",
+    "period4": "33 Days",
+    "period5": "60 Days"
   }
-  
+
+}

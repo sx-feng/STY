@@ -1,52 +1,61 @@
-<template>
-    <el-config-provider :locale="epLocale">
-      <div class="main">
-      <TopBar/>
-      
-        <!-- 矿机按钮 -->
-        <div class="button-container">
-          <button class="tab-button" :class="{ active: currentTab === 'mine' }" @click="currentTab = 'mine'">
-            <span class="icon">🏷</span>
-            我的矿机
-          </button>
-          <button class="tab-button" :class="{ active: currentTab === 'team' }" @click="currentTab = 'team'">
-            <span class="icon">🏷</span>
-            团队详情
-          </button>
-        </div>
-        <!-- 内容部分 -->
-        <div class="card-container">
-          <div class="card">
-            <div class="card-header">
-              <div class="header-item">
-                <span class="we">昨日矿机产出:</span>
+<template>        
+  <el-config-provider :locale="epLocale">
+    <div class="main">
+      <TopBar />
+
+      <!-- 矿机按钮 -->
+      <div class="button-container">
+        <button
+          class="tab-button"
+          :class="{ active: currentTab === 'mine' }"
+          @click="currentTab = 'mine'"
+        >
+          <span class="icon">🏷</span>
+          {{ $t('tab.mine') }}
+        </button>
+        <button
+          class="tab-button"
+          :class="{ active: currentTab === 'team' }"
+          @click="currentTab = 'team'"
+        >
+          <span class="icon">🏷</span>
+          {{ $t('tab.team') }}
+        </button>
+      </div>
+
+      <!-- 内容部分 -->
+      <div class="card-container">
+        <div class="card">
+          <div class="card-header">
+            <div class="header-item">
+              <span class="we">{{ $t('card.yesterdayOutput') }}:</span>
+              <span class="ma">10</span>
+            </div>
+            <div class="header-item">
+              <span class="we">{{ $t('card.yesterdayReward') }}:</span>
                 <span class="ma">10</span>
               </div>
               <div class="header-item">
-                <span class="we">昨日奖励：</span>
+                <span class="we">{{ $t('card.teamReward') }}:</span>
                 <span class="ma">10</span>
               </div>
               <div class="header-item">
-                <span class="we">团队奖励总额：</span>
-                <span class="ma">10</span>
-              </div>
-              <div class="header-item">
-                <span class="we">累计收益：</span>
+                <span class="we">{{ $t('card.totalIncome') }}:</span>
                 <span class="ma">10</span>
               </div>
             </div>
             <div class="card-body">
               <div class="exchange">
                 <div class="exchange-header">
-                  闪兑：
-                  <div class="balance">账户余额：10000</div>
+                  {{ $t('exchange.flash') }}：
+                  <div class="balance">{{ $t('exchange.balance') }}：10000</div>
                 </div>
                 <div class="exchange-box">
                   <div class="input-row">
-                    <input type="text" placeholder="请输入内容" class="input-text" />
-                    <button class="btn-all">全部</button>
+                    <input type="text"   :placeholder="$t('exchange.inputPlaceholder')" class="input-text" />
+                    <button class="btn-all">{{ $t('exchange.all') }}</button>
                   </div>
-                  <button class="btn-confirm">确定闪兑</button>
+                  <button class="btn-confirm">{{ $t('exchange.confirm') }}</button>
                 </div>
               </div>
             </div>
@@ -55,13 +64,13 @@
       </div>
         <div class="footer">
               <div class="mon">
-                <span>收益明细：</span>
-                <span>收益明细>></span>
+                <span>{{ $t('footer.profitDetail') }}：</span>
+                <span>{{ $t('footer.profitDetailMore') }}>></span>
               </div>
               <div class="thead">
-          <span>时间</span>
-          <span>矿机机型</span>
-          <span>矿机产出</span>
+                <span>{{ $t('footer.time') }}</span>
+          <span>{{ $t('footer.model') }}</span>
+          <span>{{ $t('footer.output') }}</span>
         </div>
   
             </div>

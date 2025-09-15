@@ -5,15 +5,15 @@
       <div class="menu-grid">
         <div class="menu-item" v-for="(item, index) in menuList" :key="index">
           <span class="icon">{{ item.icon }}</span>
-          <span class="text">{{ item.label }}</span>
+          <span class="text">{{ $t(item.label) }}</span>
         </div>
       </div>
   
       <!-- 白色卡片区 -->
       <div class="info-card">
-        <p>矿机玩法说明： <span>{{ playDesc }}</span></p>
-        <p>收益详情说明： <span>{{ incomeDesc }}</span></p>
-      </div>
+      <p>{{ $t('info.playRule') }}： <span>{{ playDesc }}</span></p>
+      <p>{{ $t('info.incomeRule') }}： <span>{{ incomeDesc }}</span></p>
+    </div>
     </div>
   </template>
   
@@ -21,14 +21,14 @@
   import { ref } from "vue"
 import TopBar from "./TopBar.vue"
   
-  const menuList = ref([
-    { icon: "🏠", label: "公司简介" },
-    { icon: "📘", label: "STY介绍" },
-    { icon: "🌐", label: "未来生态" },
-    { icon: "💰", label: "币种共识" },
-    { icon: "💳", label: "STY转账" },
-    { icon: "🔄", label: "会员交易" },
-  ])
+const menuList = ref([
+  { icon: "🏠", label: "info.company" },
+  { icon: "📘", label: "info.styIntro" },
+  { icon: "🌐", label: "info.ecosystem" },
+  { icon: "💰", label: "info.consensus" },
+  { icon: "💳", label: "info.transfer" },
+  { icon: "🔄", label: "info.trade" }
+])
   
   // 后端传过来的说明内容
   const playDesc = ref("请输入...")

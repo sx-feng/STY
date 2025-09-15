@@ -6,10 +6,10 @@
     <!-- 按钮行容器 -->
     <div class="btn-row">
       <div class="top-btn">
-        <span class="icon">📦 </span> 节点会员
+        <span class="icon">📦 </span> {{ $t('light.member') }}
       </div>
       <div class="top-btn">
-        <span class="icon"></span> 节点会员介绍
+        <span class="icon"></span> {{ $t('light.memberIntro') }}
       </div>
     </div>
     <div class="sign">
@@ -60,6 +60,7 @@ import TopBar from './TopBar.vue'
   background: #fff;
   border-radius: 30px;
   font-weight: 600;
+  overflow: hidden; 
   display: flex;
   justify-content: center;        
   align-items: center;
@@ -85,7 +86,9 @@ import TopBar from './TopBar.vue'
   );
   transform: translate(-50%, -50%) rotate(45deg);
   filter: blur(60px);
+  z-index: 0;
 }
+
 .sign {
   border: 1px solid #fff;   
   border-radius: 8px;       
@@ -94,7 +97,8 @@ import TopBar from './TopBar.vue'
   width: 80%;               
   margin-right: 10%;
   height: 60%;
-  color: #fff;              
+  color: #fff;         
+  z-index: 22;     
 }
 
 </style>

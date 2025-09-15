@@ -8,23 +8,23 @@
           class="pill"
           :class="{ active: mode==='deposit' }"
           @click="mode='deposit'"
-        >📦 入金</button>
+        >📦 {{ $t('funds.deposit') }}</button>
         <button
           class="pill"
           :class="{ active: mode==='withdraw' }"
           @click="mode='withdraw'"
-        >📒 出金</button>
+        >📒 {{ $t('funds.withdraw') }}</button>
       </div>
 
       <input
         class="amount-input"
         type="number"
         inputmode="decimal"
-        :placeholder="mode==='deposit' ? '请输入充值量' : '请输入提现量'"
+          :placeholder="mode==='deposit' ? $t('funds.depositPlaceholder') : $t('funds.withdrawPlaceholder')"
         v-model.trim="amount"
       />
   
-      <button class="confirm-btn" @click="onConfirm">确认</button>
+      <button class="confirm-btn" @click="onConfirm">  {{ $t('funds.confirm') }}</button>
     </div>
       <div class="list-card">
         <div class="gold-spotlight"><i class="gold-core"></i></div>
@@ -34,17 +34,18 @@
             class="tab"
             :class="{ on: listType==='recharge' }"
             @click="listType='recharge'"
-          >📦 充值列表</button>
+          >📦 {{ $t('funds.rechargeList') }}</button>
           <button
             class="tab"
             :class="{ on: listType==='withdraw' }"
             @click="listType='withdraw'"
-          >📒 提现列表</button>
+          >📒 {{ $t('funds.withdrawList') }}</button>
         </div>
   
         <div class="thead">
-          <span>{{ listType==='recharge' ? '充值数量' : '提现数量' }}</span>
-          <span>{{ listType==='recharge' ? '充值日期' : '提现日期' }}</span>
+          <span>{{ listType==='recharge' ? $t('funds.rechargeAmount') : $t('funds.withdrawAmount') }}</span>
+        <span>{{ listType==='recharge' ? $t('funds.rechargeDate') : $t('funds.withdrawDate') }}</span>
+      
         </div>
   
         <div class="rows">
@@ -52,7 +53,7 @@
             <span>{{ item.amount }}</span>
             <span>{{ item.date }}</span>
           </div>
-          <div v-if="rows.length===0" class="empty">暂无记录</div>
+          <div v-if="rows.length===0" class="empty">{{ $t('funds.noRecord') }}</div>
         </div>
       </div>
     </div>

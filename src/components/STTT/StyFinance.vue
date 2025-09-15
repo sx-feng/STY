@@ -1,46 +1,48 @@
 <template>
-    <div class="finance-page">
-      <!-- 顶部按钮 -->
-       <TopBar/>
-      <div class="top-actions">
-        <button class="tab-btn active">📦 STY理财宝</button>
-        <button class="tab-btn">📒 理财宝说明</button>
-      </div>
-  
-      <!-- 卡片1：动态理财 + 静态理财 -->
-      <div class="card">
-        <div class="dynamic">
-  <div class="dynamic-title">动态理财</div>
-  <div class="dynamic-row">
-    <span class="rate">当前收益率</span>
+  <div class="finance-page">
+    <!-- 顶部按钮 -->
+    <TopBar />
 
-    <a class="detail" href="javascript:void(0)">查看详情》</a>
-  </div>
-</div>
-  <!-- 金色分割线 -->
-  <div class="gold-divider"></div>
-        <div class="static">
-    <div class="static-title">静态理财</div>
-    <div class="static-row" v-for="(item, index) in staticList" :key="index">
-      <span>{{ item.period }}</span>
-      <span>{{ item.value }}</span>
+    <div class="top-actions">
+      <button class="tab-btn active">📦 {{ $t('finance.styTreasure') }}</button>
+      <button class="tab-btn">📒 {{ $t('finance.styIntro') }}</button>
     </div>
-  </div>
-      </div>
-  
-      <!-- 卡片2：买卖 STY -->
-      <div class="card card-actions">
-        <div class="buy-sell">
-          <button class="btn buy">购买STY</button>
-          <button class="btn sell">出售STY</button>
-        </div>
-        <div class="record">
-          <div class="record-box">求购STY记录</div>
-          <div class="record-box">出售STY记录</div>
+
+    <!-- 卡片1：动态理财 + 静态理财 -->
+    <div class="card">
+      <div class="dynamic">
+        <div class="dynamic-title">{{ $t('finance.dynamic') }}</div>
+        <div class="dynamic-row">
+          <span class="rate">{{ $t('finance.currentRate') }}</span>
+          <a class="detail" href="javascript:void(0)">{{ $t('finance.detail') }}</a>
         </div>
       </div>
+
+      <!-- 金色分割线 -->
+      <div class="gold-divider"></div>
+
+      <div class="static">
+        <div class="static-title">{{ $t('finance.static') }}</div>
+        <div class="static-row" v-for="(item, index) in staticList" :key="index">
+          <span>{{ $t(`finance.period${index+1}`) }}</span>
+          <span>{{ item.value }}</span>
+        </div>
+      </div>
     </div>
-  </template>
+
+    <!-- 卡片2：买卖 STY -->
+    <div class="card card-actions">
+      <div class="buy-sell">
+        <button class="btn buy">{{ $t('finance.buy') }}</button>
+        <button class="btn sell">{{ $t('finance.sell') }}</button>
+      </div>
+      <div class="record">
+        <div class="record-box">{{ $t('finance.buyRecord') }}</div>
+        <div class="record-box">{{ $t('finance.sellRecord') }}</div>
+      </div>
+    </div>
+  </div>
+</template>
   
   <script setup>
 import TopBar from './TopBar.vue';

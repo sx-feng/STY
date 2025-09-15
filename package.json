@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "vite",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -22,7 +23,8 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.7.1"
+    "eslint-plugin-vue": "^8.7.1",
+    "vite": "^7.1.5"
   },
   "eslintConfig": {
     "root": true,
@@ -39,7 +41,7 @@
     "rules": {
       "vue/no-mutating-props": "off",
       "vue/multi-word-component-names": "off",
-       "no-unused-vars": "off"
+      "no-unused-vars": "off"
     },
     "globals": {
       "defineProps": "readonly",

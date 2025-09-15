@@ -1,7 +1,90 @@
 {
-    "btn": {
-      "lang": "语言切换",
-      "connect": "连接钱包"
-    },
-    "welcome": "欢迎来到黑金风格页面"
+  "btn": {
+    "lang": "语言切换",
+    "connect": "连接钱包"
+  },
+  "tab": {
+    "mine": "我的矿机",
+    "team": "团队详情"
+  },
+  "card": {
+    "yesterdayOutput": "昨日矿机产出",
+    "yesterdayReward": "昨日奖励",
+    "teamReward": "团队奖励总额",
+    "totalIncome": "累计收益"
+  },
+  "exchange": {
+    "flash": "闪兑",
+    "balance": "账户余额",
+    "all": "全部",
+    "confirm": "确定闪兑",
+    "inputPlaceholder": "请输入内容"
+  },
+  "footer": {
+    "profitDetail": "收益明细",
+    "profitDetailMore": "收益明细 >>",
+    "time": "时间",
+    "model": "矿机机型",
+    "output": "矿机产出"
+  },
+  "funds": {
+    "deposit": "入金",
+    "withdraw": "出金",
+    "depositPlaceholder": "请输入充值量",
+    "withdrawPlaceholder": "请输入提现量",
+    "confirm": "确认",
+    "rechargeList": "充值列表",
+    "withdrawList": "提现列表",
+    "rechargeAmount": "充值数量",
+    "withdrawAmount": "提现数量",
+    "rechargeDate": "充值日期",
+    "withdrawDate": "提现日期",
+    "noRecord": "暂无记录",
+    "enterAmount": "请输入金额",
+"success": "成功"
+  },
+  "info": {
+    "company": "公司简介",
+    "styIntro": "STY介绍",
+    "ecosystem": "未来生态",
+    "consensus": "币种共识",
+    "transfer": "STY转账",
+    "trade": "会员交易",
+    "playRule": "矿机玩法说明",
+    "incomeRule": "收益详情说明"
+  },
+  "sign": {
+    "year": "年",
+    "month": "月",
+    "streak": "连续天数",
+    "streakDays": "连续天数",         
+    "missedDays": "本月断签",  
+    "missed": "本月断签",
+    "signNow": "立即签到",
+    "signedToday": "今天已签到",
+    "locked": "已超过 {max} 次断签，本月签到已断档",
+    "success": "签到成功！",
+    "weekdays": ["一", "二", "三", "四", "五", "六", "日"]
+  },
+  "light": {
+    "member": "节点会员",
+    "memberIntro": "节点会员介绍"
+  },
+  "finance": {
+    "styTreasure": "STY理财宝",
+    "styIntro": "理财宝说明",
+    "dynamic": "动态理财",
+    "static": "静态理财",
+    "currentRate": "当前收益率",
+    "detail": "查看详情》",
+    "buy": "购买STY",
+    "sell": "出售STY",
+    "buyRecord": "求购STY记录",
+    "sellRecord": "出售STY记录",
+    "period1": "3天周期",
+    "period2": "10天周期",
+    "period3": "22天周期",
+    "period4": "33天周期",
+    "period5": "60天周期"
   }
+}
