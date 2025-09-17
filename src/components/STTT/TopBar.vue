@@ -124,7 +124,7 @@ const activeIndex = computed(() => {
   font-size: 20px;
   color: gold;
   cursor: pointer;
-  margin-right: 40px;
+  margin-right: 20px;
 }
 
 .action-btn {

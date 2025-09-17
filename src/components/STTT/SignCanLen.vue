@@ -185,7 +185,10 @@ function triggerAnim() {
 
 <style scoped>
 .sign-card {
-    width: 90%;
+    width: 94%;
+
+
+    
     background: #0f0f0f;
     color: #eee;
     border: 1px solid rgba(255, 255, 255, .1);
@@ -199,6 +202,7 @@ function triggerAnim() {
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 12px;
+
 }
 
 .title {
@@ -220,7 +224,7 @@ function triggerAnim() {
 .calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
+    gap: 5px;
     background: rgba(255, 255, 255, .03);
     border: 1px solid rgba(255, 255, 255, .08);
     border-radius: 10px;
@@ -235,7 +239,7 @@ function triggerAnim() {
 }
 
 .cell {
-    height: 58px;
+    height: 40px;
     border-radius: 10px;
     background: rgba(255, 255, 255, .02);
     border: 1px dashed rgba(255, 255, 255, .06);
@@ -253,7 +257,7 @@ function triggerAnim() {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
 }
 
 .num {

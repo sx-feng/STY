@@ -64,7 +64,7 @@ import TopBar from './TopBar.vue'
   display: flex;
   justify-content: center;        
   align-items: center;
-  font-size: 16px; 
+  font-size: 14px; 
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   gap: 6px;
   box-shadow: 0 0 12px rgba(255, 210, 77, 0.45);
@@ -93,10 +93,11 @@ import TopBar from './TopBar.vue'
   border: 1px solid #fff;   
   border-radius: 8px;       
   padding: 20px;            
-  margin-top: 20px;        
-  width: 80%;               
+  margin-top: 20px;      
+    padding-bottom: 20px;  
+  width: 86%;               
   margin-right: 10%;
-  height: 60%;
+  height: 55%;
   color: #fff;         
   z-index: 22;     
 }

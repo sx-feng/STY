@@ -91,7 +91,7 @@ import TopBar from './TopBar.vue'
   .funds-page{
     min-height: 100vh;
     background: #000;
-    padding: 18px 30px 28px;
+    padding: 18px 30px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -105,7 +105,7 @@ import TopBar from './TopBar.vue'
     max-width: 430px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+      gap: 8px;
     margin: 6px 0 18px;
     margin-top: 40px;
 
@@ -114,11 +114,11 @@ import TopBar from './TopBar.vue'
     background: #fff;
     border: 1px solid #d8d8d8;
     border-radius: 999px;
-    padding: 16px 14px;
+    padding: 12px 14px;
     font-weight: 600;
-    font-size: medium;
+    font-size: 16px;
     cursor: pointer;
-    width: 90%;
+    width: 100%;
   }
   .pill.active{
   background: linear-gradient(135deg, #ecd693, #f1d789, #f5e5a4);
@@ -131,8 +131,10 @@ import TopBar from './TopBar.vue'
   
   /* 输入 & 确认 */
   .amount-input{
+   
     margin-top: 20px;
-    width: 100%;
+    width: calc(100% - 20px); /* 比容器窄一点 */
+  margin-right: 30px; 
     max-width: 430px;
     background: #fff;
     border: none;
@@ -142,6 +144,7 @@ import TopBar from './TopBar.vue'
     outline: none;
     margin-bottom: 14px;
   }
+ 
   .confirm-btn{
     width: 100%;
     background: #e49f00;
