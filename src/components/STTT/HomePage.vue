@@ -1,7 +1,7 @@
 <template>        
   <el-config-provider :locale="epLocale">
     <div class="main">
-      <TopBar />
+
 
       <!-- 矿机按钮 -->
       <div class="button-container">

@@ -1,161 +1,283 @@
-// eslint-disable-next-line no-unused-vars
-const CONTRACTS = 
-{USDT: {
-        address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',decimals: 6, },
-STYAI: {
-        address: 'THqXUyubNgKfNnA1ahvMo62XHeBPLJCU5H',decimals: 18,},};
-
-        
-
-
-// eslint-disable-next-line no-unused-vars
-const WalletTP = {
-    tronWeb: null,   // TokenPocket 注入的 tronWeb 实例
-    account: null,   // 当前钱包地址（Base58）
-
-    /**
-     * 连接 TokenPocket 钱包
-     * - 会调用 TP 注入的 window.tokenpocket.tron.request 方法
-     * - 授权成功后保存 tronWeb 实例和默认地址
-     * @returns {Promise<string>} 返回当前地址（Base58 格式）
-     */
-    async connect() {
-        if (!global?.tokenpocket?.tronWeb) {
-            throw new Error('TokenPocket tronWeb 未注入，请在 TP DApp 浏览器中打开本页');
-        }
-        this.tronWeb = global.tokenpocket.tronWeb;
-
-        // 请求授权（TIP 风格）
-        try {
-            await global.tokenpocket.tron.request({ method: 'eth_requestAccounts' });
-        } catch (e) {
-            throw new Error('连接钱包失败：' + (e?.message || e));
-        }
-
-        // 保存当前地址
-        this.account =
-            this.tronWeb.defaultAddress?.base58 ||
-            this.tronWeb.defaultAddress?.hex ||
-            null;
-
-        if (!this.account) {
-            throw new Error('未能获取默认地址');
-        }
-        return this.account;
-    },
-
-    /**
-     * 获取当前连接的钱包地址
-     * @returns {string|null} Base58 地址（T 开头），未连接则返回 null
-     */
-    getAddress() {
-        if (!this.tronWeb) throw new Error('尚未连接钱包');
-        return (
-            this.tronWeb.defaultAddress?.base58 ||
-            this.tronWeb.defaultAddress?.hex ||
-            null
-        );
-    },
-
-    /**
-     * 校验地址是否合法
-     * @param {string} base58 Tron 地址（Base58 格式，T 开头）
-     * @returns {boolean}
-     */
-    _isValidAddress(base58) {
-        try {
-            return this.tronWeb.isAddress(base58);
-        } catch {
-            return false;
-        }
-    },
-
-    /**
-     * 将人类可读金额转换为最小单位（BigInt）
-     * 例如：
-     * - decimals = 6:  "1" → 1000000
-     * - decimals = 18: "1" → 1000000000000000000
-     * @param {string} amountStr 金额（字符串）
-     * @param {number} decimals  代币精度
-     * @returns {BigInt}
-     */
-    _toUnitsBigInt(amountStr, decimals) {
-        const [intPart, fracRaw = ''] = String(amountStr).trim().split('.');
-        const frac = fracRaw.padEnd(decimals, '0').slice(0, decimals);
-        const numStr = (intPart || '0') + (decimals > 0 ? frac : '');
-        if (!/^\d+$/.test(numStr)) {
-            throw new Error('金额格式不正确');
-        }
-        // eslint-disable-next-line no-undef
-        return BigInt(numStr || '0');
-    },
-
-    /**
-     * 执行 TRC-20 代币转账
-     * @param {{
-     *   to: string,                 // 接收方地址（T 开头）
-     *   tokenType: 'USDT' | 'STYAI',// 代币类型
-     *   amount: string | number,    // 转账金额（人类可读格式）
-     *   feeLimit?: number           // 手续费上限（sun），默认 100_000_000 (100 TRX)
-     * }} opts
-     * @returns {Promise<{tx:any, signed:any, res:any}>}
-     * - tx:     构建的原始交易对象
-     * - signed: 签名后的交易对象
-     * - res:    广播结果（包含 result, txid 等）
-     */
-    async transfer(opts) {
-        // 1. 校验环境
-        if (!this.tronWeb) throw new Error('尚未连接钱包');
-        const { to, tokenType, amount, feeLimit = 100_000_000 } = opts || {};
-
-        // 2. 根据代币类型选择合约与精度
-        const token = CONTRACTS[tokenType];
-        if (!token) {
-            throw new Error('不支持的合约类型：' + tokenType);
-        }
-        const contract = token.address;
-        const decimals = token.decimals;
-
-        // 3. 基本参数校验
-        if (!to || !this._isValidAddress(to)) {
-            throw new Error('接收地址非法：' + to);
-        }
-        if (!amount || Number(amount) <= 0) {
-            throw new Error('请输入正确的金额（> 0）');
-        }
-
-        // 4. 金额换算（人类可读金额 → 最小单位整数）
-        const units = this._toUnitsBigInt(String(amount), decimals);
-
-        // 5. 组装调用参数：调用 TRC20 的 transfer(address,uint256)
-        const functionSelector = 'transfer(address,uint256)';
-        const params = [
-            { type: 'address', value: to },                // 接收方地址
-            { type: 'uint256', value: units.toString() }, // 转账金额（最小单位）
-        ];
-        const options = {
-            feeLimit: Number(feeLimit) || 100_000_000, // 手续费上限
-            callValue: 0,                              // 调用合约时不转 TRX
-        };
-
-        // 6. 构建交易
-        const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
-            contract,
-            functionSelector,
-            options,
-            params
-        );
-        if (!tx?.transaction) throw new Error('构建交易失败');
-
-        // 7. 请求签名（TokenPocket 会弹窗确认）
-        const signed = await this.tronWeb.trx.sign(tx.transaction);
-        if (!signed?.signature) throw new Error('签名失败或被取消');
-
-        // 8. 广播交易到 TRON 网络
-        const res = await this.tronWeb.trx.sendRawTransaction(signed);
-
-        // 返回完整过程结果
-        return { tx, signed, res };
-    },
+// ==== 代币合约清单 ====
+const CONTRACTS = {
+  USDT:  { address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', decimals: 6 },
+  STYAI: { address: 'THqXUyubNgKfNnA1ahvMo62XHeBPLJCU5H', decimals: 18 },
 };
+
+// ==== WalletTP：TokenPocket 注入封装 + 查询/转账 ====
+const WalletTP = {
+  tronWeb: null,  // TokenPocket 注入的 tronWeb
+  account: null,  // 当前钱包地址（Base58）
+
+  // ---------- 工具 ----------
+_getWin() {
+  // 不写 globalThis，避免 eslint no-undef
+  if (typeof window !== 'undefined') return window
+  // eslint-disable-next-line no-new-func
+  try { return Function('return this')() || {}; } catch { return {}; }
+},
+  _ok(data,msg='成功'){ return { code:1, msg, data }; },
+  _err(msg){ return { code:-1, msg }; },
+
+  _ensureConnected() {
+    if (!this.tronWeb) return this._err('尚未连接钱包');
+    if (!this.tronWeb.defaultAddress?.base58) return this._err('未获得默认地址');
+    return this._ok(true);
+  },
+
+  _isValidAddress(base58) {
+    try { return this.tronWeb.isAddress(base58); } catch { return false; }
+  },
+
+  // 人类金额 -> 最小单位 BigInt
+  _toUnitsBigInt(amountStr, decimals) {
+    const s = String(amountStr).trim();
+    if (!/^\d+(\.\d+)?$/.test(s)) return this._err('金额格式不正确');
+    const [intPart, fracRaw=''] = s.split('.');
+    const frac = fracRaw.padEnd(decimals, '0').slice(0, decimals);
+    const numStr = (intPart || '0') + (decimals>0 ? frac : '');
+    // eslint-disable-next-line no-undef
+    return this._ok(BigInt(numStr || '0'));
+  },
+
+  // 最小单位字符串 -> 人类可读（不丢精度）
+  _formatUnitsString(rawStr, decimals) {
+    const d = Number(decimals)||0;
+    const s = String(rawStr||'0').replace(/^0+/, '') || '0';
+    if (d===0) return s;
+    const pad = s.padStart(d+1, '0');
+    const int = pad.slice(0, -d);
+    const frac = pad.slice(-d).replace(/0+$/, '');
+    return frac ? `${int}.${frac}` : int;
+  },
+
+  // ---------- 连接 ----------
+  async connect() {
+    const w = this._getWin();
+    const tp = w?.tokenpocket;
+    if (!tp?.tronWeb) return this._err('请在 TokenPocket 内打开页面');
+
+    this.tronWeb = tp.tronWeb;
+
+    // 兼容请求账户授权：优先 tron_requestAccounts，退回 eth_requestAccounts
+    try {
+      if (tp?.tron?.request) {
+        try {
+          await tp.tron.request({ method: 'tron_requestAccounts' });
+        } catch {
+          await tp.tron.request({ method: 'eth_requestAccounts' });
+        }
+      }
+    } catch (e) {
+      return this._err('连接钱包失败：' + (e?.message || e));
+    }
+
+    // 保存当前地址（转为 base58）
+    const addrB58 =
+      this.tronWeb.defaultAddress?.base58
+      || (this.tronWeb.defaultAddress?.hex
+          ? this.tronWeb.address.fromHex(this.tronWeb.defaultAddress.hex)
+          : null);
+
+    if (!addrB58) return this._err('未能获取默认地址');
+
+    this.account = addrB58;
+    return this._ok(addrB58);
+  },
+
+  getAddress() {
+    if (!this.tronWeb) return this._err('尚未连接钱包');
+    const hex = this.tronWeb.defaultAddress?.hex;
+    const b58 = this.tronWeb.defaultAddress?.base58 || (hex ? this.tronWeb.address.fromHex(hex) : null);
+    if (!b58) return this._err('未能获取默认地址');
+    return this._ok(b58);
+  },
+
+  // ---------- 基础查询 ----------
+  /** 获取 TRX 余额（sun & TRX） */
+  async getTrxBalance(addrBase58) {
+    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+    const address = addrBase58 || this.tronWeb.defaultAddress.base58;
+    try {
+      const sun = await this.tronWeb.trx.getBalance(address);
+      return this._ok({ sun, trx: this.tronWeb.fromSun(sun) });
+    } catch (e) {
+      return this._err('获取 TRX 余额失败：' + (e?.message || e));
+    }
+  },
+
+  /** 获取账户对象（含权限/冻结/TRC10 等） */
+  async getAccount(addrBase58) {
+    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+    const address = addrBase58 || this.tronWeb.defaultAddress.base58;
+    try {
+      const account = await this.tronWeb.trx.getAccount(address);
+      return this._ok(account);
+    } catch (e) {
+      return this._err('获取账户信息失败：' + (e?.message || e));
+    }
+  },
+
+  /** 获取资源（带宽/能量） */
+  async getResources(addrBase58) {
+    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+    const address = addrBase58 || this.tronWeb.defaultAddress.base58;
+    try {
+      const resources = await this.tronWeb.trx.getAccountResources(address);
+      return this._ok(resources);
+    } catch (e) {
+      return this._err('获取资源失败：' + (e?.message || e));
+    }
+  },
+
+  /** 解析 TRC10 资产列表 */
+  parseTrc10FromAccount(account) {
+    const list = (account?.assetV2 || []).map(a => ({ id: a.key, amount: a.value }));
+    return this._ok(list);
+  },
+
+  // ---------- TRC20 余额 ----------
+  /**
+   * 获取 TRC20 余额
+   * @param {string} token  代币键（如 'USDT'）或合约地址（T 开头）
+   * @param {string=} addrBase58 指定地址（默认当前地址）
+   */
+  async getTrc20Balance(token, addrBase58) {
+    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+    const address = addrBase58 || this.tronWeb.defaultAddress.base58;
+
+    let contractAddr = token;
+    let knownDecimals = undefined;
+    if (CONTRACTS[token]) {
+      contractAddr = CONTRACTS[token].address;
+      knownDecimals = CONTRACTS[token].decimals;
+    }
+
+    try {
+      const c = await this.tronWeb.contract().at(contractAddr);
+      const [raw, decimalsResp, symbolResp, nameResp] = await Promise.all([
+        c.balanceOf(address).call(),
+        knownDecimals!=null ? Promise.resolve(knownDecimals) : c.decimals().call(),
+        c.symbol().call().catch(()=>''),
+        c.name().call().catch(()=>''),
+      ]);
+
+      const rawStr = raw?.toString?.() ?? String(raw);
+      const decimals = Number(decimalsResp?.toString?.() ?? decimalsResp ?? 0);
+      const balance = this._formatUnitsString(rawStr, decimals);
+
+      return this._ok({
+        token: contractAddr,
+        symbol: String(symbolResp || ''),
+        name:   String(nameResp || ''),
+        decimals,
+        raw: rawStr,       // 最小单位整数（字符串）
+        balance,           // 人类可读字符串
+      });
+    } catch (e) {
+      return this._err('获取 TRC20 余额失败：' + (e?.message || e));
+    }
+  },
+
+  // ---------- 钱包详情聚合 ----------
+  /**
+   * 获取钱包详情
+   * @param {{address?:string, trc20?: string[]}} opts
+   *  - trc20: 需要查询的 TRC20 代币键或合约地址数组，默认 ['USDT','STYAI']
+   */
+  async getWalletDetails(opts={}) {
+    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+    const address = opts.address || this.tronWeb.defaultAddress.base58;
+    const trc20List = Array.isArray(opts.trc20) && opts.trc20.length ? opts.trc20 : ['USDT','STYAI'];
+
+    try {
+      const [bal, acc, res] = await Promise.all([
+        this.getTrxBalance(address),
+        this.getAccount(address),
+        this.getResources(address),
+      ]);
+      if (bal.code!==1) return bal;
+      if (acc.code!==1) return acc;
+      if (res.code!==1) return res;
+
+      const trc10 = this.parseTrc10FromAccount(acc.data).data;
+
+      const trc20 = [];
+      for (const t of trc20List) {
+        const r = await this.getTrc20Balance(t, address);
+        trc20.push(r.code===1 ? r.data : { token:t, error:r.msg });
+      }
+
+      return this._ok({
+        address: { base58: address, hex: this.tronWeb.address.toHex(address) },
+        trx: bal.data,          // { sun, trx }
+        account: acc.data,      // 原始账户对象
+        resources: res.data,    // 带宽/能量
+        trc10,                  // [{id, amount}]
+        trc20,                  // 每个代币的余额对象
+      });
+    } catch (e) {
+      return this._err('获取钱包详情失败：' + (e?.message || e));
+    }
+  },
+
+  // ---------- TRC20 转账 ----------
+  /**
+   * @param {{to:string, tokenType:'USDT'|'STYAI'|string, amount:string|number, feeLimit?:number}} opts
+   */
+  async transfer(opts) {
+    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+    const { to, tokenType, amount, feeLimit = 100_000_000 } = opts || {};
+
+    const token = CONTRACTS[tokenType] || (this._isValidAddress(tokenType) ? { address: tokenType, decimals: undefined } : null);
+    if (!token) return this._err('不支持的合约类型或地址：' + tokenType);
+
+    const contract = token.address;
+    let decimals = token.decimals;
+
+    if (!to || !this._isValidAddress(to)) return this._err('接收地址非法：' + to);
+    if (!amount || Number(amount) <= 0)   return this._err('请输入正确的金额（> 0）');
+
+    // 若未预置精度，则从合约读
+    if (decimals == null) {
+      try {
+        const c = await this.tronWeb.contract().at(contract);
+        const d = await c.decimals().call();
+        decimals = Number(d?.toString?.() ?? d ?? 0);
+      } catch { decimals = 0; }
+    }
+
+    // 金额换算
+    const unitsRes = this._toUnitsBigInt(String(amount), decimals);
+    if (unitsRes.code !== 1) return unitsRes;
+    const unitsStr = unitsRes.data.toString();
+
+    // 构建参数
+    const functionSelector = 'transfer(address,uint256)';
+    const params = [
+      { type: 'address',  value: to },
+      { type: 'uint256',  value: unitsStr },
+    ];
+    const options = {
+      feeLimit: Number(feeLimit) || 100_000_000,
+      callValue: 0,
+    };
+
+    try {
+      const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
+        contract, functionSelector, options, params
+      );
+      if (!tx?.transaction) return this._err('构建交易失败');
+
+      const signed = await this.tronWeb.trx.sign(tx.transaction);
+      if (!signed?.signature) return this._err('签名失败或被取消');
+
+      const res = await this.tronWeb.trx.sendRawTransaction(signed);
+      return this._ok({ tx, signed, res });
+    } catch (e) {
+      return this._err('广播失败：' + (e?.message || e));
+    }
+  },
+};
+
 export default WalletTP;

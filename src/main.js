@@ -7,6 +7,7 @@ import { createI18n } from "vue-i18n";
 import zh from "./locales/zh.json";
 import en from "./locales/en.json";
 import router from './router'
+import 'element-plus/dist/index.css'
 const saved =
   localStorage.getItem("lang") ||
   (navigator.language.startsWith("zh") ? "zh" : "en");

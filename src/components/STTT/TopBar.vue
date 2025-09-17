@@ -12,9 +12,10 @@
       </button>
 
       <!-- 连接按钮 -->
-      <button class="action-btn">
-        <span class="icon">🔗</span>
-        <span>{{ t('btn.connect') }}</span>
+      <button class="action-btn" @click="connectTP" :disabled="isConnected || connecting"
+        :aria-busy="connecting ? 'true' : 'false'">
+        <span class="icon">{{ isConnected ? '✅' : '🔗' }}</span>
+        <span>{{ btnText }}</span>
       </button>
     </div>
 
@@ -40,7 +41,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
-
+import WalletTP from '@/utils/walletTP.js'
+import Notify from '@/utils/notifyInApp'
 const drawerOpen = ref(false)
 const router = useRouter()
 const route = useRoute()
@@ -50,6 +52,40 @@ const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
 function toggleLang() {
   locale.value = locale.value === 'zh' ? 'en' : 'zh'
   localStorage.setItem('lang', locale.value)
+}
+const isConnected = ref(false)
+const connecting = ref(false)
+
+const btnText = computed(() => {
+  if (isConnected.value) return t('btn.connected', '已连接')
+  if (connecting.value) return t('btn.connecting', '连接中…')
+  return t('btn.connect', '连接')
+})
+async function connectTP() {
+  if (connecting.value || isConnected.value) return
+  connecting.value = true
+  try {
+    const re = await WalletTP.connect()
+    if (re?.code !== 1) {
+      Notify.inApp({ title: t('tips.error', '错误'), message: re?.msg || t('tips.connectFail', '连接失败'), type: 'error' })
+    } else {
+      isConnected.value = true
+      Notify.inApp({ title: t('tips.success', '成功'), message: re?.data || t('tips.connectOk', '连接成功'), type: 'success' })
+      getBalance();
+    }
+  } catch (e) {
+    Notify.inApp({ title: t('tips.error', '错误'), message: String(e), type: 'error' })
+  } finally {
+    connecting.value = false
+  }
+}
+
+//更新usdt 和styai 余额
+async function getBalance() {
+  const raw_STYAI = await WalletTP.getTrc20Balance("STYAI")
+  const raw_USDT = await WalletTP.getTrc20Balance("USDT")
+  console.log(raw_STYAI);
+  console.log(raw_USDT);
 }
 
 function handleSelect(key) {
@@ -89,6 +125,7 @@ const activeIndex = computed(() => {
   if (route.path.startsWith('/top')) return 'TopBar'
   return ''
 })
+
 
 </script>
 

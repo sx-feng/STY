@@ -12,8 +12,17 @@ const router = createRouter({
     {  
       path: '/',
        name: 'home',
-        component:HomePage
+        component:HomePage,
       },
+      /**
+       * 比如这个页面不要top
+       *     {  
+      path: '/',
+       name: 'home',
+        component:HomePage,
+        meta: { hideTopBar: true }
+      },
+       */
      { path: '/finance',
       name: 'StyFinance', 
        component: StyFinance
@@ -40,10 +49,6 @@ const router = createRouter({
       path:'/sign',
       name:'SignCanLen',
       component:SignCanLen
-
-
-
-
     }]
 })
 export default router

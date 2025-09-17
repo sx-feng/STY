@@ -1,7 +1,6 @@
 <template>
   <div class="finance-page">
-    <!-- 顶部按钮 -->
-    <TopBar />
+
 
     <div class="top-actions">
       <button class="tab-btn active">📦 {{ $t('finance.styTreasure') }}</button>

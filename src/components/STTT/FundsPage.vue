@@ -1,7 +1,6 @@
 
 <template>
     <div class="funds-page">
-      <TopBar/>
       <div>
       <div class="action-switch">
         <button

@@ -1,7 +1,5 @@
 <template>
   <div class="light-page">
-    <!-- 顶部按钮 -->
-    <TopBar />
 
     <!-- 按钮行容器 -->
     <div class="btn-row">

@@ -1,6 +1,5 @@
 <template>
     <div class="info-page">
-      <TopBar/>
       <!-- 功能按钮区 -->
       <div class="menu-grid">
         <div class="menu-item" v-for="(item, index) in menuList" :key="index">
