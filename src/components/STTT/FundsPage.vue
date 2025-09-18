@@ -2,6 +2,7 @@
 <template>
     <div class="funds-page">
       <div>
+      
       <div class="action-switch">
         <button
           class="pill"
@@ -14,7 +15,10 @@
           @click="mode='withdraw'"
         >📒 {{ $t('funds.withdraw') }}</button>
       </div>
-
+  <div class="platform-balance">
+        <span>{{ $t('funds.balance') }}: </span>
+        <strong>{{ balance }}</strong>
+      </div>
       <input
         class="amount-input"
         type="number"
@@ -25,6 +29,7 @@
   
       <button class="confirm-btn" @click="onConfirm">  {{ $t('funds.confirm') }}</button>
     </div>
+    
       <div class="list-card">
         <div class="gold-spotlight"><i class="gold-core"></i></div>
   
@@ -61,7 +66,8 @@
   <script setup>
   import { ref, computed } from 'vue'
 import TopBar from './TopBar.vue'
-  
+  // 添加余额变量
+const balance = ref(1000.00)
   const mode = ref('deposit')          
   const listType = ref('recharge')      
   const amount = ref('')
@@ -171,7 +177,13 @@ import TopBar from './TopBar.vue'
     margin-top: 30px;
   }
   
-
+/* 平台余额 */
+.platform-balance {
+  color: #FFD24D;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
   .gold-spotlight{
     --w: 100%;
     --h: 220%;
@@ -267,5 +279,18 @@ import TopBar from './TopBar.vue'
     padding: 14px 0;
     font-size: 13px;
   }
+  /* 充值列表 */
+.list-card{
+  position: relative;
+  width: 94%;
+  max-width: 430px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 14px 12px 16px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  overflow: hidden;
+  margin-top: 30px;
+}
   </style>
   

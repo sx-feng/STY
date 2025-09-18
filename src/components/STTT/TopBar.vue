@@ -25,8 +25,8 @@
         <el-menu-item index="HomePage">首页</el-menu-item>
         <el-menu-item index="SpotlightMember">会员与签到</el-menu-item>
         <el-menu-item index="StyFinance">理财宝</el-menu-item>
-        <el-menu-item index="funds-deposit">入金</el-menu-item>
-        <el-menu-item index="funds-withdraw">出金</el-menu-item>
+        <el-menu-item index="funds-deposit">资金管理</el-menu-item>
+       
         <el-menu-item index="introPage">详情</el-menu-item>
 
 
@@ -104,9 +104,7 @@ function handleSelect(key) {
     case 'funds-deposit':
       router.push({ path: '/funds', query: { tab: 'deposit' } })
       break
-    case 'funds-withdraw':
-      router.push({ path: '/funds', query: { tab: 'withdraw' } })
-      break
+  
     case 'SpotlightMember':
       router.push('/spot')
       break

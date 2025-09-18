@@ -41,7 +41,8 @@
     "withdrawDate": "提现日期",
     "noRecord": "暂无记录",
     "enterAmount": "请输入金额",
-"success": "成功"
+"success": "成功",
+"balance":"平台余额"
   },
   "info": {
     "company": "公司简介",

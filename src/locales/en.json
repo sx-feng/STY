@@ -42,7 +42,8 @@
     "withdrawDate": "Withdraw Date",
     "noRecord": "No records",
     "enterAmount": "Please enter an amount",
-"success": "Success"
+"success": "Success",
+"balance":"Balance"
   },
   "info": {
     "company": "Company Profile",
