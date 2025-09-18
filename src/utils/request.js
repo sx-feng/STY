@@ -80,13 +80,15 @@ async function decryptResponseText(resp, bodyText, isInit) {
       // 如果你的服务端业务响应也用 KeyMd5 解密，可在这里使用
       // 但你前面的描述是业务响应同样是莫斯密文 → 使用“存量 KeyMd5”
       // 我们统一走 decodeAll，密钥就是“业务时的 KeyMd5”，在这里临时算
-      const { loadPlainKey } = await getKeyStore();
+      const { loadPlainKey,getToken } = await getKeyStore();
       const keyPlain = loadPlainKey();
+      const token = getToken();
       if (!keyPlain) return null;
-      decKey = md5Hex(keyPlain);
+      decKey = md5Hex(keyPlain+token);
     }
 
     const plaintext = await decodeAll(bodyText, decKey);
+    
     return plaintext || null;
   } catch {
     return null;
@@ -101,6 +103,7 @@ async function decryptResponseText(resp, bodyText, isInit) {
  * @param {boolean} isquery
  */
 export async function request(methodFlag, url, jsonData = {}, isquery = false) {
+  jsonData=JSON.stringify(jsonData)
   const isGet = methodFlag === 0;
   const isInit = !isGet && /^\/?api\/user\/init$/i.test(url);
 
@@ -151,10 +154,9 @@ export async function request(methodFlag, url, jsonData = {}, isquery = false) {
       const { loadPlainKey } = await getKeyStore();
       const keyPlain = loadPlainKey();
       if (!keyPlain) return authErr();
-      const keyMd5 = md5Hex(keyPlain);
-
+      const key = keyPlain;
       const { bizEncryptAndSign } = await getEncryptFns();
-      const { payloadB64, signPayloadB64 } = await bizEncryptAndSign(jsonData || {}, keyMd5);
+      const { payloadB64, signPayloadB64 } = await bizEncryptAndSign(jsonData || {}, key);
 
       headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
       if (isquery && jsonData && Object.keys(jsonData).length > 0) {
@@ -195,7 +197,8 @@ export async function request(methodFlag, url, jsonData = {}, isquery = false) {
         try { saveEncryptedKey(String(data.Key)); } catch { return netErr(); }
       }
     }
-
+    console.log({'请求':url,'参数':jsonData,'响应':data});
+    
     return ok(data);
   } catch {
     return netErr();

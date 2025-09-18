@@ -43,7 +43,7 @@ function packEncryptedPayload({ ciphertextB64, igaisfbn }) {
 
 /* ===== 业务加密（随机 IV） ===== */
 async function encryptWithRandomIv(plaintext, keyText){
-  const keyBytes = md5Bytes(String(keyText ?? ''));
+  const keyBytes = md5Bytes(keyText);
   const ivBytes  = md5Bytes(randomSeed());
   const ptBytes  = plaintext instanceof Uint8Array ? plaintext : strToBytes(String(plaintext));
   const padded   = pkcs7Pad(ptBytes);
@@ -94,7 +94,7 @@ export async function bizEncryptAndSign(plaintext, keyText){
   const ts7 = String(Date.now()).slice(0, 6);
   const signSeed = ua + ts7;
   const signHex = computeSignHex(signSeed, ciphertextB64, igaisfbn);
-  const signPayloadB64 = await encryptSignHexAndPack(signHex, signSeed);
+  const signPayloadB64 = await encryptSignHexAndPack(signHex, keyText);
 
   return { payloadB64, signPayloadB64 };
 }

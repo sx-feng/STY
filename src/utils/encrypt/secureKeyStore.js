@@ -77,6 +77,10 @@ export function loadPlainKey() {
     return null;
   }
 }
+export function getToken() {
+     const token = getLocal(LS_KEYS.TOKEN) || '';
+  return token || null;
+}
 
 /** 清除本地保存的加密 Key */
 export function clearEncryptedKey() {

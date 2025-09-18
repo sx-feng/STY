@@ -89,7 +89,7 @@ async function connectTP() {
         Notify.inApp({ title: '错误', message: resp.message || '请求失败', type: 'error' })
         return
       }
-
+      
       if (resp.data && resp.data.token) {
         // 已注册并登录成功
         isConnected.value = true
@@ -115,7 +115,6 @@ async function getBalance() {
   const raw_USDT = await WalletTP.getTrc20Balance("USDT")
   console.log(raw_STYAI);
   console.log(raw_USDT);
-
   styaiBalance.value = raw_STYAI?.data?.balance || 0
 }
 
