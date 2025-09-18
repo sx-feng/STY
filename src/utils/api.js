@@ -1,0 +1,88 @@
+import { request } from "./request";
+
+
+// ================== 用户 ==================
+export const userInit      = (data) => request(1, '/api/user/init', data)
+export const userLogin     = (data) => request(1, '/api/user/login', data)
+export const userRegister  = (data) => request(1, '/api/user/register', data)
+export const userDelete    = (data) => request(1, '/api/user/delete', data)
+export const userUpdate    = (data) => request(1, '/api/user/update', data)
+export const userGet       = (data) => request(1, '/api/user/get', data)
+export const userList      = (data) => request(1, '/api/user/list', data)
+
+// ================== 钱包 ==================
+export const walletAdd     = (data) => request(1, '/api/wallet/add', data)
+export const walletDelete  = (data) => request(1, '/api/wallet/delete', data)
+export const walletUpdate  = (data) => request(1, '/api/wallet/update', data)
+export const walletGet     = (data) => request(1, '/api/wallet/get', data)
+export const walletList    = (data) => request(1, '/api/wallet/list', data)
+
+// ================== 团队 ==================
+export const teamAdd       = (data) => request(1, '/api/team/add', data)
+export const teamDelete    = (data) => request(1, '/api/team/delete', data)
+export const teamUpdate    = (data) => request(1, '/api/team/update', data)
+export const teamGet       = (data) => request(1, '/api/team/get', data)
+export const teamList      = (data) => request(1, '/api/team/list', data)
+
+// ================== 矿机 ==================
+export const miningAdd     = (data) => request(1, '/api/mining-machine/add', data)
+export const miningDelete  = (data) => request(1, '/api/mining-machine/delete', data)
+export const miningUpdate  = (data) => request(1, '/api/mining-machine/update', data)
+export const miningGet     = (data) => request(1, '/api/mining-machine/get', data)
+export const miningList    = (data) => request(1, '/api/mining-machine/list', data)
+
+// ================== 静态理财 ==================
+export const staticAdd     = (data) => request(1, '/api/static-product/add', data)
+export const staticDelete  = (data) => request(1, '/api/static-product/delete', data)
+export const staticUpdate  = (data) => request(1, '/api/static-product/update', data)
+export const staticGet     = (data) => request(1, '/api/static-product/get', data)
+export const staticList    = (data) => request(1, '/api/static-product/list', data)
+
+// ================== 动态理财 ==================
+export const dynamicAdd    = (data) => request(1, '/api/dynamic-product/add', data)
+export const dynamicDelete = (data) => request(1, '/api/dynamic-product/delete', data)
+export const dynamicUpdate = (data) => request(1, '/api/dynamic-product/update', data)
+export const dynamicGet    = (data) => request(1, '/api/dynamic-product/get', data)
+export const dynamicList   = (data) => request(1, '/api/dynamic-product/list', data)
+
+// ================== 用户矿机产出 ==================
+export const userMiningAdd    = (data) => request(1, '/api/user-mining-output/add', data)
+export const userMiningDelete = (data) => request(1, '/api/user-mining-output/delete', data)
+export const userMiningUpdate = (data) => request(1, '/api/user-mining-output/update', data)
+export const userMiningGet    = (data) => request(1, '/api/user-mining-output/get', data)
+export const userMiningList   = (data) => request(1, '/api/user-mining-output/list', data)
+
+// ================== 支付 ==================
+export const paymentAdd    = (data) => request(1, '/api/payment/add', data)
+export const paymentDelete = (data) => request(1, '/api/payment/delete', data)
+export const paymentUpdate = (data) => request(1, '/api/payment/update', data)
+export const paymentGet    = (data) => request(1, '/api/payment/get', data)
+export const paymentList   = (data) => request(1, '/api/payment/list', data)
+
+// ================== STY 交易池 ==================
+export const styAdd        = (data) => request(1, '/api/sty-exchange/add', data)
+export const styDelete     = (data) => request(1, '/api/sty-exchange/delete', data)
+export const styUpdate     = (data) => request(1, '/api/sty-exchange/update', data)
+export const styGet        = (data) => request(1, '/api/sty-exchange/get', data)
+export const styList       = (data) => request(1, '/api/sty-exchange/list', data)
+
+// ================== 签到 ==================
+export const signDo        = (data) => request(1, '/sign/do', data)
+export const signStatus    = (data) => request(1, '/sign/status', data)
+export const signRecord    = (data) => request(1, '/sign/record/month', data)
+
+// ================== Tron 链 ==================
+export const tronBalance   = (address) => request(0, `/api/tron/balance/${address}`)
+export const tronValidate  = (data) => request(1, '/wallet/validateaddress', data)
+export const tronResources = (data) => request(1, '/wallet/getaccountresource', data)
+export const tronAccount   = (address) => request(0, `/v1/accounts/${address}`)
+export const tronTrc20Tx   = (address) => request(0, `/v1/accounts/${address}/transactions/trc20`)
+
+// ================== 动态表 ==================
+export const tableAll      = () => request(0, '/api/dynamic-table/tables')
+export const tableFind     = (tableName) => request(0, `/api/dynamic-table/find/${tableName}`)
+export const tableGet      = (tableName, id) => request(0, `/api/dynamic-table/${tableName}/${id}`)
+export const tableInsert   = (tableName, data) => request(1, `/api/dynamic-table/${tableName}`, data)
+export const tableUpdate   = (tableName, id, data) => request(1, `/api/dynamic-table/${tableName}/${id}`, data)
+// eslint-disable-next-line no-undef
+export const tableDelete   = (tableName, id) => request(1, `/api/dynamic-table/${tableName}/${id}`, data)

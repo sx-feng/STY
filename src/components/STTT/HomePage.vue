@@ -48,7 +48,7 @@
               <div class="exchange">
                 <div class="exchange-header">
                   {{ $t('exchange.flash') }}：
-                  <div class="balance">{{ $t('exchange.balance') }}：10000</div>
+                  <div class="balance">{{ $t('exchange.balance') }}：{{ styaiBalance }}</div>
                 </div>
                 <div class="exchange-box">
                   <div class="input-row">
@@ -93,11 +93,17 @@
 import { useI18n } from 'vue-i18n'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
+import { inject } from 'vue'
+const styaiBalance = inject('styaiBalance', ref(0))
 
 const { t, locale } = useI18n()
-import TopBar from './TopBar.vue'
+
+const balance = ref(0)  // 初始余额0
   const currentTab = ref('mine')
   const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
+  function updateBalance(val) {
+  balance.value = val || 0
+}
   </script>
   
   <style>

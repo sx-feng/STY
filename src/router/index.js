@@ -6,6 +6,7 @@ import SpotlightMember from '@/components/STTT/SpotlightMember.vue'
 import TopBar from '@/components/STTT/TopBar.vue'
 import HomePage from '@/components/STTT/HomePage.vue'
 import SignCanLen from '@/components/STTT/SignCanLen.vue'
+import ChangePass from '@/components/STTT/ChangePass.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -49,6 +50,10 @@ const router = createRouter({
       path:'/sign',
       name:'SignCanLen',
       component:SignCanLen
+    },{
+      path:'/change',
+      name:'ChangePass',
+      component:ChangePass
     }]
 })
 export default router
