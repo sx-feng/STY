@@ -78,13 +78,13 @@ async function connectTP() {
       Notify.inApp({ title: '错误', message: re?.msg || '连接失败', type: 'error' })
     } else {
       const address = re.data // 钱包地址
-    const initRes = await userInit({ walletAddress: address })
+    const initRes = await userInit({ userWalletAddress: address })
     if (!initRes.ok) {
       Notify.inApp({ title: '错误', message: initRes.message || '初始化失败', type: 'error' })
       return
     }
       // 🔹 直接调用登录接口
-   const resp = await userLogin({ walletAddress: address })
+   const resp = await userLogin({ userWalletAddress: address })
       if (!resp.ok) {
         Notify.inApp({ title: '错误', message: resp.message || '请求失败', type: 'error' })
         return
