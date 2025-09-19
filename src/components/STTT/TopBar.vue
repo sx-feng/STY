@@ -30,6 +30,31 @@
     <el-menu-item index="changePass" :class="{ on: activeIndex === 'changePass' }">安全设置</el-menu-item>
   </el-menu>
 </el-drawer>
+ <!-- 注册弹窗 -->
+    <!-- 注册弹窗 -->
+<!-- 注册弹窗 -->
+<el-dialog v-model="showRegisterDialog" title="注册账户" width="400px">
+  <el-form :model="registerForm" label-width="100px">
+    <el-form-item label="钱包地址">
+      <el-input v-model="registerForm.walletAddress" disabled></el-input>
+    </el-form-item>
+    <el-form-item label="邀请码">
+      <el-input v-model="registerForm.upInvitationCode" placeholder="请输入邀请码"></el-input>
+    </el-form-item>
+    <el-form-item label="二级密码">
+      <el-input v-model="registerForm.twoPassword" type="password" placeholder="请输入二级密码"></el-input>
+    </el-form-item>
+    <el-form-item label="确认二级密码">
+      <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请再次输入二级密码"></el-input>
+    </el-form-item>
+  </el-form>
+  <template #footer>
+    <el-button @click="showRegisterDialog = false">取消</el-button>
+    <el-button type="primary" @click="doRegister">确认注册</el-button>
+  </template>
+</el-dialog>
+
+
 
   </div>
 </template>
@@ -49,17 +74,22 @@ import { userInit, userLogin, userRegister } from '@/utils/api.js'
 const drawerOpen = ref(false)
 const router = useRouter()
 const route = useRoute()
-
+const showRegisterDialog = ref(false)
 const styaiBalance = ref(0)  // 存储余额，默认0
 const { t, locale } = useI18n()
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
 function toggleLang() {
   locale.value = locale.value === 'zh' ? 'en' : 'zh'
   localStorage.setItem('lang', locale.value)
-}
+}  
 const isConnected = ref(false)
 const connecting = ref(false)
-
+const registerForm = ref({
+  walletAddress: '',
+  upInvitationCode: '',
+  twoPassword: '',
+  confirmPassword: ''
+})
 const btnText = computed(() => {
   if (isConnected.value) return t('btn.connected', '已连接')
   if (connecting.value) return t('btn.connecting', '连接中…')
@@ -78,18 +108,21 @@ async function connectTP() {
       Notify.inApp({ title: '错误', message: re?.msg || '连接失败', type: 'error' })
     } else {
       const address = re.data // 钱包地址
-    const initRes = await userInit({ userWalletAddress: address })
+      console.log("【连接成功，钱包地址】", address)
+    const initRes = await userInit({ userwalletAddress: address })
+       console.log("【初始化响应】", initRes)
     if (!initRes.ok) {
       Notify.inApp({ title: '错误', message: initRes.message || '初始化失败', type: 'error' })
       return
     }
       // 🔹 直接调用登录接口
-   const resp = await userLogin({ userWalletAddress: address })
+ const resp = await userLogin({ userWalletAddress: address })
+       console.log("【登录响应】", resp)
       if (!resp.ok) {
         Notify.inApp({ title: '错误', message: resp.message || '请求失败', type: 'error' })
         return
-      }
-      
+      }       
+       // 4. 判断是否已注册
       if (resp.data && resp.data.token) {
         // 已注册并登录成功
         isConnected.value = true
@@ -99,13 +132,57 @@ async function connectTP() {
       } else {
         // 没有 token → 说明未注册 → 跳转注册页
         Notify.inApp({ title: '提示', message: '未检测到账户，请先注册', type: 'warning' })
-        router.push({ path: '/register', query: { addr: address } })
+              registerForm.value.walletAddress = address
+              showRegisterDialog.value = true
+        // router.push({ path: '/register', query: { addr: address } })
       }
     }
   } catch (e) {
     Notify.inApp({ title: '错误', message: String(e), type: 'error' })
   } finally {
     connecting.value = false
+  }
+}
+
+async function doRegister() {
+  if (!registerForm.value.twoPassword) {
+    Notify.inApp({ title: '错误', message: '请输入二级密码', type: 'error' })
+    return
+  }
+    if (!registerForm.value.confirmPassword) {
+    Notify.inApp({ title: '错误', message: '请确认二级密码', type: 'error' })
+    return
+  }
+  if (registerForm.value.twoPassword !== registerForm.value.confirmPassword) {
+    Notify.inApp({ title: '错误', message: '两次输入的密码不一致', type: 'error' })
+    return
+  }
+
+  try {
+    const resp = await userRegister({
+      walletAddress: registerForm.value.walletAddress,
+      upInvitationCode: registerForm.value.upInvitationCode,
+      twoPassword: registerForm.value.twoPassword,
+            confirmPassword: registerForm.value.confirmPassword  
+    })
+
+    if (resp.ok) {
+      Notify.inApp({ title: '成功', message: '注册成功，请重新登录', type: 'success' })
+      showRegisterDialog.value = false
+
+      // 注册成功后，直接尝试自动登录
+      const loginRes = await userLogin({ userWalletAddress: registerForm.value.walletAddress })
+      if (loginRes.ok && loginRes.data.token) {
+        isConnected.value = true
+        localStorage.setItem('Account-token', loginRes.data.token)
+        Notify.inApp({ title: '成功', message: '自动登录成功', type: 'success' })
+        getBalance()
+      }
+    } else {
+      Notify.inApp({ title: '错误', message: resp.message || '注册失败', type: 'error' })
+    }
+  } catch (e) {
+    Notify.inApp({ title: '错误', message: String(e), type: 'error' })
   }
 }
 
