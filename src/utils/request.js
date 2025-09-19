@@ -80,7 +80,10 @@ async function decryptResponseText(resp, bodyText, isInit) {
       // 如果你的服务端业务响应也用 KeyMd5 解密，可在这里使用
       // 但你前面的描述是业务响应同样是莫斯密文 → 使用“存量 KeyMd5”
       // 我们统一走 decodeAll，密钥就是“业务时的 KeyMd5”，在这里临时算
-      const { loadPlainKey,getToken } = await getKeyStore();
+
+      if (!keyPlain) return null;
+      decKey = md5Hex(keyPlain+token);
+            const { loadPlainKey,getToken } = await getKeyStore();
       const keyPlain = loadPlainKey();
       const token = getToken();
       if (!keyPlain) return null;

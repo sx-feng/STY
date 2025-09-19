@@ -6,7 +6,8 @@ import SpotlightMember from '@/components/STTT/SpotlightMember.vue'
 import TopBar from '@/components/STTT/TopBar.vue'
 import HomePage from '@/components/STTT/HomePage.vue'
 import SignCanLen from '@/components/STTT/SignCanLen.vue'
-import ChangePass from '@/components/STTT/ChangePass.vue'
+import ChangePass from '@/components/STTT/ReGister.vue'
+import ReGister from '@/components/STTT/ReGister.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -51,9 +52,9 @@ const router = createRouter({
       name:'SignCanLen',
       component:SignCanLen
     },{
-      path:'/change',
-      name:'ChangePass',
-      component:ChangePass
+      path:'/register',
+      name:'ReGister',
+      component:ReGister
     }]
 })
 export default router
