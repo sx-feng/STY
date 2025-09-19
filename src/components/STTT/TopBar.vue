@@ -109,12 +109,6 @@ async function connectTP() {
     } else {
       const address = re.data // 钱包地址
       console.log("【连接成功，钱包地址】", address)
-    const initRes = await userInit({ userwalletAddress: address })
-       console.log("【初始化响应】", initRes)
-    if (!initRes.ok) {
-      Notify.inApp({ title: '错误', message: initRes.message || '初始化失败', type: 'error' })
-      return
-    }
       // 🔹 直接调用登录接口
  const resp = await userLogin({ userWalletAddress: address })
        console.log("【登录响应】", resp)
