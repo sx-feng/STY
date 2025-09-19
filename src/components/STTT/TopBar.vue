@@ -27,7 +27,7 @@
     <el-menu-item index="StyFinance" :class="{ on: activeIndex === 'StyFinance' }">理财宝</el-menu-item>
     <el-menu-item index="funds-deposit" :class="{ on: activeIndex === 'funds-deposit' }">资金管理</el-menu-item>
     <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">详情</el-menu-item>
-    <el-menu-item index="changePass" :class="{ on: activeIndex === 'changePass' }">安全设置</el-menu-item>
+    <el-menu-item index="register" :class="{ on: activeIndex === 'register' }">安全设置</el-menu-item>
   </el-menu>
 </el-drawer>
  <!-- 注册弹窗 -->
@@ -95,55 +95,44 @@ const btnText = computed(() => {
   if (connecting.value) return t('btn.connecting', '连接中…')
   return t('btn.connect', '连接')
 })
-
-
-
+function handleLoginSuccess(token) {
+  isConnected.value = true
+  Notify.inApp({ title: '成功', message: '登录成功', type: 'success' })
+  getBalance()
+}
 
 async function connectTP() {
   if (connecting.value || isConnected.value) return
   connecting.value = true
   try {
     const re = await WalletTP.connect()
-    if (re?.code !== 1) {
-      Notify.inApp({ title: '错误', message: re?.msg || '连接失败', type: 'error' })
+    console.log("【连接返回】", re)
+
+   if (re?.code !== 1) throw new Error(re?.msg || '连接失败')
+
+    const address = re.data
+    console.log("【连接成功，钱包地址】", address)
+
+    // 请求登录
+    const resp = await userLogin({ userWalletAddress: address })
+    console.log("【登录响应】", resp)
+
+    // 判断登录响应
+    if (resp.data.code === 200) {
+      handleLoginSuccess(resp.data.token)
+    } else if (resp.data.code === 400) {
+      Notify.inApp({ title: '提示', message: '未检测到账户，请先注册', type: 'warning' })
+      registerForm.value.walletAddress = address
+      showRegisterDialog.value = true
     } else {
-      const address = re.data // 钱包地址
-      console.log("【连接成功，钱包地址】", address)
-    const initRes = await userInit({ userwalletAddress: address })
-       console.log("【初始化响应】", initRes)
-    if (!initRes.ok) {
-      Notify.inApp({ title: '错误', message: initRes.message || '初始化失败', type: 'error' })
-      return
-    }
-      // 🔹 直接调用登录接口
- const resp = await userLogin({ userWalletAddress: address })
-       console.log("【登录响应】", resp)
-      if (!resp.ok) {
-        Notify.inApp({ title: '错误', message: resp.message || '请求失败', type: 'error' })
-        return
-      }       
-       // 4. 判断是否已注册
-      if (resp.data && resp.data.token) {
-        // 已注册并登录成功
-        isConnected.value = true
-        localStorage.setItem('Account-token', resp.data.token) // 保存 token
-        Notify.inApp({ title: '成功', message: '登录成功', type: 'success' })
-        getBalance()
-      } else {
-        // 没有 token → 说明未注册 → 跳转注册页
-        Notify.inApp({ title: '提示', message: '未检测到账户，请先注册', type: 'warning' })
-              registerForm.value.walletAddress = address
-              showRegisterDialog.value = true
-        // router.push({ path: '/register', query: { addr: address } })
-      }
+      throw new Error(resp.message || '请求失败')
     }
   } catch (e) {
-    Notify.inApp({ title: '错误', message: String(e), type: 'error' })
+    Notify.inApp({ title: '错误', message: e.message || String(e), type: 'error' })
   } finally {
     connecting.value = false
   }
 }
-
 async function doRegister() {
   if (!registerForm.value.twoPassword) {
     Notify.inApp({ title: '错误', message: '请输入二级密码', type: 'error' })
@@ -161,9 +150,8 @@ async function doRegister() {
   try {
     const resp = await userRegister({
       walletAddress: registerForm.value.walletAddress,
-      upInvitationCode: registerForm.value.upInvitationCode,
       twoPassword: registerForm.value.twoPassword,
-            confirmPassword: registerForm.value.confirmPassword  
+      confirmPassword: registerForm.value.confirmPassword  
     })
 
     if (resp.ok) {
@@ -172,9 +160,9 @@ async function doRegister() {
 
       // 注册成功后，直接尝试自动登录
       const loginRes = await userLogin({ userWalletAddress: registerForm.value.walletAddress })
-      if (loginRes.ok && loginRes.data.token) {
+      if (loginRes.ok && loginRes.data.code===200) {
         isConnected.value = true
-        localStorage.setItem('Account-token', loginRes.data.token)
+
         Notify.inApp({ title: '成功', message: '自动登录成功', type: 'success' })
         getBalance()
       }
@@ -182,7 +170,7 @@ async function doRegister() {
       Notify.inApp({ title: '错误', message: resp.message || '注册失败', type: 'error' })
     }
   } catch (e) {
-    Notify.inApp({ title: '错误', message: String(e), type: 'error' })
+    Notify.inApp({ title: '错误', message: String(e.message), type: 'error' })
   }
 }
 
@@ -216,8 +204,8 @@ function handleSelect(key) {
     case 'SpotlightMember':
       router.push('/spot')
       break
-          case 'changePass':
-      router.push('/change')
+          case 'register':
+      router.push('/register')
       break
     
   }
