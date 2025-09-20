@@ -3,10 +3,10 @@
 
     <!-- 按钮行容器 -->
     <div class="btn-row">
-      <div class="top-btn">
+      <div class="top-btn"  @click="showDialog = true">
         <span class="icon">📦 </span> {{ $t('light.member') }}
       </div>
-      <div class="top-btn">
+      <div class="top-btn" @click="goMember">
         <span class="icon"></span> {{ $t('light.memberIntro') }}
       </div>
     </div>
@@ -14,15 +14,41 @@
 <SignCanLen/>
 
     </div>
-
+<!-- 弹窗 -->
+    <el-dialog
+      v-model="showDialog"
+      :title="$t('light.memberBuy')"
+      width="400px"
+      align-center
+      class="custom-dialog"
+    >
+      <div class="dialog-content">
+        <p class="desc">是否确认购买节点会员？</p>
+        <div class="btn-group">
+          <el-button type="warning" @click="buyMember">确认购买</el-button>
+          <el-button @click="showDialog = false">取消</el-button>
+        </div>
+      </div>
+    </el-dialog>
     <!-- 光效 -->
     <div class="light-effect"></div>
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue"
 import SignCanLen from './SignCanLen.vue';
-import TopBar from './TopBar.vue'
+import { useRouter } from "vue-router"
+const showDialog = ref(false)
+const router = useRouter()
+// 模拟购买逻辑
+function buyMember() {
+  console.log("购买会员成功")
+  showDialog.value = false
+}
+function goMember() {
+ router.push("/member")
+}
 </script>
 
 <style scoped>
@@ -98,6 +124,43 @@ import TopBar from './TopBar.vue'
   height: 55%;
   color: #fff;         
   z-index: 22;     
+}
+
+
+
+/* 弹窗样式黑金化 */
+:deep(.custom-dialog .el-dialog__header) {
+  background: #111;
+  color: #FFD700;
+  font-weight: bold;
+  text-align: center;
+   padding-top: 20px;   
+  padding-bottom: 10px
+}
+:deep(.custom-dialog .el-dialog__body) {
+  background: #000;
+  color: #fff;
+}
+:deep(.custom-dialog .el-dialog__footer) {
+  background: #111;
+  text-align: center;
+}
+
+
+.dialog-content {
+  text-align: center;
+   padding-top: 20px;   
+  padding-bottom: 20px
+}
+.dialog-content .desc {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #ccc;
+}
+.btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
 </style>

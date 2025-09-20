@@ -6,8 +6,11 @@ import SpotlightMember from '@/components/STTT/SpotlightMember.vue'
 import TopBar from '@/components/STTT/TopBar.vue'
 import HomePage from '@/components/STTT/HomePage.vue'
 import SignCanLen from '@/components/STTT/SignCanLen.vue'
-import ChangePass from '@/components/STTT/ReGister.vue'
+import TeamPe from '@/components/STTT/TeamPe.vue'
 import ReGister from '@/components/STTT/ReGister.vue'
+import MiNing from '@/components/STTT/MiNing.vue'
+import EarNing from '@/components/STTT/EarNing.vue'
+import MeMber from '@/components/Text/MeMber.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -55,6 +58,26 @@ const router = createRouter({
       path:'/register',
       name:'ReGister',
       component:ReGister
+    },{
+      path:'/teampe',
+      name:'TeamPe',
+      component:TeamPe,
+      meta: { hideTopBar: true }
+    },{
+      path:'/mining',
+      name:'MiNing',
+      component:MiNing,
+      meta: { hideTopBar: true }
+    },{
+      path:'/earning',
+      name:'EarNing',
+      component:EarNing,
+      meta: { hideTopBar: true }
+    },{
+      path:'/member',
+      name:'MeMber',
+      component:MeMber,
+      meta: { hideTopBar: true }
     }]
 })
 export default router

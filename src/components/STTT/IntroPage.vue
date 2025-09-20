@@ -18,15 +18,14 @@
   
   <script setup>
   import { ref } from "vue"
-import TopBar from "./TopBar.vue"
+
   
 const menuList = ref([
   { icon: "🏠", label: "info.company" },
   { icon: "📘", label: "info.styIntro" },
   { icon: "🌐", label: "info.ecosystem" },
   { icon: "💰", label: "info.consensus" },
-  { icon: "💳", label: "info.transfer" },
-  { icon: "🔄", label: "info.trade" }
+
 ])
   
   // 后端传过来的说明内容

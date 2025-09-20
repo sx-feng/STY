@@ -24,9 +24,9 @@
   "footer": {
     "profitDetail": "Profit Details",
     "profitDetailMore": "Profit Details >>",
-    "time": "Time",
-    "model": "Miner Model",
-    "output": "Output"
+   "time": "Coin",
+"model": "Income",
+"output": "Expense"
   },
   "funds": {
     "deposit": "Deposit",
@@ -70,7 +70,8 @@
   },
   "light": {
     "member": "Node Member",
-    "memberIntro": "Node Member Intro"
+    "memberIntro": "Node Member Intro",
+    "memberBuy": "Buy Membership"
   },
   "finance": {
     "styTreasure": "STY Finance Treasure",

@@ -13,6 +13,7 @@
     <main :class="['page-content', { 'no-topbar': !showTopBar }]">
       <router-view />
     </main>
+   
   </el-config-provider>
 </template>
 
@@ -27,6 +28,7 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { userInit} from '@/utils/api.js'
 import Notify from '@/utils/notifyInApp' 
+import TeamPe from './components/STTT/TeamPe.vue'
 
 const { locale } = useI18n()
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))

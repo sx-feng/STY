@@ -23,9 +23,9 @@
   "footer": {
     "profitDetail": "收益明细",
     "profitDetailMore": "收益明细 >>",
-    "time": "时间",
-    "model": "矿机机型",
-    "output": "矿机产出"
+    "time": "币种",
+    "model": "收入",
+    "output": "支出"
   },
   "funds": {
     "deposit": "入金",
@@ -69,7 +69,9 @@
   },
   "light": {
     "member": "节点会员",
-    "memberIntro": "节点会员介绍"
+    "memberIntro": "节点会员介绍",
+    "memberBuy": "购买会员"
+
   },
   "finance": {
     "styTreasure": "STY理财宝",
