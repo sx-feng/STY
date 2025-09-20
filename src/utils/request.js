@@ -1,6 +1,6 @@
 // request.js
 // const baseURL = 'http://110.40.42.207:8088/';
-const baseURL = 'http://192.168.31.58:8065/';
+const baseURL = 'http://192.168.31.59:8065/';
 
 
 /** 本地存储键位 */
@@ -17,17 +17,17 @@ const HDR = {
 };
 
 /** 本地存储 */
-const getLocal = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const getLocal = (k) => { try { return localStorage.getItem(k); } catch { return null; } }; 
 const setLocal = (k, v) => { try { localStorage.setItem(k, v); } catch {""} };
 
 /** 加密模块与管道 */
 async function getEncryptFns() {
-  const m = await import('@/utils/encrypt/Custom');
+  const m = await import('@/utils/encrypt/Custom');                
   const useEncryptFns = m.useEncryptFns || m.default || (() => m);
   return await useEncryptFns();
 }
 async function getCryptoPipeline() {
-  return await import('@/utils/encrypt/cryptoPipeline');
+  return await import('@/utils/encrypt/cryptoPipeline'); 
 }
 /** 安全 Key 仓库 */
 async function getKeyStore() {

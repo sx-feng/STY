@@ -28,7 +28,7 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { userInit} from '@/utils/api.js'
 import Notify from '@/utils/notifyInApp' 
-import TeamPe from './components/STTT/TeamPe.vue'
+
 
 const { locale } = useI18n()
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
@@ -40,8 +40,13 @@ const showTopBar = computed(() => !route.matched.some(r => r.meta?.hideTopBar))
 // 遮罩控制
 const loading = ref(true)
 
+
 onMounted(async () => {
   try {
+    // 进入时检查是否刷新
+  window.addEventListener("beforeunload", () => {
+    localStorage.removeItem("token")   // ✅ 只有刷新才清除
+  })
     const address = localStorage.getItem('walletAddress') || '' // 假设存过钱包地址
     const initRes = await userInit({ userwalletAddress: address })
     console.log("【初始化响应】", initRes)

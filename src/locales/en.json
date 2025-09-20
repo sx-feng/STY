@@ -1,7 +1,11 @@
 {
   "btn": {
     "lang": "Language Switch",
-    "connect": "Connect Wallet"
+    "connect": "Connect Wallet",
+    "login": "Login",
+    "logout": "Logout",
+    "connected": "Connected",
+    "connecting": "Connecting..."
   },
   "tab": {
     "mine": "My Miner",
@@ -22,11 +26,11 @@
 
   },
   "footer": {
-    "profitDetail": "Profit Details",
-    "profitDetailMore": "Profit Details >>",
-   "time": "Coin",
-"model": "Income",
-"output": "Expense"
+     "profitDetail": "Profit Details",
+     "profitDetailMore": "Profit Details >>",
+     "currency ": "Coin",
+     "inAmount": "Income",   
+     "outAmount": "Expense"
   },
   "funds": {
     "deposit": "Deposit",

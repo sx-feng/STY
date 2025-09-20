@@ -1,7 +1,11 @@
 {
   "btn": {
     "lang": "语言切换",
-    "connect": "连接钱包"
+    "connect": "连接钱包",
+     "login": "登录",
+    "logout": "退出",
+    "connected": "已连接",       
+    "connecting": "正在连接..." 
   },
   "tab": {
     "mine": "我的矿机",
@@ -21,11 +25,12 @@
     "inputPlaceholder": "请输入内容"
   },
   "footer": {
+  
     "profitDetail": "收益明细",
     "profitDetailMore": "收益明细 >>",
-    "time": "币种",
-    "model": "收入",
-    "output": "支出"
+      "currency": "币种",
+     "inAmount": "支入",     
+     "outAmount": "支出"  
   },
   "funds": {
     "deposit": "入金",

@@ -55,9 +55,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref,onMounted  } from "vue"
 import { useRouter } from "vue-router"
-
+import { miningGet } from "@/utils/api"
+import Notify from "@/utils/notifyInApp" 
 const router = useRouter()
 const currentTab = ref("buy") // 默认显示购买
 
@@ -76,13 +77,38 @@ const machines = ref([
   { name: "AI智能永久矿机", days: "永久" }
 ])
 
-// 模拟已购矿机数据
-const ownedMachines = ref([
-  { name: "FKS8型超级AI矿机", remaining: 0, status: "已过期" },
-  { name: "GHD5型AI智能矿机", remaining: 65, status: "使用中" },
-  { name: "BUR5型AI智能矿机", remaining: 30, status: "使用中" },
-  { name: "AI智能永久矿机", remaining: "永久", status: "使用中" }
-])
+// 已购矿机（改为接口数据）
+const ownedMachines = ref([])
+// 已购矿机接口
+const loadOwnedMachines = async () => {
+  try {
+    const res = await miningGet({})
+    console.log("已购矿机接口返回:", res)
+
+if (res.code === 200) {
+  ownedMachines.value = (res.data || []).map(item => ({
+    name: item.name || "未知矿机",
+    remaining: item.remaining ?? "永久",
+    status: item.status === 1 ? "使用中" : "已过期"
+  }))
+} else if (res.code === 400) {
+  ownedMachines.value = [] // 清空列表
+  // 不要提示 error，而是显示空状态
+  // Notify.inApp({ type: "info", message: "暂无已购矿机" })
+} else {
+  Notify.inApp({ type: "error", message: res.message || "获取矿机失败" })
+}
+  } catch (e) {
+    console.error("矿机接口异常:", e)
+    Notify.inApp({ type: "error", message: "网络异常" })
+  }
+}
+
+
+
+onMounted(() => {
+  loadOwnedMachines()
+})
 
 </script>
 

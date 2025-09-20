@@ -68,8 +68,8 @@ import enUS from 'element-plus/dist/locale/en.mjs'
 import WalletTP from '@/utils/walletTP.js'
 import Notify from '@/utils/notifyInApp'
 import { provide } from 'vue'
-import { userInit, userLogin, userRegister } from '@/utils/api.js'
-
+import {  userLogin, userRegister } from '@/utils/api.js'
+import { onMounted } from 'vue'
 
 const drawerOpen = ref(false)
 const router = useRouter()
@@ -97,8 +97,15 @@ const btnText = computed(() => {
 })
 function handleLoginSuccess(token) {
   isConnected.value = true
+  localStorage.setItem("isConnected", "1")  // 保存状态
+  localStorage.setItem("token", token)      // 保存 token
   Notify.inApp({ title: '成功', message: '登录成功', type: 'success' })
   getBalance()
+}
+
+// 初始化时读取
+if (localStorage.getItem("isConnected") === "1") {
+  isConnected.value = true
 }
 
 async function connectTP() {
@@ -223,6 +230,14 @@ const activeIndex = computed(() => {
   return 'HomePage' // 默认首页
 })
 
+onMounted(() => {
+ const token = localStorage.getItem("token")
+  if (token) {
+    isConnected.value = true   
+  } else {
+    isConnected.value = false  
+  }
+})
 
 </script>
 

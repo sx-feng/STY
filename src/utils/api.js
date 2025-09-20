@@ -9,6 +9,8 @@ export const userDelete    = (data) => request(1, '/api/user/delete', data)
 export const userUpdate    = (data) => request(1, '/api/user/update', data)
 export const userGet       = (data) => request(1, '/api/user/get', data)
 export const userList      = (data) => request(1, '/api/user/list', data)
+export const userUpdatePassword = (data) => request(1, '/api/user/update/paswad', data)
+
 
 // ================== 钱包 ==================
 export const walletAdd     = (data) => request(1, '/api/wallet/add', data)
@@ -30,6 +32,7 @@ export const miningDelete  = (data) => request(1, '/api/mining-machine/delete', 
 export const miningUpdate  = (data) => request(1, '/api/mining-machine/update', data)
 export const miningGet     = (data) => request(1, '/api/mining-machine/get', data)
 export const miningList    = (data) => request(1, '/api/mining-machine/list', data)
+export const userMachineRecordList = (data) => request(1, '/api/user-machine-record/list', data)
 
 // ================== 静态理财 ==================
 export const staticAdd     = (data) => request(1, '/api/static-product/add', data)
@@ -65,11 +68,13 @@ export const styDelete     = (data) => request(1, '/api/sty-exchange/delete', da
 export const styUpdate     = (data) => request(1, '/api/sty-exchange/update', data)
 export const styGet        = (data) => request(1, '/api/sty-exchange/get', data)
 export const styList       = (data) => request(1, '/api/sty-exchange/list', data)
+export const styTrade = (data) => request(1, '/api/sty-exchange/trade', data)
 
 // ================== 签到 ==================
 export const signDo        = (data) => request(1, '/sign/do', data)
 export const signStatus    = (data) => request(1, '/sign/status', data)
 export const signRecord    = (data) => request(1, '/sign/record/month', data)
+export const signResign = (data) => request(1, '/sign/resign', data)
 
 // ================== Tron 链 ==================
 export const tronBalance   = (address) => request(0, `/api/tron/balance/${address}`)

@@ -56,27 +56,72 @@
           <span class="link" @click="goDetail">{{ $t('footer.profitDetailMore') }} >></span>
         </div>
         <div class="thead">
-          <span>{{ $t('footer.time') }}</span>
-          <span>{{ $t('footer.model') }}</span>
-          <span>{{ $t('footer.output') }}</span>
+          <span>{{ $t('footer.currency') }}</span>
+          <span>{{ $t('footer.inAmount') }}</span>
+          <span>{{ $t('footer.outAmount') }}</span>
+
         </div>
-      </div> 
+        <!-- 只显示前三条数据 -->
+         <div v-if="records.length > 0" >
+        <div v-for="(rec, i) in records" :key="i" class="row" >
+          <span>{{ rec.currency }}</span>
+          <span>{{ rec.inAmount }}</span>
+          <span>{{ rec.outAmount }}</span>
+        </div>
+        </div>
+        <div v-else class="row no-data">
+         <span style="grid-column: 1 / span 3; text-align: center;">暂无收益记录</span>
+        </div>
+      </div>
     </div>
   </el-config-provider>
 </template>
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { userMachineRecordList } from "@/utils/api"
 const router = useRouter()
 const styaiBalance = inject('styaiBalance', ref(0))
 const { t, locale } = useI18n()
 const balance = ref(0)  // 初始余额0
 const currentTab = ref('mine')
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
+
+
+// 矿机收益
+const records = ref([])
+const total = ref(0)
+const size = ref(10)     // 每页条数
+const current = ref(1)   // 当前页
+// 加载明细
+async function loadRecords(page = 1) {
+  try {
+    const res = await userMachineRecordList({ current: page, size: size.value })
+    console.log('收益明细111111', res)
+    if (res.code === 200 && res.data?.records) {
+      records.value = res.data.records.map(item => ({
+        currency: item.currency || 'STYAI',   // 币种
+        inAmount: item.inAmount || 0,         // 支入
+        outAmount: item.outAmount || 0        // 支出
+      }))
+        .slice(0, 3)
+    } else {
+      records.value = []
+    }
+  } catch (err) {
+    console.error("加载失败", err)
+  }
+}
+
+// 分页切换
+function handlePageChange(page) {
+  loadRecords(page)
+}
+
 function updateBalance(val) {
   balance.value = val || 0
 }
@@ -91,9 +136,12 @@ function goMi() {
   router.push('/mining')
 }
 function goDetail() {
- 
+
   router.push('/earning')
 }
+onMounted(() => {
+  loadRecords()
+})
 </script>
 
 <style>
