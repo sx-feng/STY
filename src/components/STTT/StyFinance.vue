@@ -13,7 +13,10 @@
         <div class="dynamic-title">{{ $t('finance.dynamic') }}</div>
         <div class="dynamic-row">
           <span class="rate">{{ $t('finance.currentRate') }}</span>
-          <a class="detail" href="javascript:void(0)">{{ $t('finance.detail') }}</a>
+           <!-- ✅ 新增 -->
+  <a class="detail" href="javascript:void(0)" @click="goDynamicDetail">
+    {{ $t('finance.detail') }}
+  </a>
         </div>
       </div>
 
@@ -21,7 +24,12 @@
       <div class="gold-divider"></div>
 
       <div class="static">
-        <div class="static-title">{{ $t('finance.static') }}</div>
+        <div class="static-title">{{ $t('finance.static') }}
+           <!-- ✅ 新增 -->
+  <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
+    {{ $t('finance.detail') }}
+  </a>
+        </div>
         <div class="static-row" v-for="(item, index) in staticList" :key="index">
           <span>{{ $t(`finance.period${index+1}`) }}</span>
           <span>{{ item.value }}</span>
@@ -44,8 +52,8 @@
 </template>
   
   <script setup>
-import TopBar from './TopBar.vue';
 
+import router from '@/router';
   const staticList = [
     { period: "3天周期" },
     { period: "10天周期" },
@@ -53,6 +61,17 @@ import TopBar from './TopBar.vue';
     { period: "33天周期" },
     { period: "60天周期" }
   ]
+
+  // 跳转到动态理财详情
+function goDynamicDetail() {
+  router.push("/dynamic")
+}
+
+// 跳转到静态理财详情
+function goStaticDetail() {
+  router.push("/statuc")
+}
+
   </script>
   
   <style>
@@ -130,12 +149,20 @@ import TopBar from './TopBar.vue';
   .dynamic{
     margin-bottom: 50px;
   }
-  .dynamic-title, .static-title {
+.dynamic-title,
+.static-title {
   font-weight: 600;
   margin-bottom: 8px;
   color: #333;
-}
 
+  display: flex;                 
+  justify-content: space-between;
+  align-items: center;          
+}
+.dynamic-title .detail,
+.static-title .detail {
+  margin-left: auto;             /* ✅ 确保详情贴右边 */
+}
 .dynamic-row {
   display: flex;
   justify-content: space-between;
@@ -214,6 +241,19 @@ import TopBar from './TopBar.vue';
   margin: 10px 0 14px;      
   background-color: #ffed84; 
   border-radius: 1px; 
+}
+.detail {
+  font-size: 13px;
+  font-weight: bold;
+  color: #f6c244;         /* 金色 */
+  text-decoration: none;  /* 去掉下划线 */
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.detail:hover {
+  color: #ffd700;         /* 更亮的金色 */
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
 }
 
   </style>

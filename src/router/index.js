@@ -11,6 +11,8 @@ import ReGister from '@/components/STTT/ReGister.vue'
 import MiNing from '@/components/STTT/MiNing.vue'
 import EarNing from '@/components/STTT/EarNing.vue'
 import MeMber from '@/components/Text/MeMber.vue'
+import DynamicDetail from '@/components/Text/DynamicDetail.vue'
+import StaticDetail from '@/components/Text/StaticDetail.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -77,6 +79,16 @@ const router = createRouter({
       path:'/member',
       name:'MeMber',
       component:MeMber,
+      meta: { hideTopBar: true }
+    },{
+      path:'/dynamic',
+      name:'DynamicDetail',
+      component:DynamicDetail,
+      meta: { hideTopBar: true }
+    },{
+      path:'/statuc',
+      name:' StaticDetail',
+      component: StaticDetail,
       meta: { hideTopBar: true }
     }]
 })
