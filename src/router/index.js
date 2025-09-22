@@ -16,6 +16,7 @@ import StaticDetail from '@/components/Text/StaticDetail.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+  
     {  
       path: '/',
        name: 'home',

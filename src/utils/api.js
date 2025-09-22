@@ -54,6 +54,9 @@ export const userMiningDelete = (data) => request(1, '/api/user-mining-output/de
 export const userMiningUpdate = (data) => request(1, '/api/user-mining-output/update', data)
 export const userMiningGet    = (data) => request(1, '/api/user-mining-output/get', data)
 export const userMiningList   = (data) => request(1, '/api/user-mining-output/list', data)
+export const getAllMiningMachines = (data) => 
+  request(1, '/mining-machine/all', data)
+
 
 // ================== 支付 ==================
 export const paymentAdd    = (data) => request(1, '/api/payment/add', data)

@@ -28,7 +28,7 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { userInit} from '@/utils/api.js'
 import Notify from '@/utils/notifyInApp' 
-
+import { useRouter } from 'vue-router'
 
 const { locale } = useI18n()
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
@@ -39,6 +39,7 @@ const showTopBar = computed(() => !route.matched.some(r => r.meta?.hideTopBar))
 
 // 遮罩控制
 const loading = ref(true)
+const router = useRouter()
 
 
 onMounted(async () => {
@@ -59,6 +60,7 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  router.replace('/')
 })
 </script>
 

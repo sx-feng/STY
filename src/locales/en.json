@@ -70,7 +70,8 @@
     "signedToday": "Already signed today",
     "locked": "Exceeded {max} misses, sign-in reset this month",
     "success": "Signed in successfully!",
-    "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "fail": "fail"
   },
   "light": {
     "member": "Node Member",

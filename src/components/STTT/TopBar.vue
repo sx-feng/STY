@@ -185,7 +185,7 @@ async function doRegister() {
 async function getBalance() {
   const raw_STYAI = await WalletTP.getTrc20Balance("STYAI")
   const raw_USDT = await WalletTP.getTrc20Balance("USDT")
-  console.log(raw_STYAI);
+  console.log(raw_STYAI);         
   console.log(raw_USDT);
   styaiBalance.value = raw_STYAI?.data?.balance || 0
 }
