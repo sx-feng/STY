@@ -18,19 +18,19 @@
           <div class="card-header">
             <div class="header-item">
               <span class="we">{{ $t('card.yesterdayOutput') }}:</span>
-              <span class="ma">10</span>
+              <span class="ma">{{ userKjYesterdayIncome }}</span>
             </div>
             <div class="header-item">
               <span class="we">{{ $t('card.yesterdayReward') }}:</span>
-              <span class="ma">10</span>
+              <span class="ma">{{ yesterdayReward }}</span>
             </div>
             <div class="header-item">
               <span class="we">{{ $t('card.teamReward') }}:</span>
-              <span class="ma">10</span>
+              <span class="ma">{{ userTeamKjYesterdayIncome }}</span>
             </div>
             <div class="header-item">
               <span class="we">{{ $t('card.totalIncome') }}:</span>
-              <span class="ma">10</span>
+              <span class="ma">{{ userSumIncomeKj }}</span>
             </div>
           </div>
           <div class="card-body">
@@ -83,20 +83,43 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { userMachineRecordList } from "@/utils/api"
+import {  userGet,userMachineRecordList } from "@/utils/api"
 const router = useRouter()
 const styaiBalance = inject('styaiBalance', ref(0))
 const { t, locale } = useI18n()
 const balance = ref(0)  // 初始余额0
 const currentTab = ref('mine')
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
-
+// 用户信息里的关键字段
+const userTeamKjYesterdayIncome = ref(0)
+const userSumIncomeKj = ref(0)
+const userKjYesterdayIncome = ref(0)
+const yesterdayReward = ref(0)
 
 // 矿机收益
 const records = ref([])
 const total = ref(0)
 const size = ref(10)     // 每页条数
 const current = ref(1)   // 当前页
+// 加载用户信息
+async function loadUserInfo() {
+  try {
+    const res = await userGet({})
+    console.log("userGet 返回:", res)
+
+    // 注意：你的返回格式是 { ok: true, data: { code: 200, data: {...} } }
+    if (res.ok && res.data.code === 200) {
+      const data = res.data.data
+      userTeamKjYesterdayIncome.value = data.userTeamKjYesterdayIncome || 0
+      userSumIncomeKj.value = data.userSumIncomeKj || 0
+      userKjYesterdayIncome.value = data.userKjYesterdayIncome || 0
+      yesterdayReward.value = data.yesterdayReward || 0
+    }
+  } catch (err) {
+    console.error("加载用户信息失败:", err)
+  }
+}
+
 // 加载明细
 async function loadRecords(page = 1) {
   try {
@@ -141,6 +164,7 @@ function goDetail() {
 }
 onMounted(() => {
   loadRecords()
+    loadUserInfo() 
 })
 </script>
 

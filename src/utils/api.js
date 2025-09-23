@@ -7,10 +7,11 @@ export const userLogin     = (data) => request(1, '/api/user/login', data)
 export const userRegister  = (data) => request(1, '/api/user/register', data)
 export const userDelete    = (data) => request(1, '/api/user/delete', data)
 export const userUpdate    = (data) => request(1, '/api/user/update', data)
-export const userGet       = (data) => request(1, '/api/user/get', data)
+export const userGet = (data) => request(1, '/api/user/get', data)
+
 export const userList      = (data) => request(1, '/api/user/list', data)
 export const userUpdatePassword = (data) => request(1, '/api/user/update/paswad', data)
-
+export const buyFinancialProduct = (data) =>request(1, '/api/user-machine/buy', data)
 
 // ================== 钱包 ==================
 export const walletAdd     = (data) => request(1, '/api/wallet/add', data)
@@ -25,12 +26,12 @@ export const teamDelete    = (data) => request(1, '/api/team/delete', data)
 export const teamUpdate    = (data) => request(1, '/api/team/update', data)
 export const teamGet       = (data) => request(1, '/api/team/get', data)
 export const teamList      = (data) => request(1, '/api/team/list', data)
-
+export const teamAll     = (data) => request(1, '/api/team/all', data)
 // ================== 矿机 ==================
 export const miningAdd     = (data) => request(1, '/api/mining-machine/add', data)
 export const miningDelete  = (data) => request(1, '/api/mining-machine/delete', data)
 export const miningUpdate  = (data) => request(1, '/api/mining-machine/update', data)
-export const miningGet     = (data) => request(1, '/api/mining-machine/get', data)
+export const miningGet     = (data) => request(1, '/api/user-machine/get', data)
 export const miningList    = (data) => request(1, '/api/mining-machine/list', data)
 export const userMachineRecordList = (data) => request(1, '/api/user-machine-record/list', data)
 
@@ -55,7 +56,7 @@ export const userMiningUpdate = (data) => request(1, '/api/user-mining-output/up
 export const userMiningGet    = (data) => request(1, '/api/user-mining-output/get', data)
 export const userMiningList   = (data) => request(1, '/api/user-mining-output/list', data)
 export const getAllMiningMachines = (data) => 
-  request(1, '/mining-machine/all', data)
+  request(1, '/api/mining-machine/all', data)
 
 
 // ================== 支付 ==================
@@ -94,3 +95,6 @@ export const tableInsert   = (tableName, data) => request(1, `/api/dynamic-table
 export const tableUpdate   = (tableName, id, data) => request(1, `/api/dynamic-table/${tableName}/${id}`, data)
 // eslint-disable-next-line no-undef
 export const tableDelete   = (tableName, id) => request(1, `/api/dynamic-table/${tableName}/${id}`, data)
+// ================== vip ==================
+export const productVip    = (data) => request(1, '/api/product/vip', data)
+export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // 查询当前登录用户是否是VIP

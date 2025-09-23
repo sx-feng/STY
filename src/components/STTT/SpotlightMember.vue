@@ -3,8 +3,10 @@
 
     <!-- 按钮行容器 -->
     <div class="btn-row">
-      <div class="top-btn"  @click="showDialog = true">
-        <span class="icon">📦 </span> {{ $t('light.member') }}
+      <div class="top-btn"  @click="openVipDialog">
+       <!-- 根据 vipStatus 动态显示 -->
+         <span class="icon">📦 </span>
+        {{ vipStatus ? "VIP 已开通" : $t('light.member') }}
       </div>
       <div class="top-btn" @click="goMember">
         <span class="icon"></span> {{ $t('light.memberIntro') }}
@@ -36,18 +38,57 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref ,onMounted} from "vue"
 import SignCanLen from './SignCanLen.vue';
 import { useRouter } from "vue-router"
+import { ElMessage } from 'element-plus'
+const vipStatus = ref(false)   // 当前用户是否是 VIP
+// 引入接口
+import { productVip,vipUserStatus } from "@/utils/api"
 const showDialog = ref(false)
 const router = useRouter()
-// 模拟购买逻辑
-function buyMember() {
-  console.log("购买会员成功")
-  showDialog.value = false
+// 购买会员
+async function buyMember() {
+  try {
+    const res = await productVip({ level: 1 }) // 传参可根据业务需要，比如 level
+    if (res.code === 200) {
+      ElMessage.success("购买成功！")
+      showDialog.value = false
+    } else {
+      ElMessage.error(res.message || "购买失败")
+    }
+  } catch (err) {
+    ElMessage.error("网络错误，请稍后重试")
+  }
 }
+// 查询 VIP 状态
+async function checkVip() {
+  try {
+    const res = await vipUserStatus({})
+    if (res.code === 200 && res.data?.isVip) {
+      vipStatus.value = true
+    } else {
+      vipStatus.value = false
+    }
+  } catch {
+    vipStatus.value = false
+  }
+}
+// 跳转会员介绍页
 function goMember() {
- router.push("/member")
+  router.push("/member")
+}
+// 页面加载时查询 VIP 状态
+onMounted(async () => {
+  await checkVip()
+})
+// 打开弹窗（如果已是 VIP 则不弹）
+function openVipDialog() {
+  if (vipStatus.value) {
+    ElMessage.info("您已是 VIP 会员")
+    return
+  }
+  showDialog.value = true
 }
 </script>
 
