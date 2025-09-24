@@ -43,10 +43,12 @@
           <span>账号</span>
           <span>关系</span>
         </div>
+         <div class="list-scroll">
         <div class="list-row" v-for="(item, index) in team.members" :key="index">
           <span>{{ index + 1 }}</span>
           <span>{{ item.account }}</span>
           <span>{{ item.type }}</span>
+        </div>
         </div>
       </div>
     </div>
@@ -54,9 +56,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
-
+import { teamMembersAll} from "@/utils/api"
+import { columnAlignment } from "element-plus"
 const router = useRouter()
 
 const goBack = () => {
@@ -71,9 +74,39 @@ const team = ref({
   sty: 0,
   rights: 0,
   members: [
-    { account: "131****0000", type: "直推" }
+    { account: "", type: "" }
   ]
 })
+
+ async function getTeamMembersAll() {
+  try{
+
+    const res=await teamMembersAll({})
+    console.log('团队详情',res)
+   if (res.ok && res.data.code === 200) {
+  const d = res.data.data
+  team.value = {
+    total: d.teamSize,
+    direct: d.directPush,
+    indirect: d.intervalPush,
+    usdt: d.teamAllBuyKjTotalAmount,
+    sty: 0, // 后端没给
+    rights: d.teamIncome, 
+    members: d.teamMembers.map(m => ({
+      account: m.walletAddress,
+      type: m.relation
+    }))
+  }
+}
+
+  // eslint-disable-next-line no-empty
+  }catch(err){                                                                                                                                                                                                                                                                                                                                                                                                                             
+
+  }
+ }
+ onMounted(()=>{
+  getTeamMembersAll()
+ })
 </script>
 
 <style scoped>
@@ -168,20 +201,27 @@ const team = ref({
   border-top: 1px solid rgba(255, 215, 0, 0.3);
 }
 
-.list-head,
-.list-row {
+.list-head {
+  font-weight: bold;
+  color: #FFD700;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
 }
 
-.list-head {
-  font-weight: bold;
-  color: #FFD700;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+/* ✅ 单独的滚动容器 */
+.list-scroll {
+  max-height: 460px;     /* 列表区高度，超出就滚动，你可以调 */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
+/* 列表行 */
 .list-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
   color: #fff;
   font-size: 14px;
 }
@@ -189,4 +229,6 @@ const team = ref({
 .list-row:nth-child(odd) {
   background: rgba(255, 215, 0, 0.05);
 }
+
+
 </style>

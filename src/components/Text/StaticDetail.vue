@@ -29,20 +29,42 @@
         <span>{{ item.period }}</span>
       </div>
     </div>
+    <div class="content-card">
+      <h3>投资记录</h3>
+      <div class="thead">
+        <span>时间</span>
+        <span>金额</span>
+        <span>周期</span>
+      </div>
+      <div class="row" v-for="(item,i) in list" :key="i">
+        <span>{{ item.time }}</span>
+        <span>{{ item.amount }} USDT</span>
+        <span>{{ item.period }}</span>
+      </div>
+    </div>             
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref,onMounted } from "vue"
 import { useRouter } from "vue-router"
-
+import {staticFindByType} from '@/utils/api'
 const router = useRouter()
 function goBack(){ router.go(-1) }
 
-const list = ref([
-  { time:"2025-09-10 10:00", amount:100, period:"10天周期" },
-  { time:"2025-09-05 09:30", amount:50, period:"3天周期" },
-])
+const list = ref([])
+async function loadStaticProducts() {
+  const res = await staticFindByType("1") 
+  if (res.ok &&res.data.code === 200 && Array.isArray(res.data.data)) {
+    console.log("静态产品:", res.data)
+     // 保持原始字段
+    list.value = res.data.data       // 先用同一批数据当投资记录
+   
+  }
+}
+onMounted(()=>{
+  loadStaticProducts()
+})
 </script>
 
 <style scoped>

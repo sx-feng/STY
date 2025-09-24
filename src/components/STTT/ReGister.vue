@@ -7,7 +7,7 @@
 
       <form @submit.prevent="changePassword">
         <!-- 当前密码 -->
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="oldPassword">当前二级密码</label>
           <input
             v-model="oldPassword"
@@ -16,7 +16,7 @@
             placeholder="请输入当前二级密码"
             required
           />
-        </div>
+        </div> -->
 
         <!-- 新密码 -->
         <div class="form-group">

@@ -15,6 +15,21 @@
         <li>最新收益时间：2025-09-20 12:00:00</li>
       </ul>
     </div>
+      <div class="content-card">
+      <h3>收益记录</h3>
+      <div class="thead">
+        <span>时间</span>
+        <span>金额</span>
+        <span>类型</span>
+      </div>
+      <div class="row" v-for="(item,i) in list" :key="i">
+        <span>{{ item.time }}</span>
+        <span :class="item.amount>0?'income':'expense'">
+          {{ item.amount>0? '+'+item.amount:item.amount }}
+        </span>
+        <span>{{ item.type }}</span>
+      </div>
+    </div>
 
     <div class="content-card">
       <h3>收益记录</h3>
@@ -35,17 +50,22 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted} from "vue"
 import { useRouter } from "vue-router"
-
+import {  dynamicFindByType } from "@/utils/api"
 const router = useRouter()
 function goBack(){ router.go(-1) }
 
-const list = ref([
-  { time:"2025-09-20 12:00", amount:20, type:"收益" },
-  { time:"2025-09-19 12:00", amount:18, type:"收益" },
-  { time:"2025-09-18 12:00", amount:15, type:"收益" },
-])
+const list = ref([])
+async function loadDynamicProducts() {
+  const res = await dynamicFindByType("0") // type 填写你需要的值
+  if (res.data.code === 200) {
+    console.log("动态产品:", res.data)
+  }
+}
+onMounted( ()=>{
+  loadDynamicProducts()
+})
 </script>
 
 <style scoped>

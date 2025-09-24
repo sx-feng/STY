@@ -15,10 +15,11 @@
           @click="mode='withdraw'"
         >📒 {{ $t('funds.withdraw') }}</button>
       </div>
-  <div class="platform-balance">
-        <span>{{ $t('funds.balance') }}: </span>
-        <strong>{{ balance }}</strong>
-      </div>
+<div class="platform-balance-inline">
+  <span class="label">💰 {{ $t('funds.balance') }}:</span>
+  <span class="value">{{ balance }}</span>
+</div>
+
       <input
         class="amount-input"
         type="number"
@@ -64,32 +65,73 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
-import TopBar from './TopBar.vue'
+  import { ref, computed , onMounted,watch} from 'vue'
+import { userPlatformFlowSelect } from "@/utils/api"
   // 添加余额变量
-const balance = ref(1000.00)
+
+const balance = ref(0)
   const mode = ref('deposit')          
   const listType = ref('recharge')      
   const amount = ref('')
+const rechargeList = ref([])
+const withdrawList = ref([])
+  
+const rows = computed(() =>
+  listType.value === 'recharge' ? rechargeList.value : withdrawList.value
+)
 
-  const rechargeList = ref([
-    { amount: '100.00', date: '2025-09-10 12:20' },
-    { amount: '58.50',  date: '2025-09-09 09:05' }
-  ])
-  const withdrawList = ref([
-    { amount: '20.00',  date: '2025-09-08 18:33' }
-  ])
-  
-  const rows = computed(() =>
-    listType.value === 'recharge' ? rechargeList.value : withdrawList.value
-  )
-  
-  function onConfirm() {
-    if (!amount.value) return alert('请输入金额')
- 
-    alert(`${mode.value === 'deposit' ? '入金' : '出金'}成功：${amount.value}`)
-    amount.value = ''
+// 提交充值/提现
+function onConfirm() {
+  if (!amount.value) return alert('请输入金额')
+  alert(`${mode.value === 'deposit' ? '入金' : '出金'}成功：${amount.value}`)
+  amount.value = ''
+}
+
+// 查询充值流水
+async function loadRechargeFlow() {
+  try {
+    const res = await userPlatformFlowSelect("recharge", { current: 1, size: 10 })
+    if (res.code === 200 && res.data?.records) {
+      rechargeList.value = res.data.records.map(item => ({
+        amount: item.amount,
+        date: item.transactionTime
+      }))
+    }
+  } catch (err) {
+    console.error("充值流水加载失败:", err)
   }
+}
+
+// 查询提现流水
+async function loadWithdrawFlow() {
+  try {
+    const res = await userPlatformFlowSelect("withdrawal", { current: 1, size: 10 })
+    if (res.code === 200 && res.data?.records) {
+      withdrawList.value = res.data.records.map(item => ({
+        amount: item.amount,
+        date: item.transactionTime
+      }))
+    }
+  } catch (err) {
+    console.error("提现流水加载失败:", err)
+  }
+}
+
+// 页面挂载时加载
+onMounted(() => {
+  loadRechargeFlow()
+  loadWithdrawFlow()
+})
+
+// 监听切换时刷新数据
+watch(listType, (val) => {
+  if (val === 'recharge' && rechargeList.value.length === 0) {
+    loadRechargeFlow()
+  }
+  if (val === 'withdraw' && withdrawList.value.length === 0) {
+    loadWithdrawFlow()
+  }
+})
   </script>
   
   <style scoped>
@@ -292,5 +334,32 @@ const balance = ref(1000.00)
   overflow: hidden;
   margin-top: 30px;
 }
+.platform-balance-inline {
+  width: 94%;
+  max-width: 430px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,210,77,0.35);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 左右分布 */
+  font-size: 16px;
+  color: #f6c244;
+  box-shadow: 0 0 10px rgba(255,210,77,.15);
+}
+
+.platform-balance-inline .label {
+  font-weight: 600;
+  color: #ffd24d;
+}
+
+.platform-balance-inline .value {
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+}
+
   </style>
   

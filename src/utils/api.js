@@ -27,6 +27,8 @@ export const teamUpdate    = (data) => request(1, '/api/team/update', data)
 export const teamGet       = (data) => request(1, '/api/team/get', data)
 export const teamList      = (data) => request(1, '/api/team/list', data)
 export const teamAll     = (data) => request(1, '/api/team/all', data)
+export const teamMembersAll = (data) => request(1, '/api/team/members/all', data)
+
 // ================== 矿机 ==================
 export const miningAdd     = (data) => request(1, '/api/mining-machine/add', data)
 export const miningDelete  = (data) => request(1, '/api/mining-machine/delete', data)
@@ -41,14 +43,14 @@ export const staticDelete  = (data) => request(1, '/api/static-product/delete', 
 export const staticUpdate  = (data) => request(1, '/api/static-product/update', data)
 export const staticGet     = (data) => request(1, '/api/static-product/get', data)
 export const staticList    = (data) => request(1, '/api/static-product/list', data)
-
+export const staticFindByType = (type) => request(1, `/api/dynamic-product/find/all/type/${type}`)
 // ================== 动态理财 ==================
 export const dynamicAdd    = (data) => request(1, '/api/dynamic-product/add', data)
 export const dynamicDelete = (data) => request(1, '/api/dynamic-product/delete', data)
 export const dynamicUpdate = (data) => request(1, '/api/dynamic-product/update', data)
 export const dynamicGet    = (data) => request(1, '/api/dynamic-product/get', data)
 export const dynamicList   = (data) => request(1, '/api/dynamic-product/list', data)
-
+export const dynamicFindByType = (type) => request(1, `/api/dynamic-product/find/all/type/${type}`)
 // ================== 用户矿机产出 ==================
 export const userMiningAdd    = (data) => request(1, '/api/user-mining-output/add', data)
 export const userMiningDelete = (data) => request(1, '/api/user-mining-output/delete', data)
@@ -98,3 +100,6 @@ export const tableDelete   = (tableName, id) => request(1, `/api/dynamic-table/$
 // ================== vip ==================
 export const productVip    = (data) => request(1, '/api/product/vip', data)
 export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // 查询当前登录用户是否是VIP
+// ================== 平台流水 ==================
+export const userPlatformFlowSelect = (type, data) => request(1, `/api/UserPlatformFlow/select/${type}`, data)
+
