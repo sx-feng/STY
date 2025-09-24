@@ -41,10 +41,11 @@
               </div>
               <div class="exchange-box">
                 <div class="input-row">
-                  <input type="text" :placeholder="$t('exchange.inputPlaceholder')" class="input-text" />
+                  <input type="number" :placeholder="$t('exchange.inputPlaceholder')" class="input-text" 
+                  v-model.trim="amount"/>
                   <button class="btn-all">{{ $t('exchange.all') }}</button>
                 </div>
-                <button class="btn-confirm">{{ $t('exchange.confirm') }}</button>
+                <button class="btn-confirm" @click="startPay">{{ $t('exchange.confirm') }}</button>
               </div>
             </div>
           </div>
@@ -75,15 +76,32 @@
       </div>
     </div>
   </el-config-provider>
+      <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
+    <PaymentWidget
+      ref="payRef"
+      :show-balance="true"
+      :show-list="true"
+      :show-builtin-input="false"
+      :WalletTP="WalletTP"
+      :RequestOrder="Withdraw"
+      :SubmitOrder="SubmitOrder"
+      @done="onPayDone"
+      @close="onPayClose"
+    />
 </template>
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted ,nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { inject } from 'vue'
 import { useRouter } from 'vue-router'
 import {  userGet,userMachineRecordList } from "@/utils/api"
+
+import WalletTP from '@/utils/walletTP.js'
+import { Withdraw, SubmitOrder } from '@/utils/api.js'
+import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
+
 const router = useRouter()
 const styaiBalance = inject('styaiBalance', ref(0))
 const { t, locale } = useI18n()
@@ -162,10 +180,77 @@ function goDetail() {
 
   router.push('/earning')
 }
-onMounted(() => {
-  loadRecords()
+
+// 支付组件引用 & 就绪标记
+const payRef = ref(null)
+const ready = ref(false)
+const amount = ref('') // 输入框金额
+
+onMounted(async () => {
+    loadRecords()
     loadUserInfo() 
-})
+  await nextTick()
+  await loadStyaiBalance()
+  ready.value = true
+});
+
+
+
+// ② 拉取余额的方法
+async function loadStyaiBalance() {
+  try {
+    const res = await WalletTP.getTrc20Balance('STYAI')
+    if (res?.code === 1) {
+      // 兼容数字/字符串，转成字符串展示也行
+      styaiBalance.value = res.data?.balance ?? 0
+    } else {
+      console.warn('getTrc20Balance 返回异常', res)
+      styaiBalance.value = 0
+    }
+  } catch (e) {
+    console.error('获取 STYAI 余额失败', e)
+    styaiBalance.value = 0
+  }
+}
+
+// 币种（也可以做成下拉切换）
+const wantedToken = ref('STYAI')
+
+// 触发支付
+async function startPay(){
+  if (!ready.value || !payRef.value) {
+    console.warn('PaymentWidget 未挂载完成')
+    return
+  }
+  if (!amount.value || Number(amount.value) <= 0) {
+    alert('请输入正确金额')
+    return
+  }
+
+  const res = await payRef.value.startExternal({
+    amount: Number(amount.value),
+    token: wantedToken.value,   // 注意 .value
+    WalletTP,
+    RequestOrder: Withdraw,
+    SubmitOrder,
+    checkTrxEarly: false
+  })
+  console.log('支付结果', res)
+
+  if (res?.success) {
+    amount.value = ''
+    // TODO: 这里可刷新平台余额/充值记录
+  }
+}
+
+function onPayDone(res){
+  console.log('done', res)
+  // 可在这里统一刷新数据
+}
+function onPayClose(){
+  console.log('close')
+}
+
 </script>
 
 <style>

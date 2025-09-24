@@ -15,10 +15,10 @@
           @click="mode='withdraw'"
         >📒 {{ $t('funds.withdraw') }}</button>
       </div>
-<div class="platform-balance-inline">
-  <span class="label">💰 {{ $t('funds.balance') }}:</span>
-  <span class="value">{{ balance }}</span>
-</div>
+        <div class="platform-balance-inline">
+          <span class="label">💰 {{ $t('funds.balance') }}:</span>
+          <span class="value">{{ balance }}</span>
+        </div>
 
       <input
         class="amount-input"

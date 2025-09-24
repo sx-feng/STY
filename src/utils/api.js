@@ -62,8 +62,9 @@ export const getAllMiningMachines = (data) =>
 
 // ================== 用户资金 ==================
 export const RequestOrder    = (data) => request(1, '/api/capital/RequestOrder', data)
-export const SubmitOrder = (data) => request(1, '/api/capital/SubmitOrder', data)
 export const contract = (data) => request(1, '/api/capital/contract', data)
+export const SubmitOrder = (data) => request(1, '/api/capital/SubmitOrder', data)
+export const Withdraw = (data) => request(1, '/api/capital/Withdraw', data)
 
 
 // ================== 支付 ==================
