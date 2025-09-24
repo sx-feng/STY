@@ -10,32 +10,25 @@
     <div class="mining-card">
       <!-- tab 按钮 -->
       <div class="btn-group">
-        <button
-          class="action-btn buy"
-          :class="{ active: currentTab === 'buy' }"
-          @click="currentTab = 'buy'"
-        >
+        <button class="action-btn buy" :class="{ active: currentTab === 'buy' }" @click="currentTab = 'buy'">
           购买
         </button>
-        <button
-          class="action-btn owned"
-          :class="{ active: currentTab === 'owned' }"
-          @click="currentTab = 'owned'"
-        >
+        <button class="action-btn owned" :class="{ active: currentTab === 'owned' }" @click="currentTab = 'owned'">
           已购
         </button>
       </div>
 
       <!-- tab 内容 -->
-       <div class="tab-content">
+      <div class="tab-content">
         <!-- 购买 tab -->
         <div v-if="currentTab === 'buy'" class="list">
           <div class="machine-row" v-for="(item, i) in machines" :key="i">
             <div class="info">
               <div class="name">{{ item.name }}</div>
-              <div class="time">租用时长：{{ item.days }}天</div>
+              <div class="time">租用时长：{{ item.days }}</div>
+              <div class="price">价格：{{ item.price }} USDT</div>
             </div>
-            <button class="buy-btn">抢购</button>
+            <button class="buy-btn" @click="buyMachine(item)">抢购</button>
           </div>
         </div>
 
@@ -55,51 +48,101 @@
 </template>
 
 <script setup>
-import { ref,onMounted  } from "vue"
+import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import { miningGet } from "@/utils/api"
-import Notify from "@/utils/notifyInApp" 
+import { miningGet, getAllMiningMachines, buyFinancialProduct } from "@/utils/api"
+import Notify from "@/utils/notifyInApp"
 const router = useRouter()
 const currentTab = ref("buy") // 默认显示购买
-
+const machines = ref([])   // 商品列表（购买 tab）
 // 返回上一级
-const goBack = () => {
-  router.go(-1)
-}
-// 模拟矿机购买数据
-const machines = ref([
-  { name: "FKS8型超级AI矿机", days: 1 },
-  { name: "GHD5型AI智能矿机", days: 90 },
-  { name: "BUR5型AI智能矿机", days: 90 },
-  { name: "SUM型AI智能矿机", days: 90 },
-  { name: "ARF9型AI智能矿机", days: 90 },
-  { name: "AIS5型AI智能矿机", days: 82 },
-  { name: "AI智能永久矿机", days: "永久" }
-])
-
+const goBack = () => { router.go(-1) }
 // 已购矿机（改为接口数据）
 const ownedMachines = ref([])
 // 已购矿机接口
+const buyMachine = async (item) => {
+  try {
+    console.log("准备购买:", item)
+
+    // 尝试用 miningId
+    const res = await buyFinancialProduct({
+      machineId: item.id, // 换成 machineId / id 也可以再试
+      num: "1" 
+    })
+
+    if (res.data.code === 200) {
+      Notify.inApp({ type: "success", message: res.data.message || `成功购买 ${item.name}` })
+      await loadOwnedMachines()
+      currentTab.value = "owned"
+    } else {
+      Notify.inApp({ type: "error", message: res.data.message || "购买失败" })
+    }
+  } catch (e) {
+    console.error("购买接口异常:", e)
+    Notify.inApp({ type: "error", message: "网络异常" })
+  }
+}
+
+const unitMap = {
+  DAY: "天",
+  MONTH: "月",
+  YEAR: "年"
+}
+
+
 const loadOwnedMachines = async () => {
   try {
     const res = await miningGet({})
     console.log("已购矿机接口返回:", res)
 
-if (res.code === 200) {
-  ownedMachines.value = (res.data || []).map(item => ({
-    name: item.name || "未知矿机",
-    remaining: item.remaining ?? "永久",
-    status: item.status === 1 ? "使用中" : "已过期"
-  }))
-} else if (res.code === 400) {
-  ownedMachines.value = [] // 清空列表
-  // 不要提示 error，而是显示空状态
-  // Notify.inApp({ type: "info", message: "暂无已购矿机" })
-} else {
-  Notify.inApp({ type: "error", message: res.message || "获取矿机失败" })
-}
+    if (res.data.code === 200) {
+      ownedMachines.value = (res.data.data || []).map(item => ({
+        name: item.name || "未知矿机",
+        remaining: item.remaining ,
+        status: item.status === 1 ? "使用中" : "已过期"
+      }))
+    } else if (res.data.code === 400) {
+      ownedMachines.value = [] // 清空列表
+      // 不要提示 error，而是显示空状态
+      // Notify.inApp({ type: "info", message: "暂无已购矿机" })
+    } else {
+      Notify.inApp({ type: "error", message: res.data.message || "获取矿机失败" })
+    }
   } catch (e) {
     console.error("矿机接口异常:", e)
+    Notify.inApp({ type: "error", message: "网络异常" })
+  }
+}
+// 加载商品列表
+const loadMachines = async () => {
+  try {
+    const res = await getAllMiningMachines()
+    console.log("商品接口返回:", res)
+
+    if (res.data.code === 200) {
+      machines.value = (res.data.data || []).map(item => {
+        const unitMap = { DAY: "天", MONTH: "月", YEAR: "年", PERMANENT: "永久" }
+        let days
+
+        if (item.cycleType === "PERMANENT" || item.cycleDuration === "0") {
+          days = "永久"
+        } else {
+          days = item.cycleDuration + (unitMap[item.cycleType] || "")
+        }
+
+        return {
+          id: item.id,
+          name: item.name || "未知矿机",
+          days, // 已经拼接好
+          price: item.price ?? 0,
+          yieldRate: item.yieldRate
+        }
+      })
+    } else {
+      Notify.inApp({ type: "error", message: res.data.message || "加载商品失败" })
+    }
+  } catch (e) {
+    console.error("商品接口异常:", e)
     Notify.inApp({ type: "error", message: "网络异常" })
   }
 }
@@ -108,6 +151,7 @@ if (res.code === 200) {
 
 onMounted(() => {
   loadOwnedMachines()
+  loadMachines()
 })
 
 </script>
@@ -207,6 +251,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 12px;
 }
+
 .machine-row {
   display: flex;
   justify-content: space-between;
@@ -217,14 +262,17 @@ onMounted(() => {
   padding: 12px 15px;
   color: #fff;
 }
+
 .info .name {
   font-weight: bold;
   color: #FFD700;
 }
+
 .info .time {
   font-size: 13px;
   color: #ccc;
 }
+
 .buy-btn {
   background: linear-gradient(135deg, #FFD700, #FFB700);
   border: none;
@@ -236,13 +284,16 @@ onMounted(() => {
   cursor: pointer;
   transition: 0.3s;
 }
+
 .buy-btn:hover {
   background: linear-gradient(135deg, #FFEA70, #FFC300);
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
 }
+
 .status {
   font-size: 14px;
   font-weight: bold;
-  color: #00e676; /* 绿色表示使用中 */
+  color: #00e676;
+  /* 绿色表示使用中 */
 }
 </style>
