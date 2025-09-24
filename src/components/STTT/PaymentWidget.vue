@@ -54,7 +54,7 @@
       <div class="pay-title">支付状态</div>
 
       <div class="pay-amount">
-        需支付 {{ currentToken }}：<b>{{ pay.amountUSDT }}</b>
+        需支付 {{ tokenRef }}：<b>{{ pay.amountUSDT }}</b>
       </div>
 
       <div class="pay-progress">
@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed ,watch } from 'vue'
 import { useDepositFlow } from '@/utils/useDepositFlow.js'
 
 const props = defineProps({
@@ -120,14 +120,14 @@ const rechargeList = ref(props.defaultRechargeList)
 const withdrawList = ref(props.defaultWithdrawList)
 
 const rows = computed(() => listType.value === 'recharge' ? rechargeList.value : withdrawList.value)
-const currentToken = computed(() => props.token || 'USDT')
-
+const tokenRef = ref(props.token || 'USDT')
+watch(() => props.token, v => { tokenRef.value = v || 'USDT' })
 // 默认依赖（可为空；我们在调用时允许覆盖）
 const { pay, runDepositFlow, closePay } = useDepositFlow({
   WalletTP: props.WalletTP,
   RequestOrder: props.RequestOrder,
   SubmitOrder: props.SubmitOrder,
-  defaultToken: currentToken.value
+  defaultToken: tokenRef.value
 })
 
 async function onConfirm(){
@@ -138,7 +138,7 @@ async function onConfirm(){
   // 使用本组件内部输入驱动
   const result = await runDepositFlow({
     amount: localAmount.value || props.amount,
-    token: currentToken.value,
+    token: tokenRef.value,
     // 若 props 未传 WalletTP/RequestOrder/SubmitOrder，则使用 composable 初始化时的默认或报错
   })
   emit('done', result)
@@ -165,9 +165,10 @@ function handleClose(){
  *   })
  */
 async function startExternal({ amount, token, WalletTP, RequestOrder, SubmitOrder, checkTrxEarly = true } = {}) {
+  if (token) tokenRef.value = token 
   const result = await runDepositFlow({
     amount,
-    token: token ?? currentToken.value,
+    token: token ?? tokenRef.value, 
     WalletTP: WalletTP ?? props.WalletTP,
     RequestOrder: RequestOrder ?? props.RequestOrder,
     SubmitOrder: SubmitOrder ?? props.SubmitOrder,

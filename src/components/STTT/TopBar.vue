@@ -257,10 +257,11 @@ onMounted(() => {
   width: 100vw;
   z-index: 1000;
   /* 保证在最上层 */
-  padding: 20px;
+  padding: 20px ; 
+  
   box-sizing: border-box;
   display: flex;
-  gap: 20px;
+  gap: 25px;
   background-color: #000;
 
 }
@@ -281,9 +282,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+  justify-content: center;
   padding: 8px 14px;
   background: #919090;
   border: none;
+ min-width: 120px;
   border-radius: 20px;
   color: white;
   font-size: 14px;

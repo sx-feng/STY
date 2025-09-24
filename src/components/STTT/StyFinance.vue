@@ -40,13 +40,25 @@
     <!-- 卡片2：买卖 STY -->
     <div class="card card-actions">
       <div class="buy-sell">
-        <button class="btn buy">{{ $t('finance.buy') }}</button>
         <button class="btn sell">{{ $t('finance.sell') }}</button>
       </div>
       <div class="record">
         <div class="record-box">{{ $t('finance.buyRecord') }}</div>
         <div class="record-box">{{ $t('finance.sellRecord') }}</div>
       </div>
+      <!-- 商品列表 -->
+<div class="shop">
+  <div class="shop-item" v-for="(item, index) in shopList" :key="index">
+    <div class="shop-info">
+      <div class="shop-name">{{ item.name }}</div>
+      <div class="shop-price">{{ item.price }} STY</div>
+    </div>
+    <button class="btn buy" @click="buyItem(item)">
+      {{ $t('finance.buy') }}
+    </button>
+  </div>
+</div>
+
     </div>
   </div>
 </template>
@@ -61,6 +73,18 @@ import router from '@/router';
     { period: "33天周期" },
     { period: "60天周期" }
   ]
+  const shopList = [
+  { name: "STY 礼包 A", price: 100 },
+  { name: "STY 礼包 B", price: 200 },
+  { name: "STY 礼包 C", price: 500 },
+  { name: "STY 礼包 D", price: 1000 },
+  { name: "STY 礼包 E", price: 2000 }
+]
+
+function buyItem(item) {
+  alert(`购买成功: ${item.name}, 花费 ${item.price} STY`)
+}
+
 
   // 跳转到动态理财详情
 function goDynamicDetail() {
@@ -255,6 +279,61 @@ function goStaticDetail() {
   color: #ffd700;         /* 更亮的金色 */
   text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
 }
+/* Shop 外层：竖向滑动区域 */
+.shop {
+  margin-top: 20px;
+  max-height: 240px;     /* 限制高度，超出部分可滚动 */
+  overflow-y: auto;      /* 竖向滚动 */
+  padding-right: 6px;    /* 给滚动条留点空间 */
+}
+
+/* 每个商品卡片 */
+.shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.shop-info {
+  flex: 1;
+}
+
+.shop-name {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.shop-price {
+  color: #d4af37;
+  font-size: 14px;
+}
+
+/* 按钮 */
+.shop-item .btn.buy {
+  padding: 6px 10px;  /* 内边距更小 */
+  font-size: 12px;    /* 字体更小 */
+  border-radius: 6px; /* 圆角更紧凑 */
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  border: none;
+  color: #000;
+  font-weight: 500;   /* 取消过粗 */
+  cursor: pointer;
+  transition: .25s;
+   width: fit-content;     
+  min-width: 60px;  
+}
+
+.shop-item .btn.buy:hover {
+  transform: translateY(-1px); /* 悬停时轻微浮动 */
+  box-shadow: 0 0 6px rgba(246,194,68,0.5);
+}
+
 
   </style>
   

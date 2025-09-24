@@ -15,10 +15,10 @@
           @click="mode='withdraw'"
         >📒 {{ $t('funds.withdraw') }}</button>
       </div>
-<div class="platform-balance-inline">
-  <span class="label">💰 {{ $t('funds.balance') }}:</span>
-  <span class="value">{{ balance }}</span>
-</div>
+        <div class="platform-balance-inline">
+          <span class="label">💰 {{ $t('funds.balance') }}:</span>
+          <span class="value">{{ balance }}</span>
+        </div>
 
       <input
         class="amount-input"
@@ -82,7 +82,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import WalletTP from '@/utils/walletTP.js'
-import { RequestOrder, SubmitOrder } from '@/utils/api.js'
+import { RequestOrder, SubmitOrder,userPlatformFlowSelect} from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 
 // 基础状态
@@ -92,13 +92,8 @@ const listType = ref('recharge')
 const amount = ref('') // 输入框金额
 
 // 记录列表
-const rechargeList = ref([
-  { amount: '100.00', date: '2025-09-10 12:20' },
-  { amount: '58.50',  date: '2025-09-09 09:05' }
-])
-const withdrawList = ref([
-  { amount: '20.00',  date: '2025-09-08 18:33' }
-])
+const rechargeList = ref([])
+const withdrawList = ref([])
 const rows = computed(() =>
   listType.value === 'recharge' ? rechargeList.value : withdrawList.value
 )
@@ -152,6 +147,29 @@ function onPayDone(res){
 }
 function onPayClose(){
   console.log('close')
+}
+onMounted(async () => {
+  await loadRecharge()
+  await loadWithdraw()
+})
+async function loadRecharge() {
+  const res = await userPlatformFlowSelect('recharge', {})
+  if (res?.code === 200 && Array.isArray(res.data)) {
+    rechargeList.value = res.data.map(item => ({
+      amount: item.amount,
+      date: item.time
+    }))
+  }
+}
+
+async function loadWithdraw() {
+  const res = await userPlatformFlowSelect('withdrawal', {})
+  if (res?.code === 200 && Array.isArray(res.data)) {
+    withdrawList.value = res.data.map(item => ({
+      amount: item.amount,
+      date: item.time
+    }))
+  }
 }
 </script>
 

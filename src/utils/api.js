@@ -62,8 +62,9 @@ export const getAllMiningMachines = (data) =>
 
 // ================== 用户资金 ==================
 export const RequestOrder    = (data) => request(1, '/api/capital/RequestOrder', data)
-export const SubmitOrder = (data) => request(1, '/api/capital/SubmitOrder', data)
 export const contract = (data) => request(1, '/api/capital/contract', data)
+export const SubmitOrder = (data) => request(1, '/api/capital/SubmitOrder', data)
+export const Withdraw = (data) => request(1, '/api/capital/Withdraw', data)
 
 
 // ================== 支付 ==================
@@ -107,4 +108,4 @@ export const productVip    = (data) => request(1, '/api/product/vip', data)
 export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // 查询当前登录用户是否是VIP
 // ================== 平台流水 ==================
 export const userPlatformFlowSelect = (type, data) => request(1, `/api/UserPlatformFlow/select/${type}`, data)
-
+export const userCompany =  (data) => request(1, '/api/content-config/get', data)

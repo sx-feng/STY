@@ -2,35 +2,67 @@
     <div class="info-page">
       <!-- 功能按钮区 -->
       <div class="menu-grid">
-        <div class="menu-item" v-for="(item, index) in menuList" :key="index">
-          <span class="icon">{{ item.icon }}</span>
-          <span class="text">{{ $t(item.label) }}</span>
-        </div>
+        <div
+  class="menu-item"
+  v-for="(item, index) in menuList"
+  :key="index"
+  @click="$router.push(item.path)"
+>
+  <span class="icon">{{ item.icon }}</span>
+  <span class="text" v-html="item.text"></span>
+</div>
       </div>
   
       <!-- 白色卡片区 -->
-      <div class="info-card">
-      <p>{{ $t('info.playRule') }}： <span>{{ playDesc }}</span></p>
-      <p>{{ $t('info.incomeRule') }}： <span>{{ incomeDesc }}</span></p>
+    <div class="info-card">
+      <p>
+        {{ $t('info.playRule') }}：
+        <span v-html="playDesc"></span>
+      </p>
+      <p>
+        {{ $t('info.incomeRule') }}：
+        <span v-html="incomeDesc"></span>
+      </p>
     </div>
-    </div>
+  </div>
   </template>
   
   <script setup>
-  import { ref } from "vue"
-
+  import { ref,onMounted } from "vue"
+import { userCompany } from "@/utils/api"
   
 const menuList = ref([
-  { icon: "🏠", label: "info.company" },
-  { icon: "📘", label: "info.styIntro" },
-  { icon: "🌐", label: "info.ecosystem" },
-  { icon: "💰", label: "info.consensus" },
-
 ])
-  
   // 后端传过来的说明内容
   const playDesc = ref("请输入...")
   const incomeDesc = ref("请输入...")
+  // 请求数据
+async function loadConfig() {
+  try {
+  
+    const res = await userCompany({})
+    // 兼容后端返回结构
+    const data = res.data || res
+
+    menuList.value = [
+    { icon: "🏠", text: "公司简介", path: "/company-profile" },
+  { icon: "📘", text: "STY介绍", path: "/sty-introduction" },
+  { icon: "🌐", text: "未来生态", path: "/future-ecosystem" },
+  { icon: "💰", text: "币种共识", path: "/token-consensus" },
+    ]
+
+    playDesc.value = data.minerGameplayGuide || "暂无说明"
+    incomeDesc.value = data.earningsDetails || "暂无说明"
+  } catch (e) {
+    console.error("加载配置失败:", e)
+    playDesc.value = "加载失败"
+    incomeDesc.value = "加载失败"
+  }
+}
+
+onMounted(() => {
+  loadConfig()
+})
   </script>
   
   <style scoped>
