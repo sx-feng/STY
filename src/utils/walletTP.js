@@ -1,3 +1,4 @@
+/* global BigInt */
 // ==== 代币合约清单 ====
 const CONTRACTS = {
   USDT:  { address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', decimals: 6 },
@@ -221,63 +222,119 @@ _getWin() {
     }
   },
 
-  // ---------- TRC20 转账 ----------
-  /**
-   * @param {{to:string, tokenType:'USDT'|'STYAI'|string, amount:string|number, feeLimit?:number}} opts
-   */
-  async transfer(opts) {
-    const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
-    const { to, tokenType, amount, feeLimit = 100_000_000 } = opts || {};
+// ---------- TRX / TRC20 转账二合一 ----------
+/**
+ * TRX 原生转账： tokenType 传 'TRX'
+ * TRC20 转账：   tokenType 传 'USDT' | 'STYAI' | 具体合约地址（T开头）
+ *
+ * @param {{
+ *   to: string,
+ *   tokenType: 'TRX' | 'USDT' | 'STYAI' | string,
+ *   amount: string|number,
+ *   feeLimit?: number
+ * }} opts
+ */
+async transfer(opts) {
+  const ensure = this._ensureConnected(); if (ensure.code!==1) return ensure;
+  const { to, tokenType, amount, feeLimit = 100_000_000 } = opts || {};
+  const from = this.tronWeb?.defaultAddress?.base58;
 
-    const token = CONTRACTS[tokenType] || (this._isValidAddress(tokenType) ? { address: tokenType, decimals: undefined } : null);
-    if (!token) return this._err('不支持的合约类型或地址：' + tokenType);
+  // 基础校验
+  if (!to || !this._isValidAddress(to)) return this._err('接收地址非法：' + to);
+  if (!amount || Number(amount) <= 0)   return this._err('请输入正确的金额（> 0）');
+  if (from && to && String(from) === String(to)) return this._err('不能给自己地址转账');
 
-    const contract = token.address;
-    let decimals = token.decimals;
-
-    if (!to || !this._isValidAddress(to)) return this._err('接收地址非法：' + to);
-    if (!amount || Number(amount) <= 0)   return this._err('请输入正确的金额（> 0）');
-
-    // 若未预置精度，则从合约读
-    if (decimals == null) {
-      try {
-        const c = await this.tronWeb.contract().at(contract);
-        const d = await c.decimals().call();
-        decimals = Number(d?.toString?.() ?? d ?? 0);
-      } catch { decimals = 0; }
-    }
-
-    // 金额换算
-    const unitsRes = this._toUnitsBigInt(String(amount), decimals);
-    if (unitsRes.code !== 1) return unitsRes;
-    const unitsStr = unitsRes.data.toString();
-
-    // 构建参数
-    const functionSelector = 'transfer(address,uint256)';
-    const params = [
-      { type: 'address',  value: to },
-      { type: 'uint256',  value: unitsStr },
-    ];
-    const options = {
-      feeLimit: Number(feeLimit) || 100_000_000,
-      callValue: 0,
-    };
-
+  // ====== 分支：TRX 原生转账 ======
+  if (String(tokenType).toUpperCase() === 'TRX') {
     try {
-      const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
-        contract, functionSelector, options, params
-      );
-      if (!tx?.transaction) return this._err('构建交易失败');
+      // TRX = 6 位精度（Sun）
+      const unitsRes = this._toUnitsBigInt(String(amount), 6);
+      if (unitsRes.code !== 1) return unitsRes;
+      const sunBI = unitsRes.data;               // BigInt
+      if (sunBI <= 0n) return this._err('TRX 金额过小');
 
-      const signed = await this.tronWeb.trx.sign(tx.transaction);
+      // 余额预检（可选，但更友好）
+      const bal = await this.getTrxBalance(from);
+      if (bal.code !== 1) return bal;
+      // 转账本身大多消耗带宽，不扣 TRX 手续费；这里只检查可用 TRX 是否足够
+      const mySun = BigInt(bal.data.sun);
+      if (mySun < sunBI) return this._err('TRX 余额不足');
+
+      // 构建 unsigned tx（sendTrx 需要 sun 数值）
+      // 注意：transactionBuilder.sendTrx 的 amount 要求 number，超大额可能超出 JS 安全整数
+      // 常规场景足够；若担心极大额，可改用 toNumber 带上范围判断
+      const sunNumber = Number(sunBI);
+      if (!Number.isFinite(sunNumber) || sunNumber > Number.MAX_SAFE_INTEGER) {
+        return this._err('金额过大，超出安全整数范围');
+      }
+
+      const unsigned = await this.tronWeb.transactionBuilder.sendTrx(
+        to,
+        sunNumber,
+        from
+      );
+      if (!unsigned) return this._err('构建 TRX 交易失败');
+
+      const signed = await this.tronWeb.trx.sign(unsigned);
       if (!signed?.signature) return this._err('签名失败或被取消');
 
       const res = await this.tronWeb.trx.sendRawTransaction(signed);
-      return this._ok({ tx, signed, res });
+      return this._ok({ tx: { transaction: unsigned }, signed, res });
     } catch (e) {
-      return this._err('广播失败：' + (e?.message || e));
+      return this._err('TRX 广播失败：' + (e?.message || e));
     }
-  },
+  }
+
+  // ====== 分支：TRC20 代币转账 ======
+  const token =
+    CONTRACTS[tokenType] ||
+    (this._isValidAddress(tokenType) ? { address: tokenType, decimals: undefined } : null);
+
+  if (!token) return this._err('不支持的合约类型或地址：' + tokenType);
+
+  const contract = token.address;
+  let decimals = token.decimals;
+
+  // 若未预置精度，则从合约读
+  if (decimals == null) {
+    try {
+      const c = await this.tronWeb.contract().at(contract);
+      const d = await c.decimals().call();
+      decimals = Number(d?.toString?.() ?? d ?? 0);
+    } catch { decimals = 0; }
+  }
+
+  // 金额换算
+  const unitsRes = this._toUnitsBigInt(String(amount), decimals);
+  if (unitsRes.code !== 1) return unitsRes;
+  const unitsStr = unitsRes.data.toString();
+
+  // 构建参数
+  const functionSelector = 'transfer(address,uint256)';
+  const params = [
+    { type: 'address',  value: to },
+    { type: 'uint256',  value: unitsStr },
+  ];
+  const options = {
+    feeLimit: Number(feeLimit) || 100_000_000,
+    callValue: 0,
+  };
+
+  try {
+    const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
+      contract, functionSelector, options, params
+    );
+    if (!tx?.transaction) return this._err('构建交易失败');
+
+    const signed = await this.tronWeb.trx.sign(tx.transaction);
+    if (!signed?.signature) return this._err('签名失败或被取消');
+
+    const res = await this.tronWeb.trx.sendRawTransaction(signed);
+    return this._ok({ tx, signed, res });
+  } catch (e) {
+    return this._err('广播失败：' + (e?.message || e));
+  }
+},
 };
 
 export default WalletTP;

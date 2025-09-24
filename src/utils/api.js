@@ -57,6 +57,11 @@ export const userMiningList   = (data) => request(1, '/api/user-mining-output/li
 export const getAllMiningMachines = (data) => 
   request(1, '/mining-machine/all', data)
 
+// ================== 用户资金 ==================
+export const RequestOrder    = (data) => request(1, '/api/capital/RequestOrder', data)
+export const SubmitOrder = (data) => request(1, '/api/capital/SubmitOrder', data)
+export const contract = (data) => request(1, '/api/capital/contract', data)
+
 
 // ================== 支付 ==================
 export const paymentAdd    = (data) => request(1, '/api/payment/add', data)
