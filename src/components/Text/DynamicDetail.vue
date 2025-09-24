@@ -22,10 +22,10 @@
         <span>金额</span>
         <span>类型</span>
       </div>
-      <div class="row" v-for="(item,i) in list" :key="i">
-        <span>{{ item.time }}</span>
-        <span :class="item.amount>0?'income':'expense'">
-          {{ item.amount>0? '+'+item.amount:item.amount }}
+     <div class="row" v-for="(item,i) in list" :key="i">
+        <span>{{ item.creatTime }}</span>
+        <span :class="item.price>0?'income':'expense'">
+          {{ item.price>0? '+'+item.price:item.price }}
         </span>
         <span>{{ item.type }}</span>
       </div>
@@ -39,9 +39,9 @@
         <span>类型</span>
       </div>
       <div class="row" v-for="(item,i) in list" :key="i">
-        <span>{{ item.time }}</span>
-        <span :class="item.amount>0?'income':'expense'">
-          {{ item.amount>0? '+'+item.amount:item.amount }}
+        <span>{{ item.creatTime }}</span>
+        <span :class="item.price>0?'income':'expense'">
+          {{ item.price>0? '+'+item.price:item.price }}
         </span>
         <span>{{ item.type }}</span>
       </div>
@@ -59,8 +59,12 @@ function goBack(){ router.go(-1) }
 const list = ref([])
 async function loadDynamicProducts() {
   const res = await dynamicFindByType("0") // type 填写你需要的值
-  if (res.data.code === 200) {
-    console.log("动态产品:", res.data)
+ if (res.ok &&res.data.code === 200 && Array.isArray(res.data.data)) {
+    console.log("静态产品:", res.data)
+     // 保持原始字段
+    list.value = res.data.data       // 先用同一批数据当投资记录
+    console.log('sadjaspjfopq',list.value)
+   
   }
 }
 onMounted( ()=>{

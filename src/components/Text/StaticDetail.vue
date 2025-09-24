@@ -23,10 +23,10 @@
         <span>金额</span>
         <span>周期</span>
       </div>
-      <div class="row" v-for="(item,i) in list" :key="i">
-        <span>{{ item.time }}</span>
-        <span>{{ item.amount }} USDT</span>
-        <span>{{ item.period }}</span>
+       <div class="row" v-for="(item,i) in list" :key="i">
+        <span>{{ item.creatTime }}</span>
+        <span>{{ item.price }} USDT</span>
+        <span>{{ item.cycleDays}}</span>
       </div>
     </div>
     <div class="content-card">
@@ -37,9 +37,9 @@
         <span>周期</span>
       </div>
       <div class="row" v-for="(item,i) in list" :key="i">
-        <span>{{ item.time }}</span>
-        <span>{{ item.amount }} USDT</span>
-        <span>{{ item.period }}</span>
+        <span>{{ item.creatTime }}</span>
+        <span>{{ item.price }} USDT</span>
+        <span>{{ item.cycleDays}}</span>
       </div>
     </div>             
   </div>
@@ -59,6 +59,7 @@ async function loadStaticProducts() {
     console.log("静态产品:", res.data)
      // 保持原始字段
     list.value = res.data.data       // 先用同一批数据当投资记录
+    console.log('sadjaspjfopq',list.value)
    
   }
 }

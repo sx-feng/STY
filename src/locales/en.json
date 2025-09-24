@@ -71,7 +71,8 @@
     "locked": "Exceeded {max} misses, sign-in reset this month",
     "success": "Signed in successfully!",
     "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "fail": "fail"
+    "fail": "fail",
+    "reSign": "Make-up Sign"
   },
   "light": {
     "member": "Node Member",

@@ -158,10 +158,11 @@ async function doRegister() {
     const resp = await userRegister({
       walletAddress: registerForm.value.walletAddress,
       twoPassword: registerForm.value.twoPassword,
+      upInvitationCode: registerForm.value.upInvitationCode,
       confirmPassword: registerForm.value.confirmPassword  
     })
 
-    if (resp.ok) {
+    if (resp.data.code==200) {
       Notify.inApp({ title: '成功', message: '注册成功，请重新登录', type: 'success' })
       showRegisterDialog.value = false
 
@@ -174,7 +175,7 @@ async function doRegister() {
         getBalance()
       }
     } else {
-      Notify.inApp({ title: '错误', message: resp.message || '注册失败', type: 'error' })
+      Notify.inApp({ title: '错误', message: resp.data.message || '注册失败', type: 'error' })
     }
   } catch (e) {
     Notify.inApp({ title: '错误', message: String(e.message), type: 'error' })

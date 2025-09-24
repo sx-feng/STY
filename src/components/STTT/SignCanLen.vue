@@ -20,7 +20,8 @@
              'is-empty': !cell.day,
              'is-signed': cell.signed,
              'is-today': cell.isToday,
-             'is-missed': cell.isPast && !cell.signed
+             'is-missed': cell.isPast && !cell.signed,
+             'is-resigned': cell.isResigned   // 新增
            }">
         <div v-if="cell.day" class="day">
           <span class="num">{{ cell.day }}</span>
@@ -38,6 +39,13 @@
                  @click="signToday">
         {{ $t('sign.signNow') }}
       </el-button>
+      <el-button type="warning"
+           :disabled="resignDisabled"
+           :loading="resigning"
+           @click="autoResign">
+  {{ $t('sign.reSign') }}
+</el-button>
+
 
       <span class="tip" v-if="locked">
         {{ $t('sign.locked', { max: maxMiss }) }}
@@ -70,6 +78,7 @@ const todayStr = `${year}-${pad(month)}-${pad(todayDay)}`
 const signedSet = ref(new Set())
 const signing = ref(false)
 
+
 // 拉取签到记录
 // 拉取签到记录
 async function fetchSignRecord() {
@@ -77,7 +86,22 @@ async function fetchSignRecord() {
     const res = await signRecord({ yearMonth: ymKey })
     if (res.data.code === 200) {
       const list = Array.isArray(res.data.data) ? res.data.data : []
-      signedSet.value = new Set(list)  // 必须保证是 yyyy-MM-dd
+      
+      const normal = []
+      const resigned = []
+
+      for (const item of list) {
+        if (item.signDate) {
+          if (item.isResignSign) {
+            resigned.push(item.signDate)
+          } else {
+            normal.push(item.signDate)
+          }
+        }
+      }
+
+      signedSet.value = new Set(normal.concat(resigned)) // 所有签到（包含补签）
+      resignedSet.value = new Set(resigned)              // 单独的补签日期
     } else {
       ElMessage.error(res.data.message || '加载签到记录失败')
     }
@@ -85,6 +109,7 @@ async function fetchSignRecord() {
     ElMessage.error('网络错误')
   }
 }
+
 
 /** 签到 */
 async function signToday() {
@@ -110,20 +135,52 @@ async function signToday() {
 }
 
 /** 补签 */
-async function reSign(dateStr) {
+// ====== 补签逻辑（自动补最近漏签的那天） ======
+const resignUsed = ref(0)      // 已补签次数（最好从后端返回）
+const resigning = ref(false)   // 补签按钮的 loading
+const resignedSet = ref(new Set()) // 补签日期集合
+
+// 最近漏签日期（今天之前，倒着找第一个漏签的日子）
+const lastMissedDay = computed(() => {
+  for (let d = todayDay - 1; d >= 1; d--) {
+    const ds = `${year}-${pad(month)}-${pad(d)}`
+    if (!signedSet.value.has(ds)) {
+      return ds
+    }
+  }
+  return null
+})
+
+// 禁用条件：没有漏签 或 已用光补签次数
+const resignDisabled = computed(() =>
+  !lastMissedDay.value || resignUsed.value >= maxMiss
+)
+async function autoResign() {
+  if (!lastMissedDay.value) {
+    ElMessage.warning('没有可补签的日期')
+    return
+  }
+  if (resignUsed.value >= maxMiss) {
+    ElMessage.error(`本月补签机会已用完（${maxMiss} 次）`)
+    return
+  }
+  resigning.value = true
   try {
-    const res = await signResign({ date: dateStr })
+    const res = await signResign({ date: lastMissedDay.value })
     if (res.data.code === 200) {
-      ElMessage.success(res.data.message || '补签成功')
+      ElMessage.success(res.data.message || `补签成功：${lastMissedDay.value}`)
+      resignUsed.value++
+       resignedSet.value.add(lastMissedDay.value) 
       await fetchSignRecord()
     } else {
       ElMessage.error(res.data.message || '补签失败')
     }
   } catch (e) {
     ElMessage.error('网络错误')
+  } finally {
+    resigning.value = false
   }
 }
-
 
 /** 计算属性 */
 const isTodaySigned = computed(() => signedSet.value.has(todayStr))
@@ -170,7 +227,8 @@ const cells = computed(() => {
       day,
       signed: signedSet.value.has(ds),
       isToday: day === todayDay,
-      isPast: day < todayDay
+      isPast: day < todayDay,
+      isResigned: resignedSet.value.has(ds)  // 新增
     })
   }
   return arr
@@ -291,6 +349,14 @@ onMounted(() => {
 
 .cell.is-missed {
   background: rgba(255, 255, 255, .02);
+}
+/* 补签 */
+.cell.is-resigned {
+  background: rgba(239, 68, 68, .15); /* 红色背景 */
+  border-color: rgba(239, 68, 68, .5);
+}
+.cell.is-resigned .mark {
+  color: #ef4444; /* 红色对号 */
 }
 
 .actions {
