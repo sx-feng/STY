@@ -242,7 +242,12 @@ function goStaticDetail() {
     transform: translateY(-2px);
     box-shadow: 0 0 10px rgba(246,194,68,0.5);
   }
-  
+  .card.card-actions {
+         /* ✅ 比普通卡片更窄 */
+  max-width: 360px;   /* ✅ 限制最大宽度 */
+  margin-bottom: 40px; /* ✅ 和底部多留点空间 */
+}
+
   /* 记录 */
   .record {
     display: flex;
@@ -295,7 +300,7 @@ function goStaticDetail() {
   background: #fff;
   border-radius: 12px;
   padding: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
@@ -326,7 +331,7 @@ function goStaticDetail() {
   cursor: pointer;
   transition: .25s;
    width: fit-content;     
-  min-width: 60px;  
+  max-width: 100px;  
 }
 
 .shop-item .btn.buy:hover {

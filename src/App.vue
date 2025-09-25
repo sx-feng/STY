@@ -44,11 +44,10 @@ const router = useRouter()
 
 onMounted(async () => {
   try {
-    // 进入时检查是否刷新
-  window.addEventListener("beforeunload", () => {
-    localStorage.removeItem("token")   // ✅ 只有刷新才清除
-  })
-    const address = localStorage.getItem('walletAddress') || '' // 假设存过钱包地址
+    window.addEventListener("beforeunload", () => {
+      localStorage.removeItem("token")
+    })
+    const address = localStorage.getItem('walletAddress') || ''
     const initRes = await userInit({ userwalletAddress: address })
     console.log("【初始化响应】", initRes)
 
@@ -60,8 +59,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-  router.replace('/')
+
+  // ✅ 只在首次访问根路径时替换
+  if (router.currentRoute.value.path === '/') {
+    router.replace('/')
+  }
 })
+
 </script>
 
 <style>

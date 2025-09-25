@@ -1,5 +1,5 @@
 <template>
-  <div class="page-root">
+
     <div class="funds-page">
       <div>
       
@@ -76,7 +76,7 @@
       @done="onPayDone"
       @close="onPayClose"
     />
-  </div>
+ 
 </template>
 
 <script setup>
@@ -151,6 +151,8 @@ function onPayClose(){
 onMounted(async () => {
   await loadRecharge()
   await loadWithdraw()
+    console.log("FundsPage mounted")
+    console.log("FundsPage mounted", new Date().toISOString())
 })
 async function loadRecharge() {
   const res = await userPlatformFlowSelect('recharge', {})

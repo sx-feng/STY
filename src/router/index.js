@@ -54,11 +54,7 @@ const router = createRouter({
       path: '/spot',
       name: 'SpotlightMember',
       component: SpotlightMember
-    }, {
-      path: '/top',
-      name: 'TopBar',
-      component: TopBar
-    }, {
+    },  {
       path: '/sign',
       name: 'SignCanLen',
       component: SignCanLen
