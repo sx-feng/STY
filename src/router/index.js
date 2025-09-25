@@ -3,7 +3,7 @@ import StyFinance from '@/components/STTT/StyFinance.vue'
 import introPage from '@/components/STTT/IntroPage.vue'
 import FundsPage from '@/components/STTT/FundsPage.vue'
 import SpotlightMember from '@/components/STTT/SpotlightMember.vue'
-import TopBar from '@/components/STTT/TopBar.vue'
+
 import HomePage from '@/components/STTT/HomePage.vue'
 import SignCanLen from '@/components/STTT/SignCanLen.vue'
 import TeamPe from '@/components/STTT/TeamPe.vue'

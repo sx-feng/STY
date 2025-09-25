@@ -218,18 +218,18 @@ function handleSelect(key) {
     
   }
 }
-const activeIndex = computed(() => {
-  if (route.path.startsWith('/finance')) return 'StyFinance'
-  if (route.path.startsWith('/info')) return 'introPage'
-  if (route.path.startsWith('/funds')) {
-    if (route.query.tab === 'deposit') return 'funds-deposit'
-    if (route.query.tab === 'withdraw') return 'funds-withdraw'
-    return 'FundsPage'
-  }
-  if (route.path.startsWith('/spot')) return 'SpotlightMember'
-  if (route.path.startsWith('/change')) return 'changePass' 
-  return 'HomePage' // 默认首页
-})
+// const activeIndex = computed(() => {
+//   if (route.path.startsWith('/finance')) return 'StyFinance'
+//   if (route.path.startsWith('/info')) return 'introPage'
+//   if (route.path.startsWith('/funds')) {
+//     if (route.query.tab === 'deposit') return 'funds-deposit'
+//     if (route.query.tab === 'withdraw') return 'funds-withdraw'
+//     return 'FundsPage'
+//   }
+//   if (route.path.startsWith('/spot')) return 'SpotlightMember'
+//   if (route.path.startsWith('/change')) return 'changePass' 
+//   return 'HomePage' // 默认首页
+// })
 
 onMounted(() => {
  const token = localStorage.getItem("token")

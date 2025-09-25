@@ -1,52 +1,6 @@
 <!-- src/components/PaymentWidget.vue -->
 <template>
-  <div class="funds-page">
-    <!-- 顶部切换（可留可删） -->
-    <div class="action-switch">
-      <button class="pill" :class="{ active: mode==='deposit' }" @click="mode='deposit'">📦 {{ $t?.('funds.deposit') ?? '充值' }}</button>
-      <button class="pill" :class="{ active: mode==='withdraw' }" @click="mode='withdraw'">📒 {{ $t?.('funds.withdraw') ?? '提现' }}</button>
-    </div>
 
-    <!-- 平台余额（可选） -->
-    <div class="platform-balance" v-if="showBalance">
-      <span>{{ $t?.('funds.balance') ?? '平台余额' }}: </span>
-      <strong>{{ balance }}</strong>
-    </div>
-
-    <!-- 金额输入（可隐藏，外部全传入也可以） -->
-    <input
-      v-if="showBuiltinInput"
-      class="amount-input"
-      type="number"
-      inputmode="decimal"
-      :placeholder="mode==='deposit' ? ($t?.('funds.depositPlaceholder') ?? '请输入充值金额') : ($t?.('funds.withdrawPlaceholder') ?? '请输入提现金额')"
-      v-model.trim="localAmount"
-    />
-    <button v-if="showBuiltinInput" class="confirm-btn" @click="onConfirm">{{ $t?.('funds.confirm') ?? '确认' }}</button>
-
-    <!-- 列表卡片（可选） -->
-    <div class="list-card" v-if="showList">
-      <div class="gold-spotlight"><i class="gold-core"></i></div>
-
-      <div class="list-tabs">
-        <button class="tab" :class="{ on: listType==='recharge' }" @click="listType='recharge'">📦 {{ $t?.('funds.rechargeList') ?? '充值记录' }}</button>
-        <button class="tab" :class="{ on: listType==='withdraw' }" @click="listType='withdraw'">📒 {{ $t?.('funds.withdrawList') ?? '提现记录' }}</button>
-      </div>
-
-      <div class="thead">
-        <span>{{ listType==='recharge' ? ($t?.('funds.rechargeAmount') ?? '金额') : ($t?.('funds.withdrawAmount') ?? '金额') }}</span>
-        <span>{{ listType==='recharge' ? ($t?.('funds.rechargeDate') ?? '时间') : ($t?.('funds.withdrawDate') ?? '时间') }}</span>
-      </div>
-
-      <div class="rows">
-        <div class="row" v-for="(item,i) in rows" :key="i">
-          <span>{{ item.amount }}</span>
-          <span>{{ item.date }}</span>
-        </div>
-        <div v-if="rows.length===0" class="empty">{{ $t?.('funds.noRecord') ?? '暂无记录' }}</div>
-      </div>
-    </div>
-  </div>
 
   <!-- 支付状态弹窗 -->
   <div v-if="pay.visible" class="pay-mask">
