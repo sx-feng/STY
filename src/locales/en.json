@@ -104,8 +104,10 @@
     "price": "Price: {price} USDT",
     "remaining": "Remaining Time: {days} days",
     "status": {
-      "using": "In Use",
-      "expired": "Expired"
+      "running": "Running",
+      "expired": "Expired",
+      "stopped": "Stopped",
+      "unknown": "Unknown"
     },
     "buyBtn": "Purchase",
     "unknown": "Unknown Machine"
