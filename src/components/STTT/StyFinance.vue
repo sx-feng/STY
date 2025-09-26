@@ -1,7 +1,6 @@
 <template>
   <div class="finance-page">
 
-
     <div class="top-actions">
       <button class="tab-btn active">📦 {{ $t('finance.styTreasure') }}</button>
       <button class="tab-btn">📒 {{ $t('finance.styIntro') }}</button>
@@ -13,10 +12,9 @@
         <div class="dynamic-title">{{ $t('finance.dynamic') }}</div>
         <div class="dynamic-row">
           <span class="rate">{{ $t('finance.currentRate') }}</span>
-           <!-- ✅ 新增 -->
-  <a class="detail" href="javascript:void(0)" @click="goDynamicDetail">
-    {{ $t('finance.detail') }}
-  </a>
+          <a class="detail" href="javascript:void(0)" @click="goDynamicDetail">
+            {{ $t('finance.detail') }}
+          </a>
         </div>
       </div>
 
@@ -24,11 +22,11 @@
       <div class="gold-divider"></div>
 
       <div class="static">
-        <div class="static-title">{{ $t('finance.static') }}
-           <!-- ✅ 新增 -->
-  <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
-    {{ $t('finance.detail') }}
-  </a>
+        <div class="static-title">
+          {{ $t('finance.static') }}
+          <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
+            {{ $t('finance.detail') }}
+          </a>
         </div>
         <div class="static-row" v-for="(item, index) in staticList" :key="index">
           <span>{{ $t(`finance.period${index+1}`) }}</span>
@@ -40,44 +38,103 @@
     <!-- 卡片2：买卖 STY -->
     <div class="card card-actions">
       <div class="buy-sell">
-        <button class="btn sell">{{ $t('finance.sell') }}</button>
+        <!-- 出售 STY 按钮 -->
+        <button class="btn sell" @click="openSellDialog">
+          {{ $t('finance.sell') }}
+        </button>
       </div>
-   <div class="record">
-  <div class="record-box" @click="goBuyRecord">
-    {{ $t('finance.buyRecord') }}
-  </div>
-  <div class="record-box" @click="goSellRecord">
-    {{ $t('finance.sellRecord') }}
-  </div>
-</div>
-      <!-- 商品列表 -->
-<div class="shop">
-  <div class="shop-item" v-for="(item, index) in shopList" :key="index">
-    <div class="shop-info">
-      <div class="shop-name">{{ item.name }}</div>
-      <div class="shop-price">{{ item.price }} STY</div>
-    </div>
-    <button class="btn buy" @click="buyItem(item)">
-      {{ $t('finance.buy') }}
-    </button>
-  </div>
-</div>
 
+      <div class="record">
+        <div class="record-box" @click="goBuyRecord">
+          {{ $t('finance.buyRecord') }}
+        </div>
+        <div class="record-box" @click="goSellRecord">
+          {{ $t('finance.sellRecord') }}
+        </div>
+      </div>
+
+      <!-- 商品列表 -->
+      <div class="shop">
+        <div class="shop-item" v-for="(item, index) in shopList" :key="index">
+          <div class="shop-info">
+            <div class="shop-name">{{ item.name }}</div>
+            <div class="shop-price">{{ item.price }} STY</div>
+          </div>
+          <button class="btn buy" @click="buyItem(item)">
+            {{ $t('finance.buy') }}
+          </button>
+        </div>
+      </div>
     </div>
+
+   <!-- 出售 STY 弹窗 -->
+<div v-if="showSellDialog" class="dialog-mask">
+  <div class="dialog-box sell-box">
+    <!-- 当前单价 -->
+    <div class="sell-header">
+      当前单价：<span class="price-value">{{ unitPrice }}</span> <span class="unit">USDT</span>
+    </div>
+
+    <!-- 出售数量输入 -->
+    <div class="sell-input">
+      <label>出售数量：</label>
+      <input type="number" v-model="sellAmount" />
+      <span class="unit">STY</span>
+      <span class="max-btn" @click="sellAmount=available">全部</span>
+    </div>
+
+    <!-- 信息展示 -->
+    <div class="sell-info">
+      <div class="info-row">
+        <span>可用</span>
+        <span>{{ available }} STY</span>
+      </div>
+      <div class="info-row">
+        <span>手续费</span>
+        <span>{{ fee }} STY</span>
+      </div>
+      <div class="info-row highlight">
+        <span>可得</span>
+        <span>{{ receiveUSDT }} USDT</span>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="dialog-actions">
+      <button @click="confirmSell" class="sell-confirm">出售 STY</button>
+      <button @click="showSellDialog=false" class="sell-cancel">取消</button>
+    </div>
+  </div>
+</div>
   </div>
 </template>
-  
-  <script setup>
 
+<script setup>
+import { ref,computed,onMounted } from "vue"
 import router from '@/router';
-  const staticList = [
-    { period: "3天周期" },
-    { period: "10天周期" },
-    { period: "22天周期" },
-    { period: "33天周期" },
-    { period: "60天周期" }
-  ]
-  const shopList = [
+import { stySell ,styExchangeRate} from '@/utils/api'
+const showSellDialog = ref(false)
+const sellAmount = ref(0)
+
+function openSellDialog() {
+  showSellDialog.value = true
+}
+
+function confirmSell() {
+  alert(`出售成功: ${sellAmount.value} STY`)
+  showSellDialog.value = false
+  sellAmount.value = 0
+}
+
+const staticList = [
+  { period: "3天周期" },
+  { period: "10天周期" },
+  { period: "22天周期" },
+  { period: "33天周期" },
+  { period: "60天周期" }
+]
+
+const shopList = [
   { name: "STY 礼包 A", price: 100 },
   { name: "STY 礼包 B", price: 200 },
   { name: "STY 礼包 C", price: 500 },
@@ -85,119 +142,143 @@ import router from '@/router';
   { name: "STY 礼包 E", price: 2000 }
 ]
 
+const unitPrice = ref()     
+const available = ref()  
+const fee = ref()           
+
+const receiveUSDT = computed(() => {
+  const amount = Number(sellAmount.value) || 0
+  const valid = Math.max(amount - fee.value, 0)
+  return (valid * unitPrice.value).toFixed(2)
+})
+
 function buyItem(item) {
   alert(`购买成功: ${item.name}, 花费 ${item.price} STY`)
 }
 
-
-  // 跳转到动态理财详情
 function goDynamicDetail() {
   router.push("/dynamic")
 }
 
-// 跳转到静态理财详情
 function goStaticDetail() {
   router.push("/statuc")
 }
 
 function goBuyRecord() {
-  router.push("/buy")   // 对应 BuyRecord.vue 的路由
+  router.push("/buy")
 }
 
 function goSellRecord() {
-  router.push("/cell")  // 对应 SellRecord.vue 的路由
+  router.push("/cell")
 }
 
-  </script>
-  
-  <style>
-  .finance-page {
-    min-height: 100vh;
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px;
-    font-family: "Microsoft YaHei", sans-serif;
-    position: relative;
-    overflow: hidden;
+async function calcRate() {
+  const res = await styExchangeRate({amount:11})  
+  console.log('兑换汇率结果:', res)
+}
+async function doSell() {
+  try {
+    const res = await stySell({ amount: 500 }) 
+    if (res?.data?.code === 200) {
+      console.log('卖出成功:', res.data)
+    } else {
+      console.error('卖出失败:', res?.data?.message || '未知错误')
+    }
+  } catch (e) {
+    console.error('请求异常:', e)
   }
-  
-  /* 金色聚光灯背景 */
-  .finance-page::before {
-    content: "";
-    position: absolute;
-    top: -20%;
-    left: 50%;
-    transform: translateX(-50%) scaleY(0.55);
-    width: 100%;
-    height: 200%;
-    background: radial-gradient(
-      ellipse at 50% 0%,
-      rgba(255,215,0,0.6) 0%,
-      rgba(255,193,7,0.35) 35%,
-      rgba(0,0,0,0.95) 100%
-    );
-    filter: blur(90px);
-    pointer-events: none;
-    z-index: 0;
-  }
-  
-  .top-actions {
-    margin-top: 40px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-    z-index: 1;
-    
-  }
-  
-  .tab-btn {
-    background: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 14px 18px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.25s;
-  }
-  .tab-btn.active {
-    color: #000;
-    border: 1px solid gold;
-    box-shadow: 0 0 12px rgba(246,194,68,0.6);
-  }
-  
-  /* 白色卡片 */
-  .card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 18px;
-    margin: 14px 0;
-    width: 90%;
-    max-width: 420px;
-    z-index: 1;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  }
-  
-  
-  .dynamic{
-    margin-bottom: 50px;
-  }
+}
+onMounted(()=>{
+  calcRate()
+  doSell()
+})
+</script>
+
+<style>
+.finance-page {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  font-family: "Microsoft YaHei", sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 金色聚光灯背景 */
+.finance-page::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%) scaleY(0.55);
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255,215,0,0.6) 0%,
+    rgba(255,193,7,0.35) 35%,
+    rgba(0,0,0,0.95) 100%
+  );
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.top-actions {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  z-index: 1;
+}
+
+.tab-btn {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.tab-btn.active {
+  color: #000;
+  border: 1px solid gold;
+  box-shadow: 0 0 12px rgba(246,194,68,0.6);
+}
+
+/* 白色卡片 */
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px;
+  margin: 14px 0;
+  width: 90%;
+  max-width: 420px;
+  z-index: 1;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.dynamic {
+  margin-bottom: 50px;
+}
 .dynamic-title,
 .static-title {
   font-weight: 600;
   margin-bottom: 8px;
   color: #333;
-
-  display: flex;                 
+  display: flex;
   justify-content: space-between;
-  align-items: center;          
+  align-items: center;
 }
 .dynamic-title .detail,
 .static-title .detail {
-  margin-left: auto;             /* ✅ 确保详情贴右边 */
+  margin-left: auto;
 }
 .dynamic-row {
   display: flex;
@@ -205,7 +286,6 @@ function goSellRecord() {
   font-size: 14px;
   margin-bottom: 12px;
 }
-
 .dynamic-row .rate { color: #555; }
 .dynamic-row .detail { color: #f6c244; }
 
@@ -214,94 +294,93 @@ function goSellRecord() {
   border-top: 1px solid #eee;
   margin: 12px 0;
 }
-  
-  .static-row {                
+
+.static-row {
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
   font-size: 14px;
   color: #444;
 }
-
 .static-row:not(:last-child) {
   border-bottom: 1px dashed #ddd;
 }
-  /* 买卖 STY */
-  .card-actions .buy-sell {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 12px;
-  }
-  .card-actions .btn {
-    flex: 1;
-    margin: 0 8px;
-    padding: 10px 0;
-    border: none;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: .25s;
-  }
-  .btn.buy {
-    background: linear-gradient(90deg, #f6c244, #d6a520);
-    color: #000;
-  }
-  .btn.sell {
-    background: linear-gradient(90deg, #ff8c42, #d65f20);
-    color: #000;
-  }
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 10px rgba(246,194,68,0.5);
-  }
-  .card.card-actions {
-         /* ✅ 比普通卡片更窄 */
-  max-width: 360px;   /* ✅ 限制最大宽度 */
-  margin-bottom: 40px; /* ✅ 和底部多留点空间 */
+
+/* 买卖 STY */
+.card-actions .buy-sell {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+}
+.card-actions .btn {
+  flex: 1;
+  margin: 0 8px;
+  padding: 10px 0;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .25s;
+}
+.btn.buy {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+}
+.btn.sell {
+  background: linear-gradient(90deg, #ff8c42, #d65f20);
+  color: #000;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px rgba(246,194,68,0.5);
+}
+.card.card-actions {
+  max-width: 360px;
+  margin-bottom: 40px;
 }
 
-  /* 记录 */
-  .record {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-  }
-  .record-box {
-    flex: 1;
-    text-align: center;
-    padding: 8px;
-    font-size: 13px;
-    border-right: 1px solid #ddd;
-  }
-  .record-box:last-child {
-    border-right: none;
-  }
-  .gold-divider {
-    height: 1px;                
-  width: 100%;               
-  margin: 10px 0 14px;      
-  background-color: #ffed84; 
-  border-radius: 1px; 
+/* 记录 */
+.record {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+.record-box {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  border-right: 1px solid #ddd;
+}
+.record-box:last-child {
+  border-right: none;
+}
+.gold-divider {
+  height: 1px;
+  width: 100%;
+  margin: 10px 0 14px;
+  background-color: #ffed84;
+  border-radius: 1px;
 }
 .detail {
   font-size: 13px;
   font-weight: bold;
-  color: #f6c244;         /* 金色 */
-  text-decoration: none;  /* 去掉下划线 */
+  color: #f6c244;
+  text-decoration: none;
   cursor: pointer;
   transition: 0.25s;
 }
-
 .detail:hover {
-  color: #ffd700;         /* 更亮的金色 */
+  color: #ffd700;
   text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
 }
+
 /* Shop 外层：竖向滑动区域 */
 .shop {
   margin-top: 20px;
-  max-height: 240px;     /* 限制高度，超出部分可滚动 */
-  overflow-y: auto;      /* 竖向滚动 */
-  padding-right: 6px;    /* 给滚动条留点空间 */
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 /* 每个商品卡片 */
@@ -315,17 +394,12 @@ function goSellRecord() {
   margin-bottom: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
-
-.shop-info {
-  flex: 1;
-}
-
+.shop-info { flex: 1; }
 .shop-name {
   font-weight: bold;
   color: #333;
   margin-bottom: 6px;
 }
-
 .shop-price {
   color: #d4af37;
   font-size: 14px;
@@ -333,24 +407,201 @@ function goSellRecord() {
 
 /* 按钮 */
 .shop-item .btn.buy {
-  padding: 6px 10px;  /* 内边距更小 */
-  font-size: 12px;    /* 字体更小 */
-  border-radius: 6px; /* 圆角更紧凑 */
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
   background: linear-gradient(90deg, #f6c244, #d6a520);
   border: none;
   color: #000;
-  font-weight: 500;   /* 取消过粗 */
+  font-weight: 500;
   cursor: pointer;
   transition: .25s;
-   width: fit-content;     
-  max-width: 100px;  
+  width: fit-content;
+  max-width: 100px;
 }
-
 .shop-item .btn.buy:hover {
-  transform: translateY(-1px); /* 悬停时轻微浮动 */
+  transform: translateY(-1px);
   box-shadow: 0 0 6px rgba(246,194,68,0.5);
 }
 
+/* 弹窗遮罩 */
+.dialog-mask {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
 
-  </style>
-  
+/* 弹窗内容 */
+.dialog-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.dialog-box h3 {
+  margin-bottom: 14px;
+  color: #333;
+}
+.dialog-box input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: space-around;
+}
+.dialog-btn {
+  flex: 1;
+  margin: 0 6px;
+  padding: 8px 0;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.dialog-btn.confirm {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+}
+.dialog-btn.cancel {
+  background: #ccc;
+  color: #000;
+}
+.price {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* 弹窗内容整体 */
+.sell-box {
+  padding: 24px;
+  border-radius: 16px;
+  background: #fff;
+  width: 80%;
+  max-width: 360px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  animation: fadeInUp 0.25s ease-out;
+}
+
+/* 顶部单价 */
+.sell-header {
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: #666;
+}
+.price-value {
+  font-weight: bold;
+  color: #000;
+}
+.unit {
+  color: #888;
+  margin-left: 4px;
+}
+
+/* 输入框区域 */
+.sell-input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.sell-input label {
+  flex: 1;
+  font-size: 14px;
+  color: #444;
+}
+.sell-input input {
+  flex: 2;
+  padding: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 0 6px;
+}
+.max-btn {
+  color: #337ab7;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.max-btn:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* 信息区域 */
+.sell-info {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.info-row:last-child {
+  margin-bottom: 0;
+}
+.info-row.highlight span:last-child {
+  color: #d65f20;
+  font-weight: bold;
+}
+
+/* 操作按钮 */
+.dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sell-confirm {
+  background: #000;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.sell-confirm:hover {
+  background: #222;
+}
+.sell-cancel {
+  background: #eee;
+  color: #333;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.sell-cancel:hover {
+  background: #ddd;
+}
+
+/* 弹窗动画 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+</style>

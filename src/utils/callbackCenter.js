@@ -8,7 +8,7 @@ export default {
   // 注册回调
   register(key, fn) {
     if (typeof fn === 'function') {
-      callbacks[key] = fn
+      callbacks[key] = fn                             
     }
   },
   // 触发指定回调
@@ -24,5 +24,5 @@ export default {
   // 移除回调
   unregister(key) {
     delete callbacks[key]
-  }
+  }  
 }
