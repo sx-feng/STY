@@ -70,6 +70,7 @@ import Notify from '@/utils/notifyInApp'
 import { provide } from 'vue'
 import {  userLogin, userRegister } from '@/utils/api.js'
 import { onMounted } from 'vue'
+import CallbackCenter from '@/utils/callbackCenter.js'
 
 const drawerOpen = ref(false)
 const router = useRouter()
@@ -95,18 +96,23 @@ const btnText = computed(() => {
   if (connecting.value) return t('btn.connecting', '连接中…')
   return t('btn.connect', '连接')
 })
-function handleLoginSuccess(token) {
-  isConnected.value = true
-  localStorage.setItem("isConnected", "1")  // 保存状态
-  localStorage.setItem("token", token)      // 保存 token
-  Notify.inApp({ title: '成功', message: '登录成功', type: 'success' })
-  getBalance()
-}
 
 // 初始化时读取
 if (localStorage.getItem("isConnected") === "1") {
   isConnected.value = true
 }
+
+function handleLoginSuccess(token) {
+  isConnected.value = true
+  localStorage.setItem("isConnected", "1")
+  localStorage.setItem("token", token)
+  Notify.inApp({ title: '成功', message: '登录成功', type: 'success' })
+  getBalance()
+
+  // 🔔 连接成功后触发所有回调
+  CallbackCenter.triggerAll({ token, wallet: localStorage.getItem("walletAddress") })
+}
+
 
 async function connectTP() {
   if (connecting.value || isConnected.value) return

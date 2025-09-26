@@ -90,7 +90,7 @@
     />
 </template>
 <script setup>
-import { ref, computed, onMounted ,nextTick } from 'vue'
+import { ref, computed, onMounted ,nextTick ,onUnmounted} from 'vue'
 import { useI18n } from 'vue-i18n'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
@@ -101,6 +101,7 @@ import {  userGet,userMachineRecordList } from "@/utils/api"
 import WalletTP from '@/utils/walletTP.js'
 import { Withdraw, SubmitOrder } from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
+import CallbackCenter from '@/utils/callbackCenter.js'
 
 const router = useRouter()
 const styaiBalance = inject('styaiBalance', ref(0))
@@ -186,14 +187,28 @@ const payRef = ref(null)
 const ready = ref(false)
 const amount = ref('') // 输入框金额
 
-onMounted(async () => {
-    loadRecords()
+///////////全局回调
+onMounted(() => {
+  CallbackCenter.register('financeUpdate', (info) => {
+    console.log("Finance 页面收到登录成功回调", info)
+    // 在这里执行余额刷新逻辑
+       refresh()
+  });
+  refresh();//封装刷新的方法
+})
+/////////////////
+
+async function refresh(){
+      loadRecords()
     loadUserInfo() 
   await nextTick()
   await loadStyaiBalance()
   ready.value = true
-});
+}
 
+onUnmounted(() => {
+  CallbackCenter.unregister('financeUpdate')
+})
 
 
 // ② 拉取余额的方法
