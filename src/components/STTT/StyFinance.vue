@@ -42,10 +42,14 @@
       <div class="buy-sell">
         <button class="btn sell">{{ $t('finance.sell') }}</button>
       </div>
-      <div class="record">
-        <div class="record-box">{{ $t('finance.buyRecord') }}</div>
-        <div class="record-box">{{ $t('finance.sellRecord') }}</div>
-      </div>
+   <div class="record">
+  <div class="record-box" @click="goBuyRecord">
+    {{ $t('finance.buyRecord') }}
+  </div>
+  <div class="record-box" @click="goSellRecord">
+    {{ $t('finance.sellRecord') }}
+  </div>
+</div>
       <!-- 商品列表 -->
 <div class="shop">
   <div class="shop-item" v-for="(item, index) in shopList" :key="index">
@@ -94,6 +98,14 @@ function goDynamicDetail() {
 // 跳转到静态理财详情
 function goStaticDetail() {
   router.push("/statuc")
+}
+
+function goBuyRecord() {
+  router.push("/buy")   // 对应 BuyRecord.vue 的路由
+}
+
+function goSellRecord() {
+  router.push("/cell")  // 对应 SellRecord.vue 的路由
 }
 
   </script>
@@ -203,7 +215,7 @@ function goStaticDetail() {
   margin: 12px 0;
 }
   
-  .static-row {
+  .static-row {                
   display: flex;
   justify-content: space-between;
   padding: 6px 0;

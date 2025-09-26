@@ -3,47 +3,47 @@
     <TopBar />
 
     <div class="change-password-card">
-      <h3>修改二级密码</h3>
+      <h3>{{ $t('changePwd.title') }}</h3>
 
       <form @submit.prevent="changePassword">
-        <!-- 当前密码 -->
+        <!-- 当前密码（如果需要） -->
         <!-- <div class="form-group">
-          <label for="oldPassword">当前二级密码</label>
+          <label for="oldPassword">{{ $t('changePwd.old') }}</label>
           <input
             v-model="oldPassword"
             type="password"
             id="oldPassword"
-            placeholder="请输入当前二级密码"
+            :placeholder="$t('changePwd.oldPh')"
             required
           />
         </div> -->
 
         <!-- 新密码 -->
         <div class="form-group">
-          <label for="newPassword">新密码</label>
+          <label for="newPassword">{{ $t('changePwd.new') }}</label>
           <input
             v-model="newPassword"
             type="password"
             id="newPassword"
-            placeholder="请输入新密码"
+            :placeholder="$t('changePwd.newPh')"
             required
           />
         </div>
 
         <!-- 确认新密码 -->
         <div class="form-group">
-          <label for="confirmPassword">确认新密码</label>
+          <label for="confirmPassword">{{ $t('changePwd.confirm') }}</label>
           <input
             v-model="confirmPassword"
             type="password"
             id="confirmPassword"
-            placeholder="请再次输入新密码"
+            :placeholder="$t('changePwd.confirmPh')"
             required
           />
         </div>
 
         <button class="submit-btn" type="submit" :disabled="isSubmitting">
-          提交修改
+          {{ $t('changePwd.submit') }}
         </button>
       </form>
 
@@ -60,7 +60,11 @@
 <script setup>
 import { ref } from "vue"
 import TopBar from "./TopBar.vue"
-import { request } from "@/utils/request"  
+import { request } from "@/utils/request"
+import { useI18n } from "vue-i18n"
+
+const { t } = useI18n()
+
 const oldPassword = ref("")
 const newPassword = ref("")
 const confirmPassword = ref("")
@@ -73,57 +77,47 @@ const changePassword = async () => {
   messageType.value = ""
 
   if (newPassword.value !== confirmPassword.value) {
-    message.value = "新密码和确认密码不一致"
+    message.value = t("changePwd.msgNotMatch")
     messageType.value = "error"
     return
   }
 
   if (newPassword.value.length < 6) {
-    message.value = "新密码必须至少 6 个字符"
+    message.value = t("changePwd.msgTooShort")
     messageType.value = "error"
     return
   }
 
-  
   isSubmitting.value = true
   try {
-    // 调用封装好的 request 方法
     const res = await request(1, "/api/user/update/paswad", {
-     twoPassword: newPassword.value
+      twoPassword: newPassword.value
     })
     console.log("返回结果", res)
 
     if (res.ok && res.data?.code === 200) {
-  message.value = res.data.message || "密码修改成功"
-  messageType.value = "success"
-  oldPassword.value = ""
-  newPassword.value = ""
-  confirmPassword.value = ""
-
-  // 5 秒后清除提示
-  setTimeout(() => {
-    message.value = ""
-    messageType.value = ""
-  }, 3000)
-} else {
-  message.value = res.data?.message || "修改失败"
-  messageType.value = "error"
-
-  // 5 秒后清除提示
-  setTimeout(() => {
-    message.value = ""
-    messageType.value = ""
-  }, 3000)
-}
-
+      message.value = res.data.message || t("changePwd.success")
+      messageType.value = "success"
+      oldPassword.value = ""
+      newPassword.value = ""
+      confirmPassword.value = ""
+    } else {
+      message.value = res.data?.message || t("changePwd.fail")
+      messageType.value = "error"
+    }
   } catch (e) {
-    message.value = "请求出错，请稍后再试"
+    message.value = t("changePwd.error")
     messageType.value = "error"
   } finally {
     isSubmitting.value = false
+    setTimeout(() => {
+      message.value = ""
+      messageType.value = ""
+    }, 3000)
   }
 }
 </script>
+
 
 <style scoped>
 .register-page {

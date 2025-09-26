@@ -3,20 +3,20 @@
     <!-- 顶部导航栏 -->
     <div class="nav-bar">
       <button class="back-btn" @click="goBack">←</button>
-      <span class="title">收益详情</span>
+      <span class="title">{{ $t('detail.title') }}</span>
     </div>
 
     <!-- 表头 -->
     <div class="thead">
-      <span>序号</span>
-      <span>币种</span>
-      <span>交易类型</span>
-      <span>收支</span>
-      <span>时间</span>
-      <span>余额</span>
+      <span>{{ $t('detail.thead.index') }}</span>
+      <span>{{ $t('detail.thead.coin') }}</span>
+      <span>{{ $t('detail.thead.type') }}</span>
+      <span>{{ $t('detail.thead.amount') }}</span>
+      <span>{{ $t('detail.thead.time') }}</span>
+      <span>{{ $t('detail.thead.balance') }}</span>
     </div>
 
-     <!-- 滚动数据容器 -->
+    <!-- 滚动数据容器 -->
     <div class="table-body">
       <div v-for="(item, i) in list" :key="i" class="row">
         <span>{{ i + 1 }}</span>
@@ -31,6 +31,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref ,onMounted} from 'vue'

@@ -17,7 +17,7 @@
       </div>
         <div class="platform-balance-inline">
           <span class="label">💰 {{ $t('funds.balance') }}:</span>
-          <span class="value">{{ balance }}</span>
+          <span class="value">{{ platformBalance }}</span>
         </div>
 
       <input
@@ -63,8 +63,7 @@
         </div>
       </div>
     </div>
-
-    <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
+ <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
     <PaymentWidget
       ref="payRef"
       :show-balance="true"
@@ -80,13 +79,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick,onBeforeMount } from 'vue'
 import WalletTP from '@/utils/walletTP.js'
-import { RequestOrder, SubmitOrder,userPlatformFlowSelect} from '@/utils/api.js'
+import { RequestOrder, SubmitOrder,userPlatformFlowSelect,userPlatformBalance} from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 
 // 基础状态
-const balance = ref(1000.00)
+
 const mode = ref('deposit')
 const listType = ref('recharge')
 const amount = ref('') // 输入框金额
@@ -151,9 +150,13 @@ function onPayClose(){
 onMounted(async () => {
   await loadRecharge()
   await loadWithdraw()
-    console.log("FundsPage mounted")
-    console.log("FundsPage mounted", new Date().toISOString())
+  
+  
 })
+onBeforeMount(() => {
+  loadPlatformBalance()
+})
+
 async function loadRecharge() {
   const res = await userPlatformFlowSelect('recharge', {})
   if (res?.code === 200 && Array.isArray(res.data)) {
@@ -173,6 +176,22 @@ async function loadWithdraw() {
     }))
   }
 }
+const platformBalance = ref(0)
+
+async function loadPlatformBalance() {
+  try {
+    const res = await userPlatformBalance({})
+    if (res.ok && res.data.code === 200) {
+      platformBalance.value = res.data.data   // ✅ 余额就是这里
+    } else {
+      platformBalance.value = 0
+    }
+  } catch (e) {
+    console.error("获取平台余额失败:", e)
+    platformBalance.value = 0
+  }
+}
+
 </script>
 
 <style scoped>

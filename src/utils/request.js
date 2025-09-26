@@ -1,6 +1,6 @@
 // request.js
 // const baseURL = 'http://110.40.42.207:8088/';
-const baseURL = 'http://192.168.31.59:8065/';
+const baseURL = 'http://192.168.31.169:8065/';
 
 
 /** 本地存储键位 */

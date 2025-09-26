@@ -3,57 +3,58 @@
     <!-- 顶部导航栏 -->
     <div class="nav-bar">
       <button class="back-btn" @click="goBack">← </button>
-      <span class="title">团队详情</span>
+      <span class="title">{{ $t('team.title') }}</span>
     </div>
 
     <div class="team-card">
       <div class="team-summary">
         <div class="summary-item">
-          <span>团队人数</span>
+          <span>{{ $t('team.summary.total') }}</span>
           <b>{{ team.total }}</b>
         </div>
         <div class="summary-item">
-          <span>直推人数</span>
+          <span>{{ $t('team.summary.direct') }}</span>
           <b>{{ team.direct }}</b>
         </div>
         <div class="summary-item">
-          <span>间推人数</span>
+          <span>{{ $t('team.summary.indirect') }}</span>
           <b>{{ team.indirect }}</b>
         </div>
       </div>
 
       <div class="team-assets">
         <div class="asset-item">
-          <span>USDT业绩</span>
-          <b>{{ team.usdt }} </b>
+          <span>{{ $t('team.assets.usdt') }}</span>
+          <b>{{ team.usdt }}</b>
         </div>
         <div class="asset-item">
-          <span>STY业绩</span>
+          <span>{{ $t('team.assets.sty') }}</span>
           <b>{{ team.sty }}</b>
         </div>
         <div class="asset-item">
-          <span>权益</span>
+          <span>{{ $t('team.assets.rights') }}</span>
           <b>{{ team.rights }}</b>
         </div>
       </div>
 
       <div class="team-list">
         <div class="list-head">
-          <span>序号</span>
-          <span>账号</span>
-          <span>关系</span>
+          <span>{{ $t('team.list.index') }}</span>
+          <span>{{ $t('team.list.account') }}</span>
+          <span>{{ $t('team.list.relation') }}</span>
         </div>
-         <div class="list-scroll">
-        <div class="list-row" v-for="(item, index) in team.members" :key="index">
-          <span>{{ index + 1 }}</span>
-          <span>{{ item.account }}</span>
-          <span>{{ item.type }}</span>
-        </div>
+        <div class="list-scroll">
+          <div class="list-row" v-for="(item, index) in team.members" :key="index">
+            <span>{{ index + 1 }}</span>
+            <span>{{ item.account }}</span>
+            <span>{{ item.type }}</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { onMounted, ref } from "vue"

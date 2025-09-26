@@ -24,13 +24,18 @@
       align-center
       class="custom-dialog"
     >
-      <div class="dialog-content">
-        <p class="desc">是否确认购买节点会员？</p>
-        <div class="btn-group">
-          <el-button type="warning" @click="buyMember">确认购买</el-button>
-          <el-button @click="showDialog = false">取消</el-button>
-        </div>
-      </div>
+     <div class="dialog-content">
+  <p class="desc">{{ $t('dialog.buyMember.desc') }}</p>
+  <div class="btn-group">
+    <el-button type="warning" @click="buyMember">
+      {{ $t('dialog.buyMember.confirm') }}
+    </el-button>
+    <el-button @click="showDialog = false">
+      {{ $t('dialog.buyMember.cancel') }}
+    </el-button>
+  </div>
+</div>
+
     </el-dialog>
     <!-- 光效 -->
     <div class="light-effect"></div>
