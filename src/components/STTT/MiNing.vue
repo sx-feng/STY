@@ -34,13 +34,18 @@
 
         <!-- 已购 tab -->
         <div v-else-if="currentTab === 'owned'" class="list">
-          <div class="machine-row" v-for="(item, i) in ownedMachines" :key="i">
-            <div class="info">
-              <div class="name">{{ item.name || $t('mining.unknown') }}</div>
-              <div class="time">{{ $t('mining.remaining', { days: item.remaining }) }}</div>
-            </div>
-            <span class="status">{{ item.status === 1 ? $t('mining.status.using') : $t('mining.status.expired') }}</span>
-          </div>
+        <div class="machine-row" v-for="(item, i) in ownedMachines" :key="i">
+<div class="info">
+  <div class="name">{{ item.name }}</div>
+ <div class="time">
+  投入: {{ item.amount }} ｜ 创建时间: {{ item.createTime }}
+</div>
+</div>
+<span class="status">{{ $t(item.status) }}</span>
+
+
+</div>
+
         </div>
       </div>
     </div>
@@ -55,6 +60,11 @@ import { miningGet, getAllMiningMachines, buyFinancialProduct } from "@/utils/ap
 import Notify from "@/utils/notifyInApp"
 
 
+const statusTextMap = {
+  0: "mining.status.running",
+  1: "mining.status.expired",
+  2: "mining.status.stopped"
+}
 const router = useRouter()
 const currentTab = ref("buy") // 默认显示购买
 const machines = ref([])   // 商品列表（购买 tab）
@@ -100,14 +110,15 @@ const loadOwnedMachines = async () => {
 
     if (res.data.code === 200) {
       ownedMachines.value = (res.data.data || []).map(item => ({
-        name: item.name || "未知矿机",
-        remaining: item.remaining ,
-        status: item.status === 1 ? "使用中" : "已过期"
+         name: item.machineName || "未知矿机",
+          remaining: item.remaining ?? "-", 
+        // ✅ 这里安全取值
+          status: statusTextMap[item.status] ?? "未知状态",
+          amount:item.amount,
+          createTime:item.createTime
       }))
     } else if (res.data.code === 400) {
-      ownedMachines.value = [] // 清空列表
-      // 不要提示 error，而是显示空状态
-      // Notify.inApp({ type: "info", message: "暂无已购矿机" })
+      ownedMachines.value = []
     } else {
       Notify.inApp({ type: "error", message: res.data.message || "获取矿机失败" })
     }

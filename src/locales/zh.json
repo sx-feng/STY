@@ -105,8 +105,10 @@
     "price": "价格：{price} USDT",
     "remaining": "剩余使用时间：{days}天",
     "status": {
-      "using": "使用中",
-      "expired": "已过期"
+      "running": "运行中",
+      "expired": "已到期",
+      "stopped": "已停止",
+      "unknown": "未知状态"
     },
     "buyBtn": "抢购",
     "unknown": "未知矿机"
