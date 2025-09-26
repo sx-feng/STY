@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <div class="nav-bar">
       <button class="back-btn" @click="goBack">←</button>
-      <span class="title">我的矿机</span>
+      <span class="title">{{ $t('mining.title') }}</span>
     </div>
 
     <!-- 主体卡片 -->
@@ -11,10 +11,10 @@
       <!-- tab 按钮 -->
       <div class="btn-group">
         <button class="action-btn buy" :class="{ active: currentTab === 'buy' }" @click="currentTab = 'buy'">
-          购买
+          {{ $t('mining.buy') }}
         </button>
         <button class="action-btn owned" :class="{ active: currentTab === 'owned' }" @click="currentTab = 'owned'">
-          已购
+          {{ $t('mining.owned') }}
         </button>
       </div>
 
@@ -24,11 +24,11 @@
         <div v-if="currentTab === 'buy'" class="list">
           <div class="machine-row" v-for="(item, i) in machines" :key="i">
             <div class="info">
-              <div class="name">{{ item.name }}</div>
-              <div class="time">租用时长：{{ item.days }}</div>
-              <div class="price">价格：{{ item.price }} USDT</div>
+              <div class="name">{{ item.name || $t('mining.unknown') }}</div>
+              <div class="time">{{ $t('mining.rentTime') }}：{{ item.days }}</div>
+              <div class="price">{{ $t('mining.price', { price: item.price }) }}</div>
             </div>
-            <button class="buy-btn" @click="buyMachine(item)">抢购</button>
+            <button class="buy-btn" @click="buyMachine(item)">{{ $t('mining.buyBtn') }}</button>
           </div>
         </div>
 
@@ -36,10 +36,10 @@
         <div v-else-if="currentTab === 'owned'" class="list">
           <div class="machine-row" v-for="(item, i) in ownedMachines" :key="i">
             <div class="info">
-              <div class="name">{{ item.name }}</div>
-              <div class="time">剩余使用时间：{{ item.remaining }}天</div>
+              <div class="name">{{ item.name || $t('mining.unknown') }}</div>
+              <div class="time">{{ $t('mining.remaining', { days: item.remaining }) }}</div>
             </div>
-            <span class="status">{{ item.status }}</span>
+            <span class="status">{{ item.status === 1 ? $t('mining.status.using') : $t('mining.status.expired') }}</span>
           </div>
         </div>
       </div>
@@ -47,11 +47,14 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { miningGet, getAllMiningMachines, buyFinancialProduct } from "@/utils/api"
 import Notify from "@/utils/notifyInApp"
+
+
 const router = useRouter()
 const currentTab = ref("buy") // 默认显示购买
 const machines = ref([])   // 商品列表（购买 tab）

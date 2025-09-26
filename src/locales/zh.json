@@ -96,5 +96,83 @@
     "period3": "22天周期",
     "period4": "33天周期",
     "period5": "60天周期"
+  },
+  "mining": {
+    "title": "我的矿机",
+    "buy": "购买",
+    "owned": "已购",
+    "rentTime": "租用时长",
+    "price": "价格：{price} USDT",
+    "remaining": "剩余使用时间：{days}天",
+    "status": {
+      "using": "使用中",
+      "expired": "已过期"
+    },
+    "buyBtn": "抢购",
+    "unknown": "未知矿机"
+  },
+  "team": {
+    "title": "团队详情",
+    "summary": {
+      "total": "团队人数",
+      "direct": "直推人数",
+      "indirect": "间推人数"
+    },
+    "assets": {
+      "usdt": "USDT业绩",
+      "sty": "STY业绩",
+      "rights": "权益"
+    },
+    "list": {
+      "index": "序号",
+      "account": "账号",
+      "relation": "关系"
+    }
+  },
+  "detail": {
+    "title": "收益详情",
+    "thead": {
+      "index": "序号",
+      "coin": "币种",
+      "type": "交易类型",
+      "amount": "收支",
+      "time": "时间",
+      "balance": "余额"
+    },
+    "default": {
+      "coin": "STYAI",
+      "type": "挖矿收益"
+    }
+  },
+  "dialog": {
+    "buyMember": {
+      "desc": "是否确认购买节点会员？",
+      "confirm": "确认购买",
+      "cancel": "取消"
+    }
+  },
+  "changePwd":{
+    "title": "修改二级密码",
+    "old": "当前二级密码",
+    "oldPh": "请输入当前二级密码",
+    "new": "新密码",
+    "newPh": "请输入新密码",
+    "confirm": "确认新密码",
+    "confirmPh": "请再次输入新密码",
+    "submit": "提交修改",
+    "msgNotMatch": "新密码和确认密码不一致",
+    "msgTooShort": "新密码必须至少 6 个字符",
+    "success": "密码修改成功",
+    "fail": "修改失败",
+    "error": "请求出错，请稍后再试"
+  },
+    "records": {
+    "index": "序号",
+    "coin": "币种",
+    "type": "类型",
+    "amount": "数量",
+    "time": "时间",
+    "status": "状态",
+    "empty": "暂无记录"
   }
 }

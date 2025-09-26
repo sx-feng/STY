@@ -17,6 +17,8 @@ import CompanyProfilePage from "@/components/Text/CompanyProfilePage.vue"
 import StyIntroductionPage from "@/components/Text/StyIntroductionPage.vue"
 import FutureEcosystemPage from "@/components/Text/FutureEcosystemPage.vue"
 import TokenConsensusPage from "@/components/Text/TokenConsensusPage.vue"
+import BuyRecord from '@/components/Text/BuyRecord.vue'
+import SellRecord from '@/components/Text/SellRecord.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -115,6 +117,18 @@ const router = createRouter({
        path: "/token-consensus",
        name: 'TokenConsensusPage',
         component: TokenConsensusPage,
+         meta: { hideTopBar: true }
+       },
+        {
+       path: "/buy",
+       name: 'BuyRecord',
+        component: BuyRecord,
+         meta: { hideTopBar: true }
+       },
+        {
+       path: "/cell",
+       name: 'SellRecord',
+        component: SellRecord,
          meta: { hideTopBar: true }
        }
   ]

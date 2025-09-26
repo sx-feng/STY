@@ -109,3 +109,4 @@ export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // �
 // ================== 平台流水 ==================
 export const userPlatformFlowSelect = (type, data) => request(1, `/api/UserPlatformFlow/select/${type}`, data)
 export const userCompany =  (data) => request(1, '/api/content-config/get', data)
+export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type', data)

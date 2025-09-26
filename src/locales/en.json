@@ -95,6 +95,83 @@
     "period3": "22 Days",
     "period4": "33 Days",
     "period5": "60 Days"
+  },
+  "mining": {
+    "title": "My Mining Machines",
+    "buy": "Buy",
+    "owned": "Owned",
+    "rentTime": "Rental Period",
+    "price": "Price: {price} USDT",
+    "remaining": "Remaining Time: {days} days",
+    "status": {
+      "using": "In Use",
+      "expired": "Expired"
+    },
+    "buyBtn": "Purchase",
+    "unknown": "Unknown Machine"
+  },
+  "team": {
+    "title": "Team Details",
+    "summary": {
+      "total": "Team Members",
+      "direct": "Direct Referrals",
+      "indirect": "Indirect Referrals"
+    },
+    "assets": {
+      "usdt": "USDT Performance",
+      "sty": "STY Performance",
+      "rights": "Rights"
+    },
+    "list": {
+      "index": "No.",
+      "account": "Account",
+      "relation": "Relation"
+    }
+  },
+   "detail": {
+    "title": "Earnings Details",
+    "thead": {
+      "index": "No.",
+      "coin": "Coin",
+      "type": "Transaction Type",
+      "amount": "Income",
+      "time": "Time",
+      "balance": "Balance"
+    },
+    "default": {
+      "coin": "STYAI",
+      "type": "Mining Reward"
+    }
+  },
+  "dialog": {
+    "buyMember": {
+      "desc": "Are you sure you want to purchase a node membership?",
+      "confirm": "Confirm Purchase",
+      "cancel": "Cancel"
+    }
+  },
+   "changePwd": {
+    "title": "Change Secondary Password",
+    "old": "Current Password",
+    "oldPh": "Enter current password",
+    "new": "New Password",
+    "newPh": "Enter new password",
+    "confirm": "Confirm New Password",
+    "confirmPh": "Re-enter new password",
+    "submit": "Submit",
+    "msgNotMatch": "New password and confirm password do not match",
+    "msgTooShort": "New password must be at least 6 characters",
+    "success": "Password updated successfully",
+    "fail": "Update failed",
+    "error": "Request error, please try again later"
+  },
+    "records": {
+    "index": "No.",
+    "coin": "Coin",
+    "type": "Type",
+    "amount": "Amount",
+    "time": "Time",
+    "status": "Status",
+    "empty": "No records"
   }
-
 }
