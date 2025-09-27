@@ -83,7 +83,7 @@
       :show-list="true"
       :show-builtin-input="false"
       :WalletTP="WalletTP"
-      :RequestOrder="Withdraw"
+      :RequestOrder="Exchange"
       :SubmitOrder="SubmitOrder"
       @done="onPayDone"
       @close="onPayClose"
@@ -99,7 +99,7 @@ import { useRouter } from 'vue-router'
 import {  userGet,userMachineRecordList } from "@/utils/api"
 
 import WalletTP from '@/utils/walletTP.js'
-import { Withdraw, SubmitOrder } from '@/utils/api.js'
+import { Exchange, SubmitOrder } from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import CallbackCenter from '@/utils/callbackCenter.js'
 
@@ -246,7 +246,7 @@ async function startPay(){
     amount: Number(amount.value),
     token: wantedToken.value,   // 注意 .value
     WalletTP,
-    RequestOrder: Withdraw,
+    RequestOrder: Exchange,
     SubmitOrder,
     checkTrxEarly: false
   })

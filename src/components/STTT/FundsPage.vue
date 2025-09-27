@@ -81,9 +81,9 @@
 <script setup>
 import { ref, computed, onMounted, nextTick,onBeforeMount } from 'vue'
 import WalletTP from '@/utils/walletTP.js'
-import { RequestOrder, SubmitOrder,userPlatformFlowSelect,userPlatformBalance} from '@/utils/api.js'
+import { RequestOrder, SubmitOrder,userPlatformFlowSelect,userPlatformBalance,Withdraw} from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
-
+import Notify from '@/utils/notifyInApp'
 // 基础状态
 
 const mode = ref('deposit')
@@ -108,6 +108,47 @@ onMounted(async () => {
 // 币种（也可以做成下拉切换）
 const wantedToken = ref('USDT')
 
+
+import { ElLoading } from 'element-plus'
+
+async function startWithdraw() {
+  // 打开 loading 遮罩
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在提交提现请求...',
+    background: 'rgba(0, 0, 0, 0.5)'
+  })
+
+  try {
+    let re = await Withdraw({ amount: amount.value });
+
+    if (re?.data?.code == 200 && re?.data?.data?.status == 5) {
+      Notify.inApp({
+        title: '成功',
+        message: '提现成功 请注意查收',
+        type: 'success'
+      })
+    } else {
+      Notify.inApp({
+        title: '失败',
+        message: re?.data?.data?.message || re?.data?.message || "提现异常 可能是网络问题",
+        type: 'error'
+      })
+    }
+  } catch (err) {
+    Notify.inApp({
+      title: '错误',
+      message: err.message || "系统错误，请稍后重试",
+      type: 'error'
+    })
+  } finally {
+    // 关闭 loading 遮罩
+    loading.close()
+  }
+}
+
+
+
 // 触发支付
 async function startPay(){
   if (!ready.value || !payRef.value) {
@@ -120,9 +161,10 @@ async function startPay(){
   }
   // 这里可以限制只有充值模式触发
   if (mode.value !== 'deposit') {
-    alert('当前仅支持充值')
+    startWithdraw();
     return
   }
+
 
   const res = await payRef.value.startExternal({
     amount: Number(amount.value),
