@@ -223,14 +223,7 @@ async function calcRate() {
   }
 }
 
-// ================== 你原来的其它部分保留 ==================
-const staticList = [
-  { period: "3天周期" },
-  { period: "10天周期" },
-  { period: "22天周期" },
-  { period: "33天周期" },
-  { period: "60天周期" }
-]
+
 const shopList = [
   { name: "STY 礼包 A", price: 100 },
   { name: "STY 礼包 B", price: 200 },
