@@ -95,7 +95,8 @@
     "period2": "10天周期",
     "period3": "22天周期",
     "period4": "33天周期",
-    "period5": "60天周期"
+    "period5": "60天周期",
+    "buyyRecord": "资金流水明细"
   },
   "mining": {
     "title": "我的矿机",

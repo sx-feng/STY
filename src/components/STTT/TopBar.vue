@@ -28,6 +28,7 @@
     <el-menu-item index="funds-deposit" :class="{ on: activeIndex === 'funds-deposit' }">资金管理</el-menu-item>
     <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">详情</el-menu-item>
     <el-menu-item index="register" :class="{ on: activeIndex === 'register' }">安全设置</el-menu-item>
+    <el-menu-item index="fundsflow" :class="{ on: activeIndex === 'register' }">资金流水</el-menu-item>
   </el-menu>
 </el-drawer>
  <!-- 注册弹窗 -->
@@ -221,6 +222,9 @@ function handleSelect(key) {
           case 'register':
       router.push('/register')
       break
+      case 'fundsflow':
+  router.push('/flows')
+  break
     
   }
 }

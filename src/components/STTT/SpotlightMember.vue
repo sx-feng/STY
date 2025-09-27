@@ -1,22 +1,22 @@
 <template>
   <div class="light-page">
-
     <!-- 按钮行容器 -->
     <div class="btn-row">
-      <div class="top-btn"  @click="openVipDialog">
-       <!-- 根据 vipStatus 动态显示 -->
-         <span class="icon">📦 </span>
-        {{ vipStatus ? "VIP 已开通" : $t('light.member') }}
+      <!-- 节点会员按钮 -->
+      <div class="top-btn" @click="handleNodeMember">
+        <span class="icon">📦 </span>
+        {{ vipStatus ? "节点会员收益" : $t('light.member') }}
       </div>
       <div class="top-btn" @click="goMember">
         <span class="icon"></span> {{ $t('light.memberIntro') }}
       </div>
     </div>
-    <div class="sign">
-<SignCanLen/>
 
+    <div class="sign">
+      <SignCanLen/>
     </div>
-<!-- 弹窗 -->
+
+    <!-- 购买会员弹窗 -->
     <el-dialog
       v-model="showDialog"
       :title="$t('light.memberBuy')"
@@ -24,19 +24,19 @@
       align-center
       class="custom-dialog"
     >
-     <div class="dialog-content">
-  <p class="desc">{{ $t('dialog.buyMember.desc') }}</p>
-  <div class="btn-group">
-    <el-button type="warning" @click="buyMember">
-      {{ $t('dialog.buyMember.confirm') }}
-    </el-button>
-    <el-button @click="showDialog = false">
-      {{ $t('dialog.buyMember.cancel') }}
-    </el-button>
-  </div>
-</div>
-
+      <div class="dialog-content">
+        <p class="desc">{{ $t('dialog.buyMember.desc') }}</p>
+        <div class="btn-group">
+          <el-button type="warning" @click="buyMember">
+            {{ $t('dialog.buyMember.confirm') }}
+          </el-button>
+          <el-button @click="showDialog = false">
+            {{ $t('dialog.buyMember.cancel') }}
+          </el-button>
+        </div>
+      </div>
     </el-dialog>
+
     <!-- 光效 -->
     <div class="light-effect"></div>
   </div>
@@ -44,28 +44,35 @@
 
 <script setup>
 import { ref ,onMounted} from "vue"
-import SignCanLen from './SignCanLen.vue';
+import SignCanLen from './SignCanLen.vue'
 import { useRouter } from "vue-router"
 import { ElMessage } from 'element-plus'
-const vipStatus = ref(false)   // 当前用户是否是 VIP
+import CallbackCenter from '@/utils/callbackCenter'
 // 引入接口
-import { productVip,vipUserStatus } from "@/utils/api"
+import { productVip, vipUserStatus } from "@/utils/api"
+
+const vipStatus = ref(false)   // 是否是 VIP
 const showDialog = ref(false)
 const router = useRouter()
+
 // 购买会员
 async function buyMember() {
-  try {
-    const res = await productVip({ level: 1 }) // 传参可根据业务需要，比如 level
-    if (res.code === 200) {
-      ElMessage.success("购买成功！")
-      showDialog.value = false
-    } else {
-      ElMessage.error(res.message || "购买失败")
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwd) => {
+    try {
+      const res = await productVip({ level: 1, twoPassword: pwd }) // 带上密码
+      if (res.code === 200) {
+        ElMessage.success("购买成功！")
+        showDialog.value = false
+        vipStatus.value = true
+      } else {
+        ElMessage.error(res.message || "购买失败")
+      }
+    } catch (err) {
+      ElMessage.error("网络错误，请稍后重试")
     }
-  } catch (err) {
-    ElMessage.error("网络错误，请稍后重试")
-  }
+  })
 }
+
 // 查询 VIP 状态
 async function checkVip() {
   try {
@@ -79,23 +86,28 @@ async function checkVip() {
     vipStatus.value = false
   }
 }
-// 跳转会员介绍页
+
+// 点击节点会员按钮
+function handleNodeMember() {
+  if (vipStatus.value) {
+    // 已是 VIP → 跳转收益记录
+    router.push("/vip-income")
+  } else {
+    // 未开通 → 打开购买弹窗
+    showDialog.value = true
+  }
+}
+
+// 会员介绍页
 function goMember() {
   router.push("/member")
 }
-// 页面加载时查询 VIP 状态
+
 onMounted(async () => {
   await checkVip()
 })
-// 打开弹窗（如果已是 VIP 则不弹）
-function openVipDialog() {
-  if (vipStatus.value) {
-    ElMessage.info("您已是 VIP 会员")
-    return
-  }
-  showDialog.value = true
-}
 </script>
+
 
 <style scoped>
 .light-page {

@@ -94,7 +94,8 @@
     "period2": "10 Days",
     "period3": "22 Days",
     "period4": "33 Days",
-    "period5": "60 Days"
+    "period5": "60 Days",
+    "buyyRecord": "Funds Flow Details"
   },
   "mining": {
     "title": "My Mining Machines",
