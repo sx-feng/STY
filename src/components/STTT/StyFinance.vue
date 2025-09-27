@@ -110,22 +110,75 @@
 </template>
 
 <script setup>
-import { ref,computed,onMounted } from "vue"
+import { ref, computed } from "vue"
 import router from '@/router';
-import { stySell ,styExchangeRate} from '@/utils/api'
+import { stySell ,styExchangeRate } from '@/utils/api'
+
 const showSellDialog = ref(false)
-const sellAmount = ref(0)
+const sellAmount    = ref(1)   // 默认 1 避免空请求
+
+// 弹窗字段
+const unitPrice   = ref(0)
+const available   = ref(0)
+const fee         = ref(0)
+const netProceeds = ref(0)
+
+const receiveUSDT = computed(() => Number(netProceeds.value || 0).toFixed(2))
+
+function fillQuote(p = {}) {
+  unitPrice.value   = Number(p.currentUnitPrice ?? 0)
+  fee.value         = Number(p.fee ?? 0)
+  available.value   = Number(p.sellQuantity ?? 0)
+  netProceeds.value = Number(p.netProceeds ?? 0)
+}
+function resetQuote() { fillQuote({}) }
 
 function openSellDialog() {
   showSellDialog.value = true
+  calcRate() }
+
+// 确认出售
+async function confirmSell() {
+  const amt = Number(sellAmount.value)
+  if (!Number.isFinite(amt) || amt <= 0) {
+    alert('请输入有效的出售数量')
+    return
+  }
+  try {
+    const res = await stySell({ amount: amt })
+    const body = res?.data
+    if (body?.code === 200) {
+      fillQuote(body.data)
+      alert(`出售成功: ${amt} STY`)
+      showSellDialog.value = false
+      sellAmount.value = 1
+    } else {
+      alert(body?.message || '出售失败')
+    }
+  } catch (e) {
+    console.error('卖出异常:', e)
+    alert(e.message || '出售失败')
+  }
 }
 
-function confirmSell() {
-  alert(`出售成功: ${sellAmount.value} STY`)
-  showSellDialog.value = false
-  sellAmount.value = 0
+// 获取报价（calcRate）
+async function calcRate() {
+  try {
+    const res = await styExchangeRate({ styNum: Number(sellAmount.value || 1) })
+    const body = res?.data
+    if (body?.code === 200) {
+      fillQuote(body.data)
+    } else {
+      resetQuote()
+      console.warn('兑换汇率失败:', body?.message)
+    }
+  } catch (e) {
+    resetQuote()
+    console.error('兑换汇率异常:', e)
+  }
 }
 
+// ================== 你原来的其它部分保留 ==================
 const staticList = [
   { period: "3天周期" },
   { period: "10天周期" },
@@ -133,7 +186,6 @@ const staticList = [
   { period: "33天周期" },
   { period: "60天周期" }
 ]
-
 const shopList = [
   { name: "STY 礼包 A", price: 100 },
   { name: "STY 礼包 B", price: 200 },
@@ -141,58 +193,15 @@ const shopList = [
   { name: "STY 礼包 D", price: 1000 },
   { name: "STY 礼包 E", price: 2000 }
 ]
-
-const unitPrice = ref()     
-const available = ref()  
-const fee = ref()           
-
-const receiveUSDT = computed(() => {
-  const amount = Number(sellAmount.value) || 0
-  const valid = Math.max(amount - fee.value, 0)
-  return (valid * unitPrice.value).toFixed(2)
-})
-
 function buyItem(item) {
   alert(`购买成功: ${item.name}, 花费 ${item.price} STY`)
 }
-
-function goDynamicDetail() {
-  router.push("/dynamic")
-}
-
-function goStaticDetail() {
-  router.push("/statuc")
-}
-
-function goBuyRecord() {
-  router.push("/buy")
-}
-
-function goSellRecord() {
-  router.push("/cell")
-}
-
-async function calcRate() {
-  const res = await styExchangeRate({amount:11})  
-  console.log('兑换汇率结果:', res)
-}
-async function doSell() {
-  try {
-    const res = await stySell({ amount: 500 }) 
-    if (res?.data?.code === 200) {
-      console.log('卖出成功:', res.data)
-    } else {
-      console.error('卖出失败:', res?.data?.message || '未知错误')
-    }
-  } catch (e) {
-    console.error('请求异常:', e)
-  }
-}
-onMounted(()=>{
-  calcRate()
-  doSell()
-})
+function goDynamicDetail() { router.push("/dynamic") }
+function goStaticDetail() { router.push("/statuc") }
+function goBuyRecord() { router.push("/buy") }
+function goSellRecord() { router.push("/cell") }
 </script>
+
 
 <style>
 .finance-page {

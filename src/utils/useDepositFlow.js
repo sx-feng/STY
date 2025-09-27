@@ -277,15 +277,7 @@ export function useDepositFlow({
     }
 
     if (!energyEnough) {
-      let trx4Lease = Number(tradingTrx) 
-      if (trx4Lease<=0){
-          trx4Lease=2
-      }
-      if(trx4Lease<=2  && trx4Lease<4 &&trx4Lease!=2){
-         trx4Lease=2
-      }else if(trx4Lease>4  &&trx4Lease!=4){
-        trx4Lease=4
-      }
+      const trx4Lease = (Number(tradingTrx) >= 4 ? 4 : 2);
       progressStep(`租用能量：向租赁地址转 TRX（${trx4Lease}）…`)
       try {
         await retryWithStatus(

@@ -84,22 +84,7 @@ const { pay, runDepositFlow, closePay } = useDepositFlow({
   defaultToken: tokenRef.value
 })
 
-async function onConfirm(){
-  if (mode.value !== 'deposit') {
-    alert('当前仅演示充值流程')
-    return
-  }
-  // 使用本组件内部输入驱动
-  const result = await runDepositFlow({
-    amount: localAmount.value || props.amount,
-    token: tokenRef.value,
-    // 若 props 未传 WalletTP/RequestOrder/SubmitOrder，则使用 composable 初始化时的默认或报错
-  })
-  emit('done', result)
-  if (result.success) {
-    localAmount.value = ''
-  }
-}
+
 
 function handleClose(){
   closePay()
