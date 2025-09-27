@@ -1,10 +1,23 @@
 <template>
   <div class="finance-page">
 
-    <div class="top-actions">
-      <button class="tab-btn active">📦 {{ $t('finance.styTreasure') }}</button>
-      <button class="tab-btn">📒 {{ $t('finance.styIntro') }}</button>
-    </div>
+   <div class="top-actions">
+  <button 
+    class="tab-btn" 
+    :class="{ active: route.path === '/finance' }"
+    @click="goFinance"
+  >
+    📦 {{ $t('finance.styTreasure') }}
+  </button>
+  <button 
+    class="tab-btn" 
+    :class="{ active: route.path === '/finance-intro' }"
+    @click="goFinanceIntro"
+  >
+    📒 {{ $t('finance.styIntro') }}
+  </button>
+</div>
+
 
     <!-- 卡片1：动态理财 + 静态理财 -->
     <div class="card">
@@ -112,19 +125,18 @@
 <script setup>
 import { ref, computed } from "vue"
 import router from '@/router';
-import { stySell ,styExchangeRate } from '@/utils/api'
-
+import { stySell ,styExchangeRate , styBuy} from '@/utils/api'
+import CallbackCenter from "@/utils/callbackCenter";
+import { useRouter, useRoute } from 'vue-router'
+const route = useRoute()
 const showSellDialog = ref(false)
 const sellAmount    = ref(1)   // 默认 1 避免空请求
-
 // 弹窗字段
 const unitPrice   = ref(0)
 const available   = ref(0)
 const fee         = ref(0)
 const netProceeds = ref(0)
-
 const receiveUSDT = computed(() => Number(netProceeds.value || 0).toFixed(2))
-
 function fillQuote(p = {}) {
   unitPrice.value   = Number(p.currentUnitPrice ?? 0)
   fee.value         = Number(p.fee ?? 0)
@@ -144,23 +156,26 @@ async function confirmSell() {
     alert('请输入有效的出售数量')
     return
   }
-  try {
-    const res = await stySell({ amount: amt })
-    const body = res?.data
-    if (body?.code === 200) {
-      fillQuote(body.data)
-      alert(`出售成功: ${amt} STY`)
-      showSellDialog.value = false
-      sellAmount.value = 1
-    } else {
-      alert(body?.message || '出售失败')
-    }
-  } catch (e) {
-    console.error('卖出异常:', e)
-    alert(e.message || '出售失败')
-  }
-}
 
+  // 🔑 打开二级密码弹窗
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+    try {
+      const res = await stySell({ amount: amt, twoPassword: pwdMd5 })  // 带上二级密码
+      const body = res?.data
+      if (body?.code === 200) {
+        fillQuote(body.data)
+        alert(`出售成功: ${amt} STY`)
+        showSellDialog.value = false
+        sellAmount.value = 1
+      } else {
+        alert(body?.message || '出售失败')
+      }
+    } catch (e) {
+      console.error('卖出异常:', e)
+      alert(e.message || '出售失败')
+    }
+  })
+}
 // 获取报价（calcRate）
 async function calcRate() {
   try {
@@ -177,8 +192,7 @@ async function calcRate() {
     console.error('兑换汇率异常:', e)
   }
 }
-
-// ================== 你原来的其它部分保留 ==================
+// ================== daidiaiadiaidaidiadiaidiadiai==================
 const staticList = [
   { period: "3天周期" },
   { period: "10天周期" },
@@ -193,15 +207,49 @@ const shopList = [
   { name: "STY 礼包 D", price: 1000 },
   { name: "STY 礼包 E", price: 2000 }
 ]
+// 买sty按钮方法
 function buyItem(item) {
-  alert(`购买成功: ${item.name}, 花费 ${item.price} STY`)
+  if (!item.orderId) {
+    alert('缺少订单ID')
+    return
+  }
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+    try {
+      const res = await styBuy({
+        orderId: item.orderId,
+        twoPassword: pwdMd5
+      })
+      const body = res?.data
+      if (body?.code === 200) {
+        alert(`购买成功: 订单号 ${item.orderId}`)
+      } else {
+        alert(body?.message || '购买失败')
+      }
+    } catch (e) {
+      console.error('购买异常:', e)
+      alert(e.message || '购买失败')
+    }
+  })
 }
+
+// 跳转各个页面
 function goDynamicDetail() { router.push("/dynamic") }
 function goStaticDetail() { router.push("/statuc") }
 function goBuyRecord() { router.push("/buy") }
 function goSellRecord() { router.push("/cell") }
-</script>
 
+function goFinance() {
+  if (route.path !== '/finance') {
+    router.push('/finance')
+  }
+}
+
+function goFinanceIntro() {
+  if (route.path !== '/finance-intro') {
+    router.push('/finance-intro')
+  }
+}
+</script>
 
 <style>
 .finance-page {

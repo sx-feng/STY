@@ -109,7 +109,7 @@ function handleLoginSuccess(token) {
   localStorage.setItem("token", token)
   Notify.inApp({ title: '成功', message: '登录成功', type: 'success' })
   getBalance()
-
+  router.push('/')
   // 🔔 连接成功后触发所有回调
   CallbackCenter.triggerAll({ token, wallet: localStorage.getItem("walletAddress") })
 }

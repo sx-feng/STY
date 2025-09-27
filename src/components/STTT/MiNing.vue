@@ -58,8 +58,8 @@ import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { miningGet, getAllMiningMachines, buyFinancialProduct } from "@/utils/api"
 import Notify from "@/utils/notifyInApp"
-
-
+import CallbackCenter from "@/utils/callbackCenter"
+// 已经购买的使用状态
 const statusTextMap = {
   0: "mining.status.running",
   1: "mining.status.expired",
@@ -72,37 +72,34 @@ const machines = ref([])   // 商品列表（购买 tab）
 const goBack = () => { router.go(-1) }
 // 已购矿机（改为接口数据）
 const ownedMachines = ref([])
-// 已购矿机接口
+
+// 购买矿机接口
 const buyMachine = async (item) => {
-  try {
-    console.log("准备购买:", item)
+  console.log("准备购买矿机:", item)
 
-    // 尝试用 miningId
-    const res = await buyFinancialProduct({
-      machineId: item.id, // 换成 machineId / id 也可以再试
-      num: "1" 
-    })
+  // 🔑 先触发二级密码弹窗
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+    try {
+      const res = await buyFinancialProduct({
+        machineId: item.id,
+        num: "1",
+        twoPassword: pwdMd5  // 带上二级密码(MD5)
+      })
 
-    if (res.data.code === 200) {
-      Notify.inApp({ type: "success", message: res.data.message || `成功购买 ${item.name}` })
-      await loadOwnedMachines()
-      currentTab.value = "owned"
-    } else {
-      Notify.inApp({ type: "error", message: res.data.message || "购买失败" })
+      if (res.data.code === 200) {
+        Notify.inApp({ type: "success", message: res.data.message || `成功购买 ${item.name}` })
+        await loadOwnedMachines()
+        currentTab.value = "owned"
+      } else {
+        Notify.inApp({ type: "error", message: res.data.message || "购买失败" })
+      }
+    } catch (e) {
+      console.error("购买接口异常:", e)
+      Notify.inApp({ type: "error", message: "网络异常" })
     }
-  } catch (e) {
-    console.error("购买接口异常:", e)
-    Notify.inApp({ type: "error", message: "网络异常" })
-  }
+  })
 }
-
-const unitMap = {
-  DAY: "天",
-  MONTH: "月",
-  YEAR: "年"
-}
-
-
+// 矿机商品
 const loadOwnedMachines = async () => {
   try {
     const res = await miningGet({})
@@ -160,8 +157,6 @@ const loadMachines = async () => {
     Notify.inApp({ type: "error", message: "网络异常" })
   }
 }
-
-
 
 onMounted(() => {
   loadOwnedMachines()

@@ -25,26 +25,41 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import CallbackCenter from '@/utils/callbackCenter'
+import CryptoJS from "crypto-js";
 
 const visible = ref(false)
 const twoPassword = ref('')
 let currentCallback = null
 
 function openDialog(cb) {
-  console.log('[TwoPwd] openDialog')          // ✅ 调试日志
+  // 如果当前场景不是支付，不要弹
+  if (!cb || typeof cb !== 'function') {
+    console.warn('[TwoPwd] openDialog 被误触发')
+    return
+  }
   visible.value = true
   twoPassword.value = ''
   currentCallback = cb
 }
+
 
 function confirm() {
   if (!twoPassword.value) {
     ElMessage.error('请输入二级密码')
     return
   }
-  currentCallback?.(twoPassword.value)
+
+  const md5Hex = CryptoJS.MD5(twoPassword.value).toString()
+
+  if (typeof currentCallback === 'function') {
+    currentCallback(md5Hex)
+  } else {
+    console.warn('[TwoPwd] currentCallback 不是函数:', currentCallback)
+  }
+
   close()
 }
+
 
 function close() {
   visible.value = false
@@ -52,7 +67,7 @@ function close() {
   currentCallback = null
 }
 
-// 把打开方法注册到全局
+// 注册全局方法
 CallbackCenter.register('openTwoPasswordDialog', openDialog)
 </script>
 

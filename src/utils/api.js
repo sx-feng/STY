@@ -113,6 +113,10 @@ export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders
 // ================== 平台余额 ==================
 export const userPlatformBalance = (data) =>request(1, '/api/UserPlatformFlow/select/by-user/balance', data)
     
+
+
+
+
 export const styExchangeRate = (payload) => {
 
   let data = payload
@@ -123,4 +127,8 @@ export const styExchangeRate = (payload) => {
   }
   return request(1, '/api/sty-exchange/Calculate/exchange-rate', data)
 }
+
+
+
 export const stySell = (data) => request(1, '/api/product/sty/sell', data)
+export function styBuy(data) {return request.post('/api/product/sty/buy', data)}

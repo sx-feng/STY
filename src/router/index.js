@@ -21,6 +21,7 @@ import BuyRecord from '@/components/Text/BuyRecord.vue'
 import SellRecord from '@/components/Text/SellRecord.vue'
 import FundsFlow  from '@/components/STTT/FundsFlow.vue'
 import TwoPasswordDialog from '@/components/Text/TwoPasswordDialog.vue'
+import FinanceIntro from '@/components/Text/FinanceIntro.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -139,6 +140,13 @@ const router = createRouter({
         path:'/two',
         name:'TwoPasswordDialog',
         component:TwoPasswordDialog
+        
+       },
+       {
+        path:'/finance-intro',
+        name:'FinanceIntro',
+        component:FinanceIntro,
+        meta: { hideTopBar: true }
         
        }
   ]

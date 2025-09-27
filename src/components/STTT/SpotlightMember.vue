@@ -56,18 +56,20 @@ const showDialog = ref(false)
 const router = useRouter()
 
 // 购买会员
+// 购买会员
 async function buyMember() {
-  CallbackCenter.trigger('openTwoPasswordDialog', async (pwd) => {
+  CallbackCenter.emit('openTwoPasswordDialog', async (pwdMd5) => {
     try {
-      const res = await productVip({ level: 1, twoPassword: pwd }) // 带上密码
-      if (res.code === 200) {
+      const res = await productVip({ level: 1, twoPassword: pwdMd5 }) // 🔑 已经是 MD5
+      if (res.data.code === 200) {
         ElMessage.success("购买成功！")
         showDialog.value = false
         vipStatus.value = true
       } else {
-        ElMessage.error(res.message || "购买失败")
+        ElMessage.error(res.data.message || "购买失败")
       }
     } catch (err) {
+      console.error('[buyMember] error:', err)
       ElMessage.error("网络错误，请稍后重试")
     }
   })
