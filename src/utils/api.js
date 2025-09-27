@@ -119,5 +119,14 @@ export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders
 // ================== 平台余额 ==================
 export const userPlatformBalance = (data) =>request(1, '/api/UserPlatformFlow/select/by-user/balance', data)
     
-export const styExchangeRate =(data)=>  request(1, `/api/sty-exchange/Calculate/exchange-rate`,data)
+export const styExchangeRate = (payload) => {
+
+  let data = payload
+  if (typeof payload === 'number' || typeof payload === 'string') {
+    data = { styNum: Number(payload) }
+  } else if (payload && payload.amount != null && payload.styNum == null) {
+    data = { styNum: Number(payload.amount) }
+  }
+  return request(1, '/api/sty-exchange/Calculate/exchange-rate', data)
+}
 export const stySell = (data) => request(1, '/api/product/sty/sell', data)

@@ -7,7 +7,7 @@
         <p>🔐 加密通道启动中...</p>
       </div>
     </div>
-
+<TwoPasswordDialog/>
     <!-- 主内容 -->
     <TopBar v-if="showTopBar" />
     <main :class="['page-content', { 'no-topbar': !showTopBar }]">
@@ -29,6 +29,7 @@ import enUS from 'element-plus/dist/locale/en.mjs'
 import { userInit} from '@/utils/api.js'
 import Notify from '@/utils/notifyInApp' 
 import { useRouter } from 'vue-router'
+import TwoPasswordDialog from './components/Text/TwoPasswordDialog.vue'
 
 const { locale } = useI18n()
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))

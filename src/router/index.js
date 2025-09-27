@@ -19,6 +19,8 @@ import FutureEcosystemPage from "@/components/Text/FutureEcosystemPage.vue"
 import TokenConsensusPage from "@/components/Text/TokenConsensusPage.vue"
 import BuyRecord from '@/components/Text/BuyRecord.vue'
 import SellRecord from '@/components/Text/SellRecord.vue'
+import FundsFlow  from '@/components/STTT/FundsFlow.vue'
+import TwoPasswordDialog from '@/components/Text/TwoPasswordDialog.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -130,6 +132,14 @@ const router = createRouter({
        name: 'SellRecord',
         component: SellRecord,
          meta: { hideTopBar: true }
+       },{
+         path: '/flows',
+          component: FundsFlow 
+       },{
+        path:'/two',
+        name:'TwoPasswordDialog',
+        component:TwoPasswordDialog
+        
        }
   ]
 })
