@@ -44,6 +44,12 @@ export const staticUpdate  = (data) => request(1, '/api/static-product/update', 
 export const staticGet     = (data) => request(1, '/api/static-product/get', data)
 export const staticList    = (data) => request(1, '/api/static-product/list', data)
 export const staticFindByType = (type) => request(1, `/api/dynamic-product/find/all/type/${type}`)
+
+//=================== 理财产品 ===================
+export const getProductAllStatic =(data) => request(1, `/api/static-product/all`,data) //静态理财
+export const getProductAllSynamic = (data) => request(1, `/api/dynamic-product/all`,data) //动态理财
+
+
 // ================== 动态理财 ==================
 export const dynamicAdd    = (data) => request(1, '/api/dynamic-product/add', data)
 export const dynamicDelete = (data) => request(1, '/api/dynamic-product/delete', data)

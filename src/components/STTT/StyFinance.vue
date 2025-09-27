@@ -6,32 +6,78 @@
       <button class="tab-btn">📒 {{ $t('finance.styIntro') }}</button>
     </div>
 
-    <!-- 卡片1：动态理财 + 静态理财 -->
+    <!-- 卡片1：理财产品 -->
     <div class="card">
+      <!-- 动态理财 -->
       <div class="dynamic">
-        <div class="dynamic-title">{{ $t('finance.dynamic') }}</div>
-        <div class="dynamic-row">
-          <span class="rate">{{ $t('finance.currentRate') }}</span>
+        <div class="dynamic-title">
+          {{ $t('finance.dynamic') }}
           <a class="detail" href="javascript:void(0)" @click="goDynamicDetail">
             {{ $t('finance.detail') }}
           </a>
         </div>
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>周期</th>
+              <th>利率</th>
+              <th>价格</th>
+              <th>购买</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in dynamicList" :key="item.id">
+              <td>{{ item.id }}</td>
+              <td>{{ item.cycleDays }} 天</td>
+              <td>{{ item.yieldRate }}%</td>
+              <td>{{ item.price }}</td>
+              <td>
+                <button class="btn buy" @click="buyProduct(item.id, 'dynamic')">
+                  {{ $t('finance.buy') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- 金色分割线 -->
       <div class="gold-divider"></div>
+  
 
+      <!-- 静态理财 -->
       <div class="static">
         <div class="static-title">
           {{ $t('finance.static') }}
-          <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
+                    <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
             {{ $t('finance.detail') }}
           </a>
+
         </div>
-        <div class="static-row" v-for="(item, index) in staticList" :key="index">
-          <span>{{ $t(`finance.period${index+1}`) }}</span>
-          <span>{{ item.value }}</span>
-        </div>
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>周期</th>
+              <th>利率</th>
+              <th>价格</th>
+              <th>购买</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in staticList" :key="item.id">
+              <td>{{ item.id }}</td>
+              <td>{{ item.cycleDays }} 天</td>
+              <td>{{ item.yieldRate }}%</td>
+              <td>{{ item.price }}</td>
+              <td>
+                <button class="btn buy" @click="buyProduct(item.id, 'static')">
+                  {{ $t('finance.buy') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -112,7 +158,7 @@
 <script setup>
 import { ref,computed,onMounted } from "vue"
 import router from '@/router';
-import { stySell ,styExchangeRate} from '@/utils/api'
+import { stySell ,styExchangeRate,getProductAllStatic,getProductAllSynamic} from '@/utils/api'
 const showSellDialog = ref(false)
 const sellAmount = ref(0)
 
@@ -126,13 +172,7 @@ function confirmSell() {
   sellAmount.value = 0
 }
 
-const staticList = [
-  { period: "3天周期" },
-  { period: "10天周期" },
-  { period: "22天周期" },
-  { period: "33天周期" },
-  { period: "60天周期" }
-]
+
 
 const shopList = [
   { name: "STY 礼包 A", price: 100 },
@@ -188,9 +228,44 @@ async function doSell() {
     console.error('请求异常:', e)
   }
 }
+const staticList = ref([])
+const dynamicList = ref([])
+// 获取静态产品
+async function getStatic() {
+  try {
+    let res = await getProductAllStatic();
+    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
+      staticList.value = [...res.data.data]; // 展开，确保触发响应式
+      console.log("静态产品:", staticList.value);
+    }
+  } catch (e) {
+    console.error("获取静态理财失败:", e)
+  }
+}
+
+// 获取动态产品
+async function getSynamic() {
+  try {
+    let res = await getProductAllSynamic();
+    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
+      dynamicList.value = [...res.data.data];
+      console.log("动态产品:", dynamicList.value);
+    }
+  } catch (e) {
+    console.error("获取动态理财失败:", e)
+  }
+}
+
+
+// 通用购买方法
+function buyProduct(id, type) {
+  console.log(`购买理财产品: id=${id}, 类型=${type}`)
+  alert(`购买成功: ID=${id}, 类型=${type}`)
+}
+
 onMounted(()=>{
-  calcRate()
-  doSell()
+  getStatic()
+  getSynamic() 
 })
 </script>
 
@@ -264,9 +339,6 @@ onMounted(()=>{
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
-.dynamic {
-  margin-bottom: 50px;
-}
 .dynamic-title,
 .static-title {
   font-weight: 600;
@@ -603,5 +675,48 @@ onMounted(()=>{
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 10px;
+}
+.product-table th,
+.product-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+.product-table th {
+  background: #f6c244;
+  color: #000;
+}
+.product-table td {
+  color: #000; /* 强制黑字 */
+}
+/* 表格里的购买按钮样式 */
+.product-table .btn {
+  border: none;              /* 去掉黑色边框 */
+  border-radius: 12px;       /* 圆润一点 */
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+/* 表格里的购买按钮颜色 */
+.product-table .btn.buy {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+}
+
+.product-table .btn.buy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px rgba(246, 194, 68, 0.5);
+}
+
 
 </style>
