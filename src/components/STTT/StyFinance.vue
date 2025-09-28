@@ -285,13 +285,7 @@ async function calcRate() {
   }
 }
 // ================== daidiaiadiaidaidiadiaidiadiai==================
-const staticList = [
-  { period: "3天周期" },
-  { period: "10天周期" },
-  { period: "22天周期" },
-  { period: "33天周期" },
-  { period: "60天周期" }
-]
+
 const shopList = [
  
 ]
