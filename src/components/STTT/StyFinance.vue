@@ -169,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed ,onMounted} from "vue"
 import router from '@/router';
 import { stySell ,styExchangeRate , styBuy} from '@/utils/api'
 import CallbackCenter from "@/utils/callbackCenter";
@@ -225,7 +225,7 @@ async function confirmSell() {
 // 获取报价（calcRate）
 async function calcRate() {
   try {
-    const res = await styExchangeRate({ styNum: Number(sellAmount.value || 1) })
+    const res = await styExchangeRate({ amount: Number(sellAmount.value || 1) })
     const body = res?.data
     if (body?.code === 200) {
       fillQuote(body.data)
