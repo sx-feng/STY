@@ -156,7 +156,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed ,onMounted} from "vue"
 import router from '@/router';
 import { stySell ,styExchangeRate,getProductAllStatic,getProductAllSynamic} from '@/utils/api'
 const showSellDialog = ref(false)
@@ -209,7 +209,7 @@ async function confirmSell() {
 // 获取报价（calcRate）
 async function calcRate() {
   try {
-    const res = await styExchangeRate({ styNum: Number(sellAmount.value || 1) })
+    const res = await styExchangeRate({ amount: Number(sellAmount.value || 1) })
     const body = res?.data
     if (body?.code === 200) {
       fillQuote(body.data)
@@ -251,10 +251,7 @@ function goSellRecord() {
   router.push("/cell")
 }
 
-async function calcRate() {
-  const res = await styExchangeRate({amount:11})  
-  console.log('兑换汇率结果:', res)
-}
+
 async function doSell() {
   try {
     const res = await stySell({ amount: 500 }) 

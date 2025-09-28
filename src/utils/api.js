@@ -123,9 +123,9 @@ export const styExchangeRate = (payload) => {
 
   let data = payload
   if (typeof payload === 'number' || typeof payload === 'string') {
-    data = { styNum: Number(payload) }
+    data = { amount: Number(payload) }
   } else if (payload && payload.amount != null && payload.styNum == null) {
-    data = { styNum: Number(payload.amount) }
+    data = { amount: Number(payload.amount) }
   }
   return request(1, '/api/sty-exchange/Calculate/exchange-rate', data)
 }
