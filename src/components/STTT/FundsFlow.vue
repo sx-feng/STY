@@ -55,9 +55,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, onMounted, onUnmounted, onBeforeUnmount } from "vue"
 import { useRouter } from "vue-router"
 import { userPlatformFlowSelect } from "@/utils/api"
+import CallbackCenter from "@/utils/callbackCenter"
 
 // ====== 基础状态 ======
 const router = useRouter()
@@ -159,13 +160,26 @@ function formatAmount(a) {
 
 function goBack() { router.back() }
 
+// ===== 生命周期 =====
 onMounted(() => {
   load(true)
-  // 绑定滚动事件
-  if (scrollEl.value) scrollEl.value.addEventListener('scroll', onScroll, { passive: true })
+
+  // 绑定滚动
+  if (scrollEl.value) {
+    scrollEl.value.addEventListener('scroll', onScroll, { passive: true })
+  }
+  // ✅ 注册全局回调：外部触发 fundsUpdate → 自动刷新
+  CallbackCenter.register('fundsUpdate', () => {
+    console.log("records-page 收到 fundsUpdate，刷新数据")
+    load(true)
+  })
 })
+
 onUnmounted(() => {
-  if (scrollEl.value) scrollEl.value.removeEventListener('scroll', onScroll)
+  if (scrollEl.value) {
+    scrollEl.value.removeEventListener('scroll', onScroll)
+  }
+  CallbackCenter.unregister('fundsUpdate')
 })
 </script>
 

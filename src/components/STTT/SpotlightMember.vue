@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref ,onMounted} from "vue"
+import { ref ,onMounted,onBeforeUnmount} from "vue"
 import SignCanLen from './SignCanLen.vue'
 import { useRouter } from "vue-router"
 import { ElMessage } from 'element-plus'
@@ -58,12 +58,18 @@ const router = useRouter()
 // 购买会员
 // 购买会员
 async function buyMember() {
-  CallbackCenter.emit('openTwoPasswordDialog', async (pwdMd5) => {
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     try {
-      const res = await productVip({ level: 1, twoPassword: pwdMd5 }) // 🔑 已经是 MD5
+      const res = await productVip({ level: 1, twoPassword: pwdMd5 })
       if (res.data.code === 200) {
         ElMessage.success("购买成功！")
         showDialog.value = false
+        vipStatus.value = true
+        // 通知全局刷新
+        CallbackCenter.trigger('vipUpdate')
+      } else if (res.data.code === 401) {
+        // 已是会员
+        ElMessage.warning(res.data.message || "您已是VIP会员")
         vipStatus.value = true
       } else {
         ElMessage.error(res.data.message || "购买失败")
@@ -75,11 +81,12 @@ async function buyMember() {
   })
 }
 
+
 // 查询 VIP 状态
 async function checkVip() {
   try {
     const res = await vipUserStatus({})
-    if (res.code === 200 && res.data?.isVip) {
+    if (res.data.code === 200 && res.data.data === true) {
       vipStatus.value = true
     } else {
       vipStatus.value = false
@@ -89,11 +96,11 @@ async function checkVip() {
   }
 }
 
-// 点击节点会员按钮
+// 节点会员按钮
 function handleNodeMember() {
   if (vipStatus.value) {
     // 已是 VIP → 跳转收益记录
-    router.push("/vip-income")
+    router.push("/vip")
   } else {
     // 未开通 → 打开购买弹窗
     showDialog.value = true
@@ -105,8 +112,18 @@ function goMember() {
   router.push("/member")
 }
 
+// 生命周期：挂载/卸载
 onMounted(async () => {
   await checkVip()
+  // 🔔 注册全局刷新
+  CallbackCenter.register('vipUpdate', (info) => {
+    console.log("light-page 收到 vipUpdate:", info)
+    checkVip()
+  })
+})
+
+onBeforeUnmount(() => {
+  CallbackCenter.unregister('vipUpdate')
 })
 </script>
 

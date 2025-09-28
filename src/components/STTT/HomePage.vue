@@ -159,15 +159,6 @@ async function loadRecords(page = 1) {
   }
 }
 
-// 分页切换
-function handlePageChange(page) {
-  loadRecords(page)
-}
-
-function updateBalance(val) {
-  balance.value = val || 0
-}
-
 function goTeam() {
   currentTab.value = 'team'
   router.push('/teampe')

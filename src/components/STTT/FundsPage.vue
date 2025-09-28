@@ -79,13 +79,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick,onBeforeMount } from 'vue'
+import { ref, computed, onMounted, nextTick,onBeforeUnmount } from 'vue'
 import WalletTP from '@/utils/walletTP.js'
 import { RequestOrder, SubmitOrder,userPlatformFlowSelect,userPlatformBalance,Withdraw} from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import Notify from '@/utils/notifyInApp'
 // 基础状态
-
+import { ElLoading } from 'element-plus'
+import CallbackCenter from "@/utils/callbackCenter"
 const mode = ref('deposit')
 const listType = ref('recharge')
 const amount = ref('') // 输入框金额
@@ -107,10 +108,6 @@ onMounted(async () => {
 
 // 币种（也可以做成下拉切换）
 const wantedToken = ref('USDT')
-
-
-import { ElLoading } from 'element-plus'
-
 async function startWithdraw() {
   // 打开 loading 遮罩
   const loading = ElLoading.service({
@@ -146,9 +143,6 @@ async function startWithdraw() {
     loading.close()
   }
 }
-
-
-
 // 触发支付
 async function startPay(){
   if (!ready.value || !payRef.value) {
@@ -189,15 +183,6 @@ function onPayDone(res){
 function onPayClose(){
   console.log('close')
 }
-onMounted(async () => {
-  await loadRecharge()
-  await loadWithdraw()
-  
-  
-})
-onBeforeMount(() => {
-  loadPlatformBalance()
-})
 
 async function loadRecharge() {
   const res = await userPlatformFlowSelect('recharge', {})
@@ -233,7 +218,25 @@ async function loadPlatformBalance() {
     platformBalance.value = 0
   }
 }
+// 页面挂载时
+onMounted(() => {
+  loadPlatformBalance()
+  loadRecharge()
+  loadWithdraw()
 
+  // 🔔 注册全局回调
+  CallbackCenter.register("fundsUpdate", () => {
+    console.log("收到资金更新回调，开始刷新")
+    loadPlatformBalance()
+    loadRecharge()
+    loadWithdraw()
+  })
+})
+
+// 页面卸载时记得解绑
+onBeforeUnmount(() => {
+  CallbackCenter.unregister("fundsUpdate")
+})
 </script>
 
 <style scoped>
