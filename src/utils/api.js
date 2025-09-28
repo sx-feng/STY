@@ -48,6 +48,7 @@ export const staticFindByType = (type) => request(1, `/api/dynamic-product/find/
 //=================== 理财产品 ===================
 export const getProductAllStatic =(data) => request(1, `/api/static-product/all`,data) //静态理财
 export const getProductAllSynamic = (data) => request(1, `/api/dynamic-product/all`,data) //动态理财
+export const buyProduct=(data)=>request(1,'/api/product/Financial/local/buy',data);
 
 
 // ================== 动态理财 ==================
