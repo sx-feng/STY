@@ -13,7 +13,6 @@
       <span>{{ $t('detail.thead.type') }}</span>
       <span>{{ $t('detail.thead.amount') }}</span>
       <span>{{ $t('detail.thead.time') }}</span>
-      <span>{{ $t('detail.thead.balance') }}</span>
     </div>
 
     <!-- 滚动数据容器 -->
@@ -26,7 +25,6 @@
           {{ item.amount > 0 ? '+' + item.amount : item.amount }}
         </span>
         <span>{{ item.time }}</span>
-        <span>{{ item.balance }}</span>
       </div>
     </div>
   </div>
@@ -44,16 +42,16 @@ const router = useRouter()
 const list = ref([])
 async function loadDetail(page = 1) {
   try {
-    const res = await userMachineRecordList({  }) 
+    let res = await userMachineRecordList({  }) 
+    res=res.data
     console.log('收益详情全部',2222222222)
     console.log("【收益详情接口返回】", res)
     if (res.code === 200 && res.data?.records) {
       list.value = res.data.records.map((item) => ({
         coin: item.currency || 'STYAI',       
-        type: item.machineName || '挖矿收益', 
+        type:'挖矿收益', 
         amount: Number(item.profitAmount || 0), 
-        time: item.profitTime || '-',         
-        balance: item.balance || 0           
+        time: item.profitTime || '-'       
       }))
     } else {
       list.value = []
@@ -130,7 +128,7 @@ function goBack() {
   margin-left: 2%;
   width: 90%;
   display: grid;
-  grid-template-columns: 0.6fr 1fr 1.2fr 0.8fr 1.6fr 1fr;
+  grid-template-columns: 0.6fr 1fr 1.2fr 0.8fr 2.6fr;
   gap: 8px;
   padding: 12px;
   color: #FFD700;
@@ -143,7 +141,7 @@ function goBack() {
 
 .row {
   display: grid;
-  grid-template-columns: 0.6fr 1fr 1.2fr 0.8fr 1.6fr 1fr;
+  grid-template-columns: 0.6fr 1fr 1.2fr 0.8fr 2.6fr ;
   gap: 8px;
   padding: 10px 12px;
   font-size: 13px;
