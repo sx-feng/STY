@@ -24,12 +24,25 @@
         <span v-html="incomeDesc"></span>
       </p>
     </div>
+     <!-- 公告按钮 -->
+    <div class="notice-btn" @click="openNotice">
+      📢 公告
+    </div>
+
+    <!-- 公告弹窗 -->
+    <div v-if="showNotice" class="dialog-mask">
+      <div class="dialog-box">
+        <h3>📢 公告</h3>
+        <div class="notice-content" v-html="noticeContent"></div>
+        <button class="close-btn" @click="showNotice = false">关闭</button>
+      </div>
+    </div>
   </div>
   </template>
   
   <script setup>
   import { ref,onMounted } from "vue"
-import { userCompany } from "@/utils/api"
+import { userCompany,getField } from "@/utils/api"
   
 const menuList = ref([
 ])
@@ -58,6 +71,23 @@ async function loadConfig() {
     playDesc.value = "加载失败"
     incomeDesc.value = "加载失败"
   }
+}
+// 公告逻辑
+const showNotice = ref(false)
+const noticeContent = ref("暂无公告")
+// 请求公告
+async function loadNotice() {
+  try {
+    const res = await getField({})
+    noticeContent.value = res?.data?.content || "暂无公告"
+  } catch (e) {
+    console.error("加载公告失败:", e)
+    noticeContent.value = "公告加载失败"
+  }
+}
+function openNotice() {
+  loadNotice()
+  showNotice.value = true
 }
 
 onMounted(() => {
@@ -116,5 +146,71 @@ onMounted(() => {
     color: #333;
     line-height: 1.6;
   }
+  /* 底部公告按钮 */
+.notice-btn {
+  margin-top: 20px;
+  background: #f6c244;
+  color: #000;
+  font-weight: bold;
+  padding: 10px 70px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.notice-btn:hover {
+  background: #d6a520;
+}
+
+/* 弹窗遮罩 */
+.dialog-mask {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* 弹窗主体 */
+.dialog-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.dialog-box h3 {
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.notice-content {
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* 关闭按钮 */
+.close-btn {
+  background: #f6c244;
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.close-btn:hover {
+  background: #d6a520;
+}
   </style>
   

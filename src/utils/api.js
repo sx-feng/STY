@@ -88,7 +88,7 @@ export const styUpdate     = (data) => request(1, '/api/sty-exchange/update', da
 export const styGet        = (data) => request(1, '/api/sty-exchange/get', data)
 export const styList       = (data) => request(1, '/api/sty-exchange/list', data)
 export const styTrade = (data) => request(1, '/api/sty-exchange/trade', data)
-
+export const styGetAll     = (data) => request(1, '/api/sty-exchange/get/all', data) 
 // ================== 签到 ==================
 export const signDo        = (data) => request(1, '/sign/do', data)
 export const signStatus    = (data) => request(1, '/sign/status', data)
@@ -136,6 +136,6 @@ export const styExchangeRate = (payload) => {
 }
 
 
-
 export const stySell = (data) => request(1, '/api/product/sty/sell', data)
+export const getField = (data) => request(1, '/api/content-config/field', data)
 export function styBuy(data) {return request.post('/api/product/sty/buy', data)}

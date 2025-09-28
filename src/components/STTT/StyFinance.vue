@@ -1,95 +1,60 @@
 <template>
   <div class="finance-page">
 
-    <div class="top-actions">
-      <button class="tab-btn" :class="{ active: route.path === '/finance' }" @click="goFinance">
-        📦 {{ $t('finance.styTreasure') }}
-      </button>
-      <button class="tab-btn" :class="{ active: route.path === '/finance-intro' }" @click="goFinanceIntro">
-        📒 {{ $t('finance.styIntro') }}
-      </button>
-    </div>
     <!-- 卡片1：动态理财 + 静态理财 -->
-    <div class="card">
-      <!-- 动态理财 -->
-      <div class="dynamic">
-        <div class="dynamic-title">
-          {{ $t('finance.dynamic') }}
-          <a class="detail" href="javascript:void(0)" @click="goDynamicDetail">
-            {{ $t('finance.detail') }}
-          </a>
-        </div>
-        <table class="product-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>周期</th>
-              <th>利率</th>
-              <th>价格</th>
-              <th>购买</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in dynamicList" :key="item.id">
-              <td>{{ item.id }}</td>
-              <td>{{ item.cycleDays }} 天</td>
-              <td>{{ item.yieldRate }}%</td>
-              <td>{{ item.price }}</td>
-              <td>
-                <button class="btn buy" @click="buyProductItem(item.id, 'dynamic')">
-                  购买
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+<div class="card">
+  <!-- 理财宝说明 -->
+  <button class="tab-btn" :class="{ active: route.path === '/finance-intro' }" @click="goFinanceIntro">
+    📒 {{ $t('finance.styIntro') }}
+  </button>
+
+  <!-- 动态/静态切换 -->
+  <div class="sty-btn">
+    <button :class="{active: activeTab==='dynamic'}" @click="activeTab='dynamic'">动态理财</button>
+    <button :class="{active: activeTab==='static'}" @click="activeTab='static'">静态理财</button>
+  </div>
+
+  <div class="gold-divider"></div>
+
+  <!-- 商品列表 -->
+<div class="product-list-wrapper">
+  <!-- 商品列表 -->
+  <div class="product-list">
+    <div class="product" v-for="(item, i) in products" :key="i">
+      <img 
+        :src="activeTab === 'dynamic' ? require('@/assets/动态理财.gif') : require('@/assets/静态理财.gif')" 
+        alt="理财图"
+      />
+      <div class="info">
+        <span class="name">{{ item.name }}</span>
+        <span class="price">{{ item.price }} STY</span>
       </div>
-
-      <div class="gold-divider"></div>
-
-
-      <!-- 静态理财 -->
-      <div class="static">
-        <div class="static-title">
-          {{ $t('finance.static') }}
-          <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
-            {{ $t('finance.detail') }}
-          </a>
-
-        </div>
-        <table class="product-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>周期</th>
-              <th>利率</th>
-              <th>价格</th>
-              <th>购买</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in staticList" :key="item.id">
-              <td>{{ item.id }}</td>
-              <td>{{ item.cycleDays }} 天</td>
-              <td>{{ item.yieldRate }}%</td>
-              <td>{{ item.price }}</td>
-              <td>
-                <button class="btn buy" @click="buyProductItem(item.id, 'static')">
-                  购买
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <button class="buy-btn" @click="buy(item)">购买</button>
     </div>
+  </div>
 
+  <!-- 底部明细区 -->
+  <div class="list-footer">
+  <div v-if="activeTab === 'dynamic'" @click="goDynamicDetail">
+    📊动态理财明细
+  </div>
+  <div v-else @click="goStaticDetail">
+    📊 静态理财明细
+  </div>
+
+  </div>
+</div>
+
+</div>
     <!-- 卡片2：买卖 STY -->
     <div class="card card-actions">
       <div class="buy-sell">
         <!-- 出售 STY 按钮 -->
         <button class="btn sell" @click="openSellDialog">
           {{ $t('finance.sell') }}
+        </button>
+         <button class="btn sell" @click="openSellDialog">
+          {{ $t('finance.buy') }}
         </button>
       </div>
 
@@ -103,17 +68,27 @@
       </div>
 
       <!-- 商品列表 -->
-      <div class="shop">
-        <div class="shop-item" v-for="(item, index) in shopList" :key="index">
-          <div class="shop-info">
-            <div class="shop-name">{{ item.name }}</div>
-            <div class="shop-price">{{ item.price }} STY</div>
-          </div>
-          <button class="btn buy" @click="buyItem(item)">
-            {{ $t('finance.buy') }}
-          </button>
-        </div>
+<div class="shop">
+  <div class="shop-item" v-for="item in shopList" :key="item.id">
+    <div class="shop-info">
+      <div class="shop-header">
+        <span class="order-id">订单号：{{ item.id }}</span>
+        <span class="status" :class="'status-' + item.orderStatus">
+          {{ formatStatus(item.orderStatus) }}
+        </span>
       </div>
+
+      <div class="shop-row">
+        <span>数量：<b>{{ item.styAmount }}</b> STY</span>
+        <span>金额：<b>{{ item.usdtAmount }}</b> USDT</span>
+      </div>
+    </div>
+
+    <button class="btn buy" @click="buyItem(item)">购买</button>
+  </div>
+</div>
+
+
     </div>
 
     <!-- 出售 STY 弹窗 -->
@@ -174,7 +149,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import router from '@/router';
-import { stySell, styExchangeRate, styBuy, getProductAllStatic, getProductAllSynamic, buyProduct } from '@/utils/api'
+import { stySell, styExchangeRate, styBuy, getProductAllStatic, getProductAllSynamic, buyProduct,styGetAll } from '@/utils/api'
 import CallbackCenter from "@/utils/callbackCenter";
 import { useRouter, useRoute } from 'vue-router'
 import WalletTP from '@/utils/walletTP.js'
@@ -199,6 +174,15 @@ function fillQuote(p = {}) {
   available.value = Number(p.sellQuantity ?? 0)
   netProceeds.value = Number(p.netProceeds ?? 0)
 }
+
+// =======================================
+const activeTab = ref('dynamic')
+
+
+function buy(item) {
+  alert(`购买：${item.name}`)
+}
+
 function resetQuote() { fillQuote({}) }
 
 function openSellDialog() {
@@ -250,7 +234,7 @@ async function startPay() {
     amount: Number(sellAmount.value),
     token: "STYAI",   // 注意 .value
     WalletTP,
-    RequestOrder: Exchange,
+    RequestOrder: Exchange,         
     SubmitOrder,
     checkTrxEarly: false
   })
@@ -285,20 +269,33 @@ async function calcRate() {
   }
 }
 // ================== daidiaiadiaidaidiadiaidiadiai==================
+const shopList = ref([])
 
-const shopList = [
- 
-]
+// 获取 STY 商品池数据
+async function getShopList() {
+  try {
+    const res = await styGetAll({})
+    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
+      shopList.value = res.data.data
+    } else {
+      shopList.value = []
+    }
+  } catch (e) {
+    console.error("获取 STY 商品池失败:", e)
+    shopList.value = []
+  }
+}
+
 // 买sty按钮方法
 function buyItem(item) {
   if (!item.orderId) {
     alert('缺少订单ID')
     return
-  }
+  }  
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     try {
       const res = await styBuy({
-        orderId: item.orderId,
+        orderId: item.orderId,                
         twoPassword: pwdMd5
       })
       const body = res?.data
@@ -314,6 +311,15 @@ function buyItem(item) {
   })
 }
 
+function formatStatus(status) {
+  switch (status) {
+    case 0: return '待成交';
+    case 1: return '已成交';
+    case 2: return '已取消';
+    default: return '未知';
+  }
+}
+
 // 跳转各个页面
 function goDynamicDetail() { router.push("/dynamic") }
 function goStaticDetail() { router.push("/statuc") }
@@ -325,7 +331,7 @@ function goFinance() {
     router.push('/finance')
   }
 }
-
+// 理财宝说明
 function goFinanceIntro() {
   if (route.path !== '/finance-intro') {
     router.push('/finance-intro')
@@ -357,41 +363,45 @@ async function buyProductItem(id, type) {
     }
   })
 }
-//================
-const staticList = ref([])
+//=================================================
+// 接口数据
 const dynamicList = ref([])
+const staticList = ref([])
+
+// 当前展示的商品（根据 activeTab 动态切换）
+const products = computed(() => {
+  return activeTab.value === 'dynamic' ? dynamicList.value : staticList.value
+})
+// 获取动态产品
+async function getSynamic() {
+  try {
+    let res = await getProductAllSynamic()
+    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
+      dynamicList.value = res.data.data
+    }
+  } catch (e) {
+    console.error("获取动态理财失败:", e)
+  }
+}
 // 获取静态产品
 async function getStatic() {
   try {
-    let res = await getProductAllStatic();
+    let res = await getProductAllStatic()
     if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
-      staticList.value = [...res.data.data]; // 展开，确保触发响应式
-      console.log("静态产品:", staticList.value);
+      staticList.value = res.data.data
     }
   } catch (e) {
     console.error("获取静态理财失败:", e)
   }
 }
 
-// 获取动态产品
-async function getSynamic() {
-  try {
-    let res = await getProductAllSynamic();
-    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
-      dynamicList.value = [...res.data.data];
-      console.log("动态产品:", dynamicList.value);
-    }
-  } catch (e) {
-    console.error("获取动态理财失败:", e)
-  }
-}
 onMounted(() => {
-  getStatic()
   getSynamic()
+  getStatic()
+  getShopList()
+
 })
-
 </script>
-
 <style>
 .finance-page {
   min-height: 100vh;
@@ -423,31 +433,28 @@ onMounted(() => {
   z-index: 0;
 }
 
-.top-actions {
-  margin-top: 40px;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  z-index: 1;
-}
+
 
 .tab-btn {
-  background: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 14px 18px;
-  font-size: 14px;
-  font-weight: bold;
+  background: #fff5d6;  
+  color: #b8860b;        
+  border: 1px solid #f6c244;
+  border-radius: 14px;   
+  padding: 8px 14px;     
+  font-size: 13px;       
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
 }
 
 .tab-btn.active {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
   color: #000;
-  border: 1px solid gold;
   box-shadow: 0 0 12px rgba(246, 194, 68, 0.6);
 }
+
+
+
 
 /* 白色卡片 */
 .card {
@@ -459,6 +466,8 @@ onMounted(() => {
   max-width: 420px;
   z-index: 1;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  margin-top: 30px;
+
 }
 
 .dynamic-title,
@@ -851,53 +860,212 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
-
-
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin-top: 10px;
+.card {
+  background: #fff;
+  border-radius: 50px;
+  padding: 16px;
+  width: 92%;
+  max-width: 520px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.product-table th,
-.product-table td {
+/* 顶部说明按钮 */
+.tab-btn {
+  display: inline-block;
+  background: #fff;
+  color: #f6c244;
+  border: 1px solid #f6c244;
+  border-radius: 15px;
+  padding: 10px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.tab-btn:hover {
+  background: #fff8e1;
+  box-shadow: 0 0 4px rgba(246,194,68,0.5);
+}
+.tab-btn.active {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+  border: none;
+}
+
+
+/* 动静理财切换 */
+/* 动静理财切换 */
+.sty-btn {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.sty-btn button {
+  flex: none;
+  min-width: 90px;
+  padding: 6px 12px;
+  border-radius: 16px;
   border: 1px solid #ddd;
+  background: #f9f9f9;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+/* 激活状态：淡金底 + 金色边框 + 深色文字 */
+.sty-btn button.active {
+  background: #fffbe6;            /* 柔和浅金色，而不是浓烈的渐变 */
+  border: 1px solid #f6c244;
+  color: #b8860b;                 /* 深金色文字 */
+  font-weight: 600;
+  box-shadow: 0 0 4px rgba(246,194,68,0.3);
+}
+
+
+/* 分割线 */
+.gold-divider {
+  height: 1px;
+  margin: 10px 0;
+  background: #ffed84;
+  border-radius: 2px;
+}
+
+/* 商品列表 */
+.product-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+/* 商品滚动区 */
+.product-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 底部固定区域 */
+.list-footer {
   padding: 8px;
   text-align: center;
+  font-size: 16px;
+  color: #dab616;
+  background: #f0f0f0;
+  border-top: 1px solid #e0e0e0;
+  font-weight: 500;
 }
 
-.product-table th {
-  background: #f6c244;
-  color: #000;
-}
-
-.product-table td {
-  color: #000;
-  /* 强制黑字 */
-}
-
-/* 表格里的购买按钮样式 */
-.product-table .btn {
-  border: none;
-  /* 去掉黑色边框 */
+.product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafafa;
+  padding: 10px;
   border-radius: 12px;
-  /* 圆润一点 */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.info{
+  flex: 1;
+  display: flex;
+ margin-top: 15px;
+  gap: 16px;  
+}
+.product img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  
+}
+.product .name {
+  flex: 1;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+.product .price {
+  margin-right: 10px;
+  color: #d6a520;
+  font-weight: bold;
+  font-size: 14px;
+}
+.product .buy-btn {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+  border: none;
+  border-radius: 10px;
   padding: 6px 12px;
   font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   transition: 0.25s;
 }
+.product .buy-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 6px rgba(246,194,68,0.6);
+}
 
-/* 表格里的购买按钮颜色 */
-.product-table .btn.buy {
-  background: linear-gradient(90deg, #f6c244, #d6a520);
+
+/* 商品池子 */
+.shop-item {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shop-info {
+  flex: 1;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #555;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #333;
+}
+
+.status {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #fff;
+}
+.status-0 { background: #f6c244; }  /* 待成交 - 黄色 */
+.status-1 { background: #4caf50; }  /* 已成交 - 绿色 */
+.status-2 { background: #f44336; }  /* 已取消 - 红色 */
+
+.shop-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.shop-row b {
   color: #000;
 }
 
-.product-table .btn.buy:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 8px rgba(246, 194, 68, 0.5);
-}
+
 </style>

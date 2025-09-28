@@ -26,6 +26,7 @@
       <span>数量</span>
       <span class="col-time">时间</span>
       <span>状态</span>
+  
     </div>
 
     <!-- 可滚动的表体 -->
@@ -40,6 +41,7 @@
           </span>
           <span class="col-time">{{ formatTime(item.time ?? item.createdAt) }}</span>
           <span>{{ item.status ?? '—' }}</span>
+           <span>{{ item.status ?? '—' }}</span>
         </div>
 
         <!-- 底部提示 -->
@@ -69,7 +71,8 @@ const types = [
   { label: "全部", value: "all" },
   { label: "充值", value: "recharge" },
   { label: "提现", value: "withdrawal" },
-  { label: "购买", value: "purchase" }
+  { label: "购买", value: "purchase" },
+  
 ]
 
 // 分页 & 加载状态
