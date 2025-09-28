@@ -53,7 +53,7 @@
         <button class="btn sell" @click="openSellDialog">
           {{ $t('finance.sell') }}
         </button>
-         <button class="btn sell" @click="openSellDialog">
+         <button class="btn sell" @click="openPurchaseDialog">
           {{ $t('finance.buy') }}
         </button>
       </div>
@@ -69,6 +69,23 @@
 
       <!-- 商品列表 -->
 <div class="shop">
+  <!-- 顶部切换按钮 -->
+  <div class="shop-tabs">
+    <button
+      :class="{ active: activePool === 'sell' }"
+      @click="activePool = 'sell'; getShopList()"
+    >
+      出售 
+    </button>
+    <button
+      :class="{ active: activePool === 'buy' }"
+      @click="activePool = 'buy'; getShopList()"
+    >
+      求购 
+    </button>
+  </div>
+
+  <!-- 商品列表 -->
   <div class="shop-item" v-for="item in shopList" :key="item.id">
     <div class="shop-info">
       <div class="shop-header">
@@ -84,7 +101,9 @@
       </div>
     </div>
 
-    <button class="btn buy" @click="buyItem(item)">购买</button>
+    <button class="btn buy" @click="buyItem(item)">
+      {{ activePool === 'buy' ? '购买' : '卖出' }}
+    </button>
   </div>
 </div>
 
@@ -130,6 +149,39 @@
         </div>
       </div>
     </div>
+    <!-- 求购 STY 弹窗 -->
+<div v-if="showPurchaseDialog" class="dialog-mask">
+  <div class="dialog-box sell-box">
+    <!-- 当前单价输入 -->
+    <div class="sell-header">
+      求购单价：
+      <input type="number" v-model="purchasePrice" class="price-input" />
+      <span class="unit">USDT</span>
+    </div>
+
+    <!-- 求购数量输入 -->
+    <div class="sell-input">
+      <label>求购数量：</label>
+      <input type="number" v-model="purchaseAmount" />
+      <span class="unit">STY</span>
+    </div>
+
+    <!-- 信息展示 -->
+    <div class="sell-info">
+      <div class="info-row">
+        <span>总金额</span>
+        <span>{{ (purchaseAmount * purchasePrice).toFixed(2) }} USDT</span>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="dialog-actions">
+      <button @click="confirmPurchase" class="sell-confirm">挂买单</button>
+      <button @click="showPurchaseDialog = false" class="sell-cancel">取消</button>
+    </div>
+  </div>
+</div>
+
   </div>
 
         <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
@@ -149,7 +201,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import router from '@/router';
-import { stySell, styExchangeRate, styBuy, getProductAllStatic, getProductAllSynamic, buyProduct,styGetAll } from '@/utils/api'
+import { stySell, styExchangeRate, styBuy, getProductAllStatic, getProductAllSynamic, buyProduct,styGetAll,buyPurchase } from '@/utils/api'
 import CallbackCenter from "@/utils/callbackCenter";
 import { useRouter, useRoute } from 'vue-router'
 import WalletTP from '@/utils/walletTP.js'
@@ -270,20 +322,35 @@ async function calcRate() {
 }
 // ================== daidiaiadiaidaidiadiaidiadiai==================
 const shopList = ref([])
-
+const allOrders = ref([]) 
+const activePool = ref('buy') // 默认显示求购池，取值: 'buy' / 'sell'
 // 获取 STY 商品池数据
 async function getShopList() {
   try {
     const res = await styGetAll({})
     if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
-      shopList.value = res.data.data
+      allOrders.value = res.data.data
+      filterShopList() // 初始根据 activePool 过滤
     } else {
+      allOrders.value = []
       shopList.value = []
     }
   } catch (e) {
-    console.error("获取 STY 商品池失败:", e)
+    console.error("获取 STY 交易池失败:", e)
+    allOrders.value = []
     shopList.value = []
   }
+}
+function filterShopList() {
+  // orderType: 1=买入STY(求购), 2=卖出STY(出售)
+  shopList.value = allOrders.value.filter(item => {
+    if (activePool.value === 'buy') return item.orderType === 1
+    if (activePool.value === 'sell') return item.orderType === 2
+  })
+}
+function switchPool(type) {
+  activePool.value = type
+  filterShopList()
 }
 
 // 买sty按钮方法
@@ -309,6 +376,48 @@ function buyItem(item) {
       alert(e.message || '购买失败')
     }
   })
+}
+// 求购 STY
+const showPurchaseDialog = ref(false)
+const purchaseAmount = ref(0)
+const purchasePrice = ref(0)
+
+// 打开求购弹窗
+function openPurchaseDialog() {
+  showPurchaseDialog.value = true
+  purchaseAmount.value = 0
+  purchasePrice.value = 0
+}
+
+// 确认求购
+async function confirmPurchase() {
+  const amt = Number(purchaseAmount.value)
+  const price = Number(purchasePrice.value)
+  if (!Number.isFinite(amt) || amt <= 0 || !Number.isFinite(price) || price <= 0) {
+    alert('请输入有效的数量和单价')
+    return
+  }
+
+  try {
+    const res = await buyPurchase({
+      userId: 10001,            // ⚠️ 根据实际登录用户替换
+      styAmount: String(amt),
+      usdtAmount: String((amt * price).toFixed(2)),
+      price: String(price),
+      paymentId: "1",           // ⚠️ 支付方式 ID，按实际情况传
+      remark: "挂买单求购 STY"
+    })
+    const body = res?.data
+    if (body?.code === 200) {
+      alert("挂买单成功！")
+      showPurchaseDialog.value = false
+    } else {
+      alert(body?.message || "挂买单失败")
+    }
+  } catch (e) {
+    console.error("挂买单异常:", e)
+    alert(e.message || "挂买单失败")
+  }
 }
 
 function formatStatus(status) {
@@ -399,7 +508,8 @@ onMounted(() => {
   getSynamic()
   getStatic()
   getShopList()
-
+ switchPool() 
+  
 })
 </script>
 <style>
@@ -862,7 +972,7 @@ onMounted(() => {
 }
 .card {
   background: #fff;
-  border-radius: 50px;
+  border-radius: 30px;
   padding: 16px;
   width: 92%;
   max-width: 520px;
@@ -1066,6 +1176,31 @@ onMounted(() => {
 .shop-row b {
   color: #000;
 }
+.shop-tabs {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+  margin-left: 10%;
+  background: #fff8e1;
+  border-radius: 10px;
 
+}
+
+.shop-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 30px;
+  font-weight: 600;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.shop-tabs button.active {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+  box-shadow: 0 0 6px rgba(246, 194, 68, 0.4);
+}
 
 </style>

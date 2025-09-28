@@ -139,3 +139,4 @@ export const styExchangeRate = (payload) => {
 export const stySell = (data) => request(1, '/api/product/sty/sell', data)
 export const getField = (data) => request(1, '/api/content-config/field', data)
 export function styBuy(data) {return request.post('/api/product/sty/buy', data)}
+export const buyPurchase = (data) => request(1, '/api/product/sty/purchase', data)

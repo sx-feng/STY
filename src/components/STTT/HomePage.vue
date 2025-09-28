@@ -59,15 +59,15 @@
         <div class="thead">
           <span>{{ $t('footer.currency') }}</span>
           <span>{{ $t('footer.inAmount') }}</span>
-          <span>{{ $t('footer.outAmount') }}</span>
+          <span>时间</span>
 
         </div>
         <!-- 只显示前三条数据 -->
          <div v-if="records.length > 0" >
         <div v-for="(rec, i) in records" :key="i" class="row" >
           <span>{{ rec.currency }}</span>
-          <span>{{ rec.inAmount }}</span>
-          <span>{{ rec.outAmount }}</span>
+          <span>{{ rec.profitAmount }}</span>
+          <span>{{ rec.profitTime }}</span>
         </div>
         </div>
         <div v-else class="row no-data">
@@ -142,13 +142,14 @@ async function loadUserInfo() {
 // 加载明细
 async function loadRecords(page = 1) {
   try {
-    const res = await userMachineRecordList({ current: page, size: size.value })
+    let res = await userMachineRecordList({ current: page, size: size.value })
+    res=res.data
     console.log('收益明细111111', res)
     if (res.code === 200 && res.data?.records) {
       records.value = res.data.records.map(item => ({
         currency: item.currency || 'STYAI',   // 币种
-        inAmount: item.inAmount || 0,         // 支入
-        outAmount: item.outAmount || 0        // 支出
+        profitAmount: item.profitAmount || 0,         // 支入
+        profitTime: item.profitTime || 0        // 支出
       }))
         .slice(0, 3)
     } else {
@@ -169,7 +170,6 @@ function goMi() {
   router.push('/mining')
 }
 function goDetail() {
-
   router.push('/earning')
 }
 

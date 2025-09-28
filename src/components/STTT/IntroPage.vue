@@ -12,7 +12,9 @@
   <span class="text" v-html="item.text"></span>
 </div>
       </div>
-  
+    <div class="notice-btn" @click="openNotice">
+      📢 公告
+    </div>
       <!-- 白色卡片区 -->
     <div class="info-card">
       <p>
@@ -25,9 +27,7 @@
       </p>
     </div>
      <!-- 公告按钮 -->
-    <div class="notice-btn" @click="openNotice">
-      📢 公告
-    </div>
+  
 
     <!-- 公告弹窗 -->
     <div v-if="showNotice" class="dialog-mask">
@@ -64,8 +64,8 @@ async function loadConfig() {
   { icon: "💰", text: "币种共识", path: "/token-consensus" },
     ]
 
-    playDesc.value = data.minerGameplayGuide || "暂无说明"
-    incomeDesc.value = data.earningsDetails || "暂无说明"
+    playDesc.value = data.data.minerGameplayGuide || "暂无说明"
+    incomeDesc.value = data.data.earningsDetails || "暂无说明"
   } catch (e) {
     console.error("加载配置失败:", e)
     playDesc.value = "加载失败"
@@ -78,8 +78,10 @@ const noticeContent = ref("暂无公告")
 // 请求公告
 async function loadNotice() {
   try {
-    const res = await getField({})
-    noticeContent.value = res?.data?.content || "暂无公告"
+    // 必须传 name: "announcement"
+ const res = await getField({ name: "announcement" })
+noticeContent.value = res.data.data || "暂无公告"
+
   } catch (e) {
     console.error("加载公告失败:", e)
     noticeContent.value = "公告加载失败"
@@ -110,7 +112,7 @@ onMounted(() => {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
     width: 90%;
     max-width: 400px;
     margin-top: 40px;
@@ -136,19 +138,22 @@ onMounted(() => {
   }
   
   /* 白色卡片 */
-  .info-card {
-    width: 80%;
-    max-width: 400px;
-    background: #fff;
-    border-radius: 18px;
-    padding: 20px;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.6;
-  }
+.info-card {
+  width: 80%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  max-height: 450px;  
+  overflow-y: auto;
+}
+
   /* 底部公告按钮 */
 .notice-btn {
-  margin-top: 20px;
+  margin-bottom: 20px;
   background: #f6c244;
   color: #000;
   font-weight: bold;
