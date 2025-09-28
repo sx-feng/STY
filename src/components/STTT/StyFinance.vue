@@ -21,30 +21,76 @@
 
     <!-- 卡片1：动态理财 + 静态理财 -->
     <div class="card">
+      <!-- 动态理财 -->
       <div class="dynamic">
-        <div class="dynamic-title">{{ $t('finance.dynamic') }}</div>
-        <div class="dynamic-row">
-          <span class="rate">{{ $t('finance.currentRate') }}</span>
+        <div class="dynamic-title">
+          {{ $t('finance.dynamic') }}
           <a class="detail" href="javascript:void(0)" @click="goDynamicDetail">
             {{ $t('finance.detail') }}
           </a>
         </div>
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>周期</th>
+              <th>利率</th>
+              <th>价格</th>
+              <th>购买</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in dynamicList" :key="item.id">
+              <td>{{ item.id }}</td>
+              <td>{{ item.cycleDays }} 天</td>
+              <td>{{ item.yieldRate }}%</td>
+              <td>{{ item.price }}</td>
+              <td>
+                <button class="btn buy" @click="buyProduct(item.id, 'dynamic')">
+                  {{ $t('finance.buy') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- 金色分割线 -->
       <div class="gold-divider"></div>
+  
 
+      <!-- 静态理财 -->
       <div class="static">
         <div class="static-title">
           {{ $t('finance.static') }}
-          <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
+                    <a class="detail" href="javascript:void(0)" @click="goStaticDetail">
             {{ $t('finance.detail') }}
           </a>
+
         </div>
-        <div class="static-row" v-for="(item, index) in staticList" :key="index">
-          <span>{{ $t(`finance.period${index+1}`) }}</span>
-          <span>{{ item.value }}</span>
-        </div>
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>周期</th>
+              <th>利率</th>
+              <th>价格</th>
+              <th>购买</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in staticList" :key="item.id">
+              <td>{{ item.id }}</td>
+              <td>{{ item.cycleDays }} 天</td>
+              <td>{{ item.yieldRate }}%</td>
+              <td>{{ item.price }}</td>
+              <td>
+                <button class="btn buy" @click="buyProduct(item.id, 'static')">
+                  {{ $t('finance.buy') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -321,9 +367,6 @@ function goFinanceIntro() {
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
-.dynamic {
-  margin-bottom: 50px;
-}
 .dynamic-title,
 .static-title {
   font-weight: 600;
@@ -660,5 +703,48 @@ function goFinanceIntro() {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 10px;
+}
+.product-table th,
+.product-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+.product-table th {
+  background: #f6c244;
+  color: #000;
+}
+.product-table td {
+  color: #000; /* 强制黑字 */
+}
+/* 表格里的购买按钮样式 */
+.product-table .btn {
+  border: none;              /* 去掉黑色边框 */
+  border-radius: 12px;       /* 圆润一点 */
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+/* 表格里的购买按钮颜色 */
+.product-table .btn.buy {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+}
+
+.product-table .btn.buy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px rgba(246, 194, 68, 0.5);
+}
+
 
 </style>

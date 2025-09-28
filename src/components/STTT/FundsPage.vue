@@ -201,20 +201,20 @@ onBeforeMount(() => {
 
 async function loadRecharge() {
   const res = await userPlatformFlowSelect('recharge', {})
-  if (res?.code === 200 && Array.isArray(res.data)) {
-    rechargeList.value = res.data.map(item => ({
+  if (res?.data.code === 200 && Array.isArray(res.data.data)) {
+    rechargeList.value = res.data.data.map(item => ({
       amount: item.amount,
-      date: item.time
+      date: item.transactionTime
     }))
   }
 }
 
 async function loadWithdraw() {
   const res = await userPlatformFlowSelect('withdrawal', {})
-  if (res?.code === 200 && Array.isArray(res.data)) {
-    withdrawList.value = res.data.map(item => ({
+  if (res?.data.code === 200 && Array.isArray(res.data.data)) {
+    withdrawList.value = res.data.data.map(item => ({
       amount: item.amount,
-      date: item.time
+      date: item.transactionTime
     }))
   }
 }
@@ -404,7 +404,26 @@ async function loadPlatformBalance() {
   font-weight: 700;
   margin-bottom: 6px;
 }
-.rows{ position: relative; z-index: 1; }
+.rows {
+  position: relative;
+  z-index: 1;
+  max-height: 300px;        /* 限制最大高度 */
+  overflow-y: auto;         /* 超出滚动 */
+  scrollbar-width: thin;    /* Firefox: 窄滚动条 */
+  scrollbar-color: #f6c244 rgba(255,255,255,0.08);
+}
+
+/* Chrome / Edge 滚动条美化 */
+.rows::-webkit-scrollbar {
+  width: 6px;
+}
+.rows::-webkit-scrollbar-thumb {
+  background: #f6c244;
+  border-radius: 4px;
+}
+.rows::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.08);
+}
 .row{
   display: grid;
   grid-template-columns: 1fr 1fr;
