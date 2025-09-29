@@ -26,7 +26,7 @@
       </div>
       <div class="row" v-for="(item,i) in list" :key="i">
          <span>{{ item.id }}</span>
-        <span>{{ item.creatTime }}</span>
+        <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
         <span>{{ item.yieldRate }}</span>
         <span>{{ item.cycleDays}}</span>
@@ -66,7 +66,7 @@ const incomeList = ref([])
 async function loadStaticProducts() {
   const res = await staticFindByType("0") 
   if (res.ok &&res.data.code === 200 && Array.isArray(res.data.data)) {
-    console.log("静态产品:", res.data.data)
+    console.log("静态记录:", res.data.data)
      // 保持原始字段
     list.value = res.data.data       // 先用同一批数据当投资记录
     console.log('sadjaspjfopq',list.value)

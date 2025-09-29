@@ -72,7 +72,7 @@ const types = [
   { label: "充值", value: "recharge" },
   { label: "提现", value: "withdrawal" },
   { label: "购买", value: "purchase" },
-  
+  { label: "奖励", value: "reward" }
 ]
 
 // 分页 & 加载状态

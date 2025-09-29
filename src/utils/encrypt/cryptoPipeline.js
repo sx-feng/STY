@@ -49,7 +49,7 @@ export function base64ToU8(b64) {
   // eslint-disable-next-line no-useless-catch
   try {
     const bin = atob(s);
-    const out = new Uint8Array(bin.length);
+    const out = new Uint8Array(bin.length); 
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out;
   } catch (e) {

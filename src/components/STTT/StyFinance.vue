@@ -73,14 +73,14 @@
   <!-- 顶部切换按钮（固定，不跟随滚动） -->
   <div class="shop-tabs">
     <button
-      :class="{ active: activePool === 'sell' }"
-      @click="activePool = 'sell'; getShopList()"
+      :class="{ active: activePool === 'buy' }"
+      @click="activePool = 'buy'; getShopList()"
     >
       求购
     </button>
     <button
-      :class="{ active: activePool === 'buy' }"
-      @click="activePool = 'buy'; getShopList()"
+      :class="{ active: activePool === 'sell' }"
+      @click="activePool = 'sell'; getShopList()"
     >
       出售
     </button>
@@ -309,7 +309,7 @@ async function calcRate() {
 // ================== daidiaiadiaidaidiadiaidiadiai==================
 const shopList = ref([])
 const allOrders = ref([]) 
-const activePool = ref('sell') // 默认显示求购池，取值: 'buy' / 'sell'
+const activePool = ref('buy') // 默认显示求购池，取值: 'buy' / 'sell'
 // 获取 STY 商品池数据
 async function getShopList() {
   try {
@@ -330,8 +330,8 @@ async function getShopList() {
 function filterShopList() {
   // orderType: 1=买入STY(求购), 2=卖出STY(出售)
   shopList.value = allOrders.value.filter(item => {
-    if (activePool.value === 'buy') return item.orderType === 1
-    if (activePool.value === 'sell') return item.orderType === 2
+    if (activePool.value === 'buy') return item.orderType === 2
+    if (activePool.value === 'sell') return item.orderType === 1
   })
 }
 
