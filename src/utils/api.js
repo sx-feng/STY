@@ -43,7 +43,7 @@ export const staticDelete  = (data) => request(1, '/api/static-product/delete', 
 export const staticUpdate  = (data) => request(1, '/api/static-product/update', data)
 export const staticGet     = (data) => request(1, '/api/static-product/get', data)
 export const staticList    = (data) => request(1, '/api/static-product/list', data)
-export const staticFindByType = (type) => request(1, `/api/dynamic-product/find/all/type/${type}`)
+export const staticFindByType = (type) => request(1, `/api/user-finance/find/type/${type}`)
 
 //=================== 理财产品 ===================
 export const getProductAllStatic =(data) => request(1, `/api/static-product/all`,data) //静态理财
@@ -57,7 +57,7 @@ export const dynamicDelete = (data) => request(1, '/api/dynamic-product/delete',
 export const dynamicUpdate = (data) => request(1, '/api/dynamic-product/update', data)
 export const dynamicGet    = (data) => request(1, '/api/dynamic-product/get', data)
 export const dynamicList   = (data) => request(1, '/api/dynamic-product/list', data)
-export const dynamicFindByType = (type) => request(1, `/api/dynamic-product/find/all/type/${type}`)
+export const dynamicFindByType = (type) => request(1, `/api/user-finance/find/type/${type}`)
 // ================== 用户矿机产出 ==================
 export const userMiningAdd    = (data) => request(1, '/api/user-mining-output/add', data)
 export const userMiningDelete = (data) => request(1, '/api/user-mining-output/delete', data)

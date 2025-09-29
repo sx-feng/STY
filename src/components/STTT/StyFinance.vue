@@ -29,7 +29,7 @@
         <span class="name">{{ item.name }}</span>
         <span class="price">{{ item.price }} STY</span>
       </div>
-      <button class="buy-btn" @click="buy(item)">购买</button>
+        <button class="buy-btn" @click="buyProductItem(item.id, activeTab)">购买</button>
     </div>
   </div>
 
@@ -68,48 +68,50 @@
       </div>
 
       <!-- 商品列表 -->
+
 <div class="shop">
-  <!-- 顶部切换按钮 -->
+  <!-- 顶部切换按钮（固定，不跟随滚动） -->
   <div class="shop-tabs">
     <button
       :class="{ active: activePool === 'sell' }"
       @click="activePool = 'sell'; getShopList()"
     >
-      出售 
+      求购
     </button>
     <button
       :class="{ active: activePool === 'buy' }"
       @click="activePool = 'buy'; getShopList()"
     >
-      求购 
+      出售
     </button>
   </div>
 
-  <!-- 商品列表 -->
-  <div class="shop-item" v-for="item in shopList" :key="item.id">
-    <div class="shop-info">
-      <div class="shop-header">
-        <span class="order-id">订单号：{{ item.id }}</span>
-        <span class="status" :class="'status-' + item.orderStatus">
-          {{ formatStatus(item.orderStatus) }}
-        </span>
+  <!-- 商品列表（单独滚动） -->
+  <div class="shop-list">
+    <div class="shop-item" v-for="item in shopList" :key="item.id">
+      <div class="shop-info">
+        <div class="shop-header">
+          <span class="order-id">订单号：{{ item.id }}</span>
+          <span class="status" :class="'status-' + item.orderStatus">
+            {{ formatStatus(item.orderStatus) }}
+          </span>
+        </div>
+
+        <div class="shop-row">
+          <span>数量：<b>{{ item.styAmount }}</b> STY</span>
+          <span>金额：<b>{{ item.usdtAmount }}</b> USDT</span>
+        </div>
       </div>
 
-      <div class="shop-row">
-        <span>数量：<b>{{ item.styAmount }}</b> STY</span>
-        <span>金额：<b>{{ item.usdtAmount }}</b> USDT</span>
-      </div>
+      <button class="btn buy" @click="buyItem(item)">
+        {{ activePool === 'buy' ? '购买' : '卖出' }}
+      </button>
     </div>
-
-    <button class="btn buy" @click="buyItem(item)">
-      {{ activePool === 'buy' ? '购买' : '卖出' }}
-    </button>
   </div>
 </div>
 
 
     </div>
-
     <!-- 出售 STY 弹窗 -->
     <div v-if="showSellDialog" class="dialog-mask">
       <div class="dialog-box sell-box">
@@ -150,7 +152,7 @@
       </div>
     </div>
     <!-- 求购 STY 弹窗 -->
-<div v-if="showPurchaseDialog" class="dialog-mask">
+  <div v-if="showPurchaseDialog" class="dialog-mask">
   <div class="dialog-box sell-box">
     <!-- 当前单价输入 -->
     <div class="sell-header">
@@ -180,18 +182,16 @@
       <button @click="showPurchaseDialog = false" class="sell-cancel">取消</button>
     </div>
   </div>
-</div>
-
+   </div>
   </div>
-
-        <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
+    <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
     <PaymentWidget
       ref="payRef"
       :show-balance="true"
       :show-list="true"
       :show-builtin-input="false"
       :WalletTP="WalletTP"
-      :RequestOrder="Exchange"
+      :RequestOrder="stySell"
       :SubmitOrder="SubmitOrder"
       @done="onPayDone"
       @close="onPayClose"
@@ -229,8 +229,6 @@ function fillQuote(p = {}) {
 
 // =======================================
 const activeTab = ref('dynamic')
-
-
 function buy(item) {
   alert(`购买：${item.name}`)
 }
@@ -249,24 +247,13 @@ async function confirmSell() {
     alert('请输入有效的出售数量')
     return
   }
-
   // 🔑 打开二级密码弹窗
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
-
     try {
-      const res = await stySell({ amount: amt, twoPassword: pwdMd5 })  // 带上二级密码
-      const body = res?.data
-      if (body?.code === 200) {
-        fillQuote(body.data)
-        alert(`出售成功: ${amt} STY`)
-        showSellDialog.value = false
-        sellAmount.value = 1
-      } else {
-        alert(body?.message || '出售失败')
-      }
+      startPay();
     } catch (e) {
-      console.error('卖出异常:', e)
-      alert(e.message || '出售失败')
+      console.error('获取订单异常:', e)
+      alert(e.message || '获取订单失败')
     }
   })
 }
@@ -281,12 +268,11 @@ async function startPay() {
     alert('请输入正确金额')
     return
   }
-
   const res = await payRef.value.startExternal({
     amount: Number(sellAmount.value),
     token: "STYAI",   // 注意 .value
     WalletTP,
-    RequestOrder: Exchange,         
+    RequestOrder: stySell,         
     SubmitOrder,
     checkTrxEarly: false
   })
@@ -323,34 +309,30 @@ async function calcRate() {
 // ================== daidiaiadiaidaidiadiaidiadiai==================
 const shopList = ref([])
 const allOrders = ref([]) 
-const activePool = ref('buy') // 默认显示求购池，取值: 'buy' / 'sell'
+const activePool = ref('sell') // 默认显示求购池，取值: 'buy' / 'sell'
 // 获取 STY 商品池数据
 async function getShopList() {
   try {
     const res = await styGetAll({})
     if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
       allOrders.value = res.data.data
-      filterShopList() // 初始根据 activePool 过滤
     } else {
       allOrders.value = []
-      shopList.value = []
     }
+    filterShopList()
   } catch (e) {
     console.error("获取 STY 交易池失败:", e)
     allOrders.value = []
     shopList.value = []
   }
 }
+
 function filterShopList() {
   // orderType: 1=买入STY(求购), 2=卖出STY(出售)
   shopList.value = allOrders.value.filter(item => {
     if (activePool.value === 'buy') return item.orderType === 1
     if (activePool.value === 'sell') return item.orderType === 2
   })
-}
-function switchPool(type) {
-  activePool.value = type
-  filterShopList()
 }
 
 // 买sty按钮方法
@@ -390,6 +372,8 @@ function openPurchaseDialog() {
 }
 
 // 确认求购
+// 确认求购
+// 确认求购
 async function confirmPurchase() {
   const amt = Number(purchaseAmount.value)
   const price = Number(purchasePrice.value)
@@ -398,26 +382,30 @@ async function confirmPurchase() {
     return
   }
 
-  try {
-    const res = await buyPurchase({
-      userId: 10001,            // ⚠️ 根据实际登录用户替换
-      styAmount: String(amt),
-      usdtAmount: String((amt * price).toFixed(2)),
-      price: String(price),
-      paymentId: "1",           // ⚠️ 支付方式 ID，按实际情况传
-      remark: "挂买单求购 STY"
-    })
-    const body = res?.data
-    if (body?.code === 200) {
-      alert("挂买单成功！")
-      showPurchaseDialog.value = false
-    } else {
-      alert(body?.message || "挂买单失败")
+  // 🔑 打开二级密码弹窗
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+    try {
+      const res = await buyPurchase({
+        userId: 10001,                               // ⚠️ 替换为实际登录用户ID
+        styAmount: String(amt),
+        usdtAmount: String((amt * price).toFixed(2)),
+        price: String(price),
+        paymentId: "1",                              // ⚠️ 实际支付方式 ID
+        remark: "挂买单求购 STY",
+        twoPassword: pwdMd5                          // 带上二级密码
+      })
+      const body = res?.data
+      if (body?.code === 200) {
+        alert("挂买单成功！")
+        showPurchaseDialog.value = false
+      } else {
+        alert(body?.message || "挂买单失败")
+      }
+    } catch (e) {
+      console.error("挂买单异常:", e)
+      alert(e.message || "挂买单失败")
     }
-  } catch (e) {
-    console.error("挂买单异常:", e)
-    alert(e.message || "挂买单失败")
-  }
+  })
 }
 
 function formatStatus(status) {
@@ -503,13 +491,25 @@ async function getStatic() {
     console.error("获取静态理财失败:", e)
   }
 }
-
+function switchPool(type) {
+  if (type) activePool.value = type
+  filterShopList()
+}
+async function refreshPool() {
+  await getShopList()
+  switchPool(activePool.value)  // 确保根据当前池子过滤
+}
+import { onActivated } from "vue"
+onActivated(() => {
+  refreshPool()   // 路由切回来时再刷新
+})
 onMounted(() => {
   getSynamic()
   getStatic()
   getShopList()
+  refreshPool() 
  switchPool() 
-  
+    ready.value = true
 })
 </script>
 <style>
@@ -1176,14 +1176,23 @@ onMounted(() => {
 .shop-row b {
   color: #000;
 }
+
+.shop {
+ 
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部切换按钮（不滚动） */
 .shop-tabs {
   display: flex;
   justify-content: space-around;
-  width: 80%;
-  margin-left: 10%;
   background: #fff8e1;
   border-radius: 10px;
-
+  margin-bottom: 10px;
 }
 
 .shop-tabs button {
@@ -1202,5 +1211,14 @@ onMounted(() => {
   color: #000;
   box-shadow: 0 0 6px rgba(246, 194, 68, 0.4);
 }
+
+/* 商品列表单独滚动 */
+.shop-list {
+  max-height: 240px;   /* 控制滚动高度 */
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+
 
 </style>

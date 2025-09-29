@@ -64,7 +64,7 @@ function goBack(){ router.go(-1) }
 const list = ref([])
 const incomeList = ref([])
 async function loadStaticProducts() {
-  const res = await staticFindByType("1") 
+  const res = await staticFindByType("0") 
   if (res.ok &&res.data.code === 200 && Array.isArray(res.data.data)) {
     console.log("静态产品:", res.data.data)
      // 保持原始字段
