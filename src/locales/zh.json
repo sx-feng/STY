@@ -14,7 +14,7 @@
   "card": {
     "yesterdayOutput": "昨日矿机产出",
     "yesterdayReward": "昨日奖励",
-    "teamReward": "团队奖励总额",
+    "teamReward": "奖励总额",
     "totalIncome": "累计收益"
   },
   "exchange": {

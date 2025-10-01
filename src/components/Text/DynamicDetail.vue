@@ -9,8 +9,8 @@
     <div class="content-card">
       <h3>收益汇总</h3>
       <ul>
-        <li>总持有金额:</li>
-        <li>累计总收益:</li>
+        <li>总持有金额:{{ totalprice }}</li>
+        <li>累计总收益:{{ totalRevenue }}</li>
       </ul>
     </div>
 
@@ -24,16 +24,16 @@
         <span>利率</span>
         <span>周期</span>
       </div>
-      <div class="row" v-for="(item,i) in list" :key="i">
-         <span>{{ item.id }}</span>
+      <div class="row" v-for="(item, i) in list" :key="i">
+        <span>{{ item.id }}</span>
         <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
         <span>{{ item.productCycle }}</span>
-        <span>{{ item.productCycle}}</span>
+        <span>{{ item.productCycle }}天</span>
       </div>
-    </div>   
-    
-        <div class="content-card">
+    </div>
+
+    <div class="content-card">
       <h3>收益记录</h3>
       <div class="thead">
         <span>ID</span>
@@ -42,83 +42,127 @@
         <span>利率</span>
         <span>收益</span>
       </div>
-       <div class="row" v-for="(item,i) in incomeList" :key="i">
-                 <span>{{ item.id }}</span>
-        <span>{{ item.creatTime }}</span>
-        <span>{{ item.price }} USDT</span>
-        <span>{{ item.cycleDays}}</span>
-        <span>{{ item.income }} USDT</span>
+      <div class="row" v-for="(item, i) in incomeList" :key="i">
+        <span>{{ item.id }}</span>
+        <span>{{ item.profitTime }}</span>
+        <span>{{ item.principalAmount }} USDT</span>
+        <span>{{ item.profitRate }}</span>
+        <span>{{ item.profitAmount }} USDT</span>
       </div>
     </div>
-    
+
   </div>
 </template>
 
 <script setup>
-import { ref,onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import {  dynamicFindByType } from "@/utils/api"
+import { dynamicFindByType, financialRecord } from "@/utils/api"
 const router = useRouter()
-function goBack(){ router.go(-1) }
+function goBack() { router.go(-1) }
 
 const list = ref([])
 const incomeList = ref([])
+const totalRevenue = ref(0)
+const totalprice = ref(0)
 async function loadStaticProducts() {
-  const res = await dynamicFindByType("1") 
-  if (res.ok &&res.data.code === 200 && Array.isArray(res.data.data)) {
-    console.log("动态产品:", res.data.data)
-     // 保持原始字段
+  const res = await dynamicFindByType("1")
+  if (res.ok && res.data.code === 200 && Array.isArray(res.data.data)) {
+    // 保持原始字段
     list.value = res.data.data       // 先用同一批数据当投资记录
-
-   
+    totalprice.value = res.data.data.reduce((sum, item) => {
+      const profit = Number(item.price)
+      return sum + (isNaN(profit) ? 0 : profit)
+    }, 0)
   }
 }
-onMounted(()=>{
+
+async function _financialRecord() {
+  const res = await financialRecord("")
+  if (res.data.code === 200 && Array.isArray(res.data.data)) {
+    const filtered = (res.data?.data ?? []).filter(
+      item => Number(item.productType) === 1
+    )
+    incomeList.value = filtered       // 先用同一批数据当投资记录
+    // 计算 profitAmount 和 principalAmount 的总和（非法值当 0）
+    totalRevenue.value = filtered.reduce((sum, item) => {
+      const profit = Number(item.profitAmount)
+      return sum + (isNaN(profit) ? 0 : profit)
+    }, 0)
+  }
+}
+onMounted(() => {
   loadStaticProducts()
+  _financialRecord()
 })
 </script>
 
 <style scoped>
 .detail-page {
-  background:#000;
-  color:#FFD700;
-  min-height:100vh;
-  padding:15px;
-  font-family:"Microsoft YaHei",sans-serif;
+  background: #000;
+  color: #FFD700;
+  min-height: 100vh;
+  padding: 15px;
+  font-family: "Microsoft YaHei", sans-serif;
 }
+
 .nav-bar {
-  display:flex;
-  align-items:center;
-  padding:12px;
-  background:rgba(25,25,25,0.95);
-  border-bottom:1px solid rgba(255,215,0,0.3);
-  margin-bottom:15px;
-  border-radius:0 0 12px 12px;
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: rgba(25, 25, 25, 0.95);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+  margin-bottom: 15px;
+  border-radius: 0 0 12px 12px;
 }
+
 .back-btn {
-  background:transparent;
-  border:none;
-  color:#FFD700;
-  font-size:18px;
-  margin-right:10px;
-  cursor:pointer;
+  background: transparent;
+  border: none;
+  color: #FFD700;
+  font-size: 18px;
+  margin-right: 10px;
+  cursor: pointer;
 }
-.title { font-size:18px; font-weight:bold; }
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
 .content-card {
-  background:rgba(25,25,25,0.95);
-  border:1px solid rgba(255,215,0,0.3);
-  border-radius:12px;
+  background: rgba(25, 25, 25, 0.95);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
   padding-left: 20px;
   padding-right: 20px;
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
-h3 { margin-bottom:12px; color:#FFD700; }
-ul { padding-left:20px; color:#fff; }
-.thead, .row {
-  display:grid;
-  grid-template-columns:0.5fr 1.5fr 1fr 1fr 1fr;
-  padding:8px 0;
+
+h3 {
+  margin-bottom: 12px;
+  color: #FFD700;
 }
-.thead { font-weight:bold; border-bottom:1px solid rgba(255,215,0,0.3); }
-.row { color:#ddd; border-bottom:1px dashed rgba(255,255,255,0.1); }
+
+ul {
+  padding-left: 20px;
+  color: #fff;
+}
+
+.thead,
+.row {
+  display: grid;
+  grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr;
+  padding: 8px 0;
+}
+
+.thead {
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.row {
+  color: #ddd;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
 </style>

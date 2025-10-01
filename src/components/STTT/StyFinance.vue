@@ -113,57 +113,69 @@
 
     </div>
     <!-- 出售 STY 弹窗 -->
-    <div v-if="showSellDialog" class="dialog-mask">
-      <div class="dialog-box sell-box">
-        <!-- 当前单价 -->
-        <div class="sell-header">
-          当前单价：<span class="price-value">{{ unitPrice }}</span> <span class="unit">USDT</span>
-        </div>
+<div v-if="showSellDialog" class="dialog-mask">
+  <div class="dialog-box sell-box">
+    <!-- 出售单价 -->
+    <div class="sell-input row">
+      <label>出售单价：</label>
+      <input
+        type="number"
+        v-model="sellPrice"
+        :min="minSellPrice"
+        @input="sellPrice = Math.max(Number(sellPrice || 0), minSellPrice)"
+      />
+      <span class="unit">USDT</span>
+      <span class="hint">最低 {{ minSellPrice }} USDT</span>
+    </div>
 
-        <!-- 出售数量输入 -->
-        <div class="sell-input">
-          <label>出售数量：</label>
-          <input type="number" v-model="sellAmount" />
-          <span class="unit">STY</span>
-          <span class="max-btn" @click="sellAmount = available">全部</span>
-        </div>
+    <!-- 出售数量 -->
+    <div class="sell-input row">
+      <label>出售数量：</label>
+      <input type="number" v-model="sellAmount" />
+      <span class="unit">STY</span>
+      <span class="max-btn" @click="sellAmount = available">全部</span>
+    </div>
 
-        <!-- 信息展示 -->
-        <div class="sell-info">
-          <div class="info-row">
-            <span>可用</span>
-            <span>{{ available }} STY</span>
-          </div>
-          <div class="info-row">
-            <span>手续费</span>
-            <span>{{ fee }} STY</span>
-          </div>
-          <div class="info-row highlight">
-            <span>可得</span>
-            <span>{{ receiveUSDT }} USDT</span>
-          </div>
-        </div>
-
-        <!-- 操作按钮 -->
-        <div class="dialog-actions">
-          <button @click="confirmSell" class="sell-confirm">出售 STY</button>
-          <button @click="showSellDialog = false" class="sell-cancel">取消</button>
-        </div>
+    <!-- 信息展示 -->
+    <div class="sell-info">
+      <div class="info-row">
+        <span>可用</span>
+        <span>{{ available }} STY</span>
+      </div>
+      <div class="info-row">
+        <span>手续费</span>
+        <span>{{ fee }} STY</span>
+      </div>
+      <div class="info-row highlight">
+        <span>可得</span>
+        <span>{{ (sellAmount * sellPrice).toFixed(2) }} USDT</span>
       </div>
     </div>
-    <!-- 求购 STY 弹窗 -->
-  <div v-if="showPurchaseDialog" class="dialog-mask">
-  <div class="dialog-box sell-box">
-    <!-- 当前单价输入 -->
-    <div class="sell-header">
-      求购单价：
-      <input type="number" v-model="purchasePrice" class="price-input" />
-      <span class="unit">USDT</span>
-    </div>
 
-    <!-- 求购数量输入 -->
-    <div class="sell-input">
-      <label>求购数量：</label>
+    <!-- 操作按钮 -->
+    <div class="dialog-actions">
+      <button @click="confirmSell" class="sell-confirm">出售 STY</button>
+      <button @click="showSellDialog = false" class="sell-cancel">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 求购 STY 弹窗 -->
+<div v-if="showPurchaseDialog" class="dialog-mask">
+  <div class="dialog-box sell-box">
+    <!-- 单价 + 数量放一行 -->
+    <div class="sell-input row">
+      <label>求购单价：</label>
+      <input
+        type="number"
+        v-model="purchasePrice"
+        :min="minPrice"
+        @input="purchasePrice = Math.max(Number(purchasePrice || 0), minPrice)"
+        class="price-input"
+      />
+      <span class="unit">USDT</span>
+
+      <label style="margin-left:10px;">数量：</label>
       <input type="number" v-model="purchaseAmount" />
       <span class="unit">STY</span>
     </div>
@@ -182,7 +194,8 @@
       <button @click="showPurchaseDialog = false" class="sell-cancel">取消</button>
     </div>
   </div>
-   </div>
+</div>
+
   </div>
     <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
     <PaymentWidget
@@ -215,15 +228,21 @@ const unitPrice = ref(0)
 const available = ref(0)
 const fee = ref(0)
 const netProceeds = ref(0)
+const minPrice = ref(1.2)  
+// 最低出售单价
+const minSellPrice = ref(1.2)  
+
+// 出售单价
+const sellPrice = ref(minSellPrice.value)
 // 支付组件引用 & 就绪标记
 const payRef = ref(null)
 const ready = ref(false)
 
 const receiveUSDT = computed(() => Number(netProceeds.value || 0).toFixed(2))
-function fillQuote(p = {}) {
+async function fillQuote(p = {}) {
   unitPrice.value = Number(p.currentUnitPrice ?? 0)
   fee.value = Number(p.fee ?? 0)
-  available.value = Number(p.sellQuantity ?? 0)
+  
   netProceeds.value = Number(p.netProceeds ?? 0)
 }
 
@@ -237,26 +256,35 @@ function resetQuote() { fillQuote({}) }
 
 function openSellDialog() {
   showSellDialog.value = true
+  sellPrice.value = minSellPrice.value  // 默认最低价
   calcRate()
 }
 
 // 确认出售
 async function confirmSell() {
   const amt = Number(sellAmount.value)
+  let price = Number(sellPrice.value)
+
+  if (price < minSellPrice.value) {
+    price = minSellPrice.value
+    sellPrice.value = minSellPrice.value
+  }
+
   if (!Number.isFinite(amt) || amt <= 0) {
     alert('请输入有效的出售数量')
     return
   }
-  // 🔑 打开二级密码弹窗
+
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     try {
-      startPay();
+      startPay(price)
     } catch (e) {
       console.error('获取订单异常:', e)
       alert(e.message || '获取订单失败')
     }
   })
 }
+
 
 // 触发支付
 async function startPay() {
@@ -337,19 +365,19 @@ function filterShopList() {
 
 // 买sty按钮方法
 function buyItem(item) {
-  if (!item.orderId) {
+  if (!item.id) {
     alert('缺少订单ID')
     return
   }  
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     try {
       const res = await styBuy({
-        orderId: item.orderId,                
+        orderId: item.id,                
         twoPassword: pwdMd5
       })
       const body = res?.data
       if (body?.code === 200) {
-        alert(`购买成功: 订单号 ${item.orderId}`)
+        alert(`购买成功: 订单号 ${item.id}`)
       } else {
         alert(body?.message || '购买失败')
       }
@@ -368,7 +396,7 @@ const purchasePrice = ref(0)
 function openPurchaseDialog() {
   showPurchaseDialog.value = true
   purchaseAmount.value = 0
-  purchasePrice.value = 0
+  purchasePrice.value = minPrice.value
 }
 
 // 确认求购
@@ -503,12 +531,24 @@ import { onActivated } from "vue"
 onActivated(() => {
   refreshPool()   // 路由切回来时再刷新
 })
+
+async function init() {
+      const res = await WalletTP.getTrc20Balance('STYAI')
+    if (res?.code === 1) {
+      // 兼容数字/字符串，转成字符串展示也行
+      available.value = res.data?.balance ?? 0
+    }
+  console.log(available.value);
+  
+}
+
 onMounted(() => {
   getSynamic()
   getStatic()
   getShopList()
   refreshPool() 
  switchPool() 
+ init()
     ready.value = true
 })
 </script>

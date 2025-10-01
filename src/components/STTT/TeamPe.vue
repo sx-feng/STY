@@ -91,8 +91,8 @@ const team = ref({
     direct: d.directPush,
     indirect: d.intervalPush,
     usdt: d.teamAllBuyKjTotalAmount,
-    sty: 0, // 后端没给
-    rights: d.teamIncome, 
+    sty: d.teamIncome,
+    rights: d.teamVip, 
     members: d.teamMembers.map(m => ({
       account: m.walletAddress,
       type: m.relation
@@ -224,7 +224,7 @@ const team = ref({
   justify-content: space-between;
   padding: 8px 0;
   color: #fff;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .list-row:nth-child(odd) {

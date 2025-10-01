@@ -58,6 +58,8 @@ export const dynamicUpdate = (data) => request(1, '/api/dynamic-product/update',
 export const dynamicGet    = (data) => request(1, '/api/dynamic-product/get', data)
 export const dynamicList   = (data) => request(1, '/api/dynamic-product/list', data)
 export const dynamicFindByType = (type) => request(1, `/api/user-finance/find/type/${type}`)
+// ================== 理财收益 ==================
+export const financialRecord = (type) => request(1, `/api/user-finance-record/all`)
 // ================== 用户矿机产出 ==================
 export const userMiningAdd    = (data) => request(1, '/api/user-mining-output/add', data)
 export const userMiningDelete = (data) => request(1, '/api/user-mining-output/delete', data)
@@ -138,5 +140,5 @@ export const styExchangeRate = (payload) => {
 
 export const stySell = (data) => request(1, '/api/product/sty/sell', data)
 export const getField = (data) => request(1, '/api/content-config/field', data)
-export function styBuy(data) {return request.post('/api/product/sty/buy', data)}
+export const styBuy=(data) => request(1,'/api/product/sty/buy', data)
 export const buyPurchase = (data) => request(1, '/api/product/sty/purchase', data)

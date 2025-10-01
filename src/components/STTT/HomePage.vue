@@ -99,7 +99,7 @@ import { useRouter } from 'vue-router'
 import {  userGet,userMachineRecordList } from "@/utils/api"
 
 import WalletTP from '@/utils/walletTP.js'
-import { Exchange, SubmitOrder } from '@/utils/api.js'
+import { Exchange, SubmitOrder ,teamMembersAll} from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import CallbackCenter from '@/utils/callbackCenter.js'
 
@@ -123,17 +123,19 @@ const current = ref(1)   // 当前页
 // 加载用户信息
 async function loadUserInfo() {
   try {
-    const res = await userGet({})
+    let res = await teamMembersAll({})
     console.log("userGet 返回:", res)
 
     // 注意：你的返回格式是 { ok: true, data: { code: 200, data: {...} } }
-    if (res.ok && res.data.code === 200) {
-      const data = res.data.data
-      userTeamKjYesterdayIncome.value = data.userTeamKjYesterdayIncome || 0
-      userSumIncomeKj.value = data.userSumIncomeKj || 0
-      userKjYesterdayIncome.value = data.userKjYesterdayIncome || 0
-      yesterdayReward.value = data.yesterdayReward || 0
-    }
+if (res.data.code === 200) {
+  const data = res.data.data
+userTeamKjYesterdayIncome.value = Number(data.userAllReward || 0).toFixed(2)
+userSumIncomeKj.value            = Number(data.userSumIncomeKj || 0).toFixed(2)
+userKjYesterdayIncome.value      = Number(data.userKjYesterdayIncome || 0).toFixed(2)
+yesterdayReward.value            = Number(data.userYesterdayReward || 0).toFixed(2)
+
+}
+
   } catch (err) {
     console.error("加载用户信息失败:", err)
   }
