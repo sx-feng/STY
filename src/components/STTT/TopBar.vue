@@ -98,10 +98,7 @@ const btnText = computed(() => {
   return t('btn.connect', '连接')
 })
 
-// 初始化时读取
-if (localStorage.getItem("isConnected") === "1") {
-  isConnected.value = true
-}
+
 
 function handleLoginSuccess(token) {
   isConnected.value = true

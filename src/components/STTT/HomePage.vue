@@ -85,6 +85,7 @@
       :WalletTP="WalletTP"
       :RequestOrder="Exchange"
       :SubmitOrder="SubmitOrder"
+  
       @done="onPayDone"
       @close="onPayClose"
     />
@@ -196,8 +197,28 @@ async function refresh(){
     loadUserInfo() 
   await nextTick()
   await loadStyaiBalance()
+  await getUser();
   ready.value = true
 }
+
+async function getUser() {
+  try {
+    const res = await userGet({})
+    console.log("用户信息:", res)
+
+    if (res && res.data.code === 200 && res.data.data) {
+      const code = res.data.data.invitationCodeId
+      if (code) {
+        localStorage.setItem("invitation_code", code)
+        console.log("邀请码已保存:", code)
+      }
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("获取用户信息失败:", err)
+  }
+}
+
 
 onUnmounted(() => {
   CallbackCenter.unregister('financeUpdate')
@@ -241,7 +262,8 @@ async function startPay(){
     WalletTP,
     RequestOrder: Exchange,
     SubmitOrder,
-    checkTrxEarly: false
+    checkTrxEarly: false,
+    OrdrId:0
   })
   console.log('支付结果', res)
 

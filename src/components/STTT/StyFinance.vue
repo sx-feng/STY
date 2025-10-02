@@ -76,13 +76,13 @@
       :class="{ active: activePool === 'buy' }"
       @click="activePool = 'buy'; getShopList()"
     >
-      求购
+      我要求购
     </button>
     <button
       :class="{ active: activePool === 'sell' }"
       @click="activePool = 'sell'; getShopList()"
     >
-      出售
+      我要出售
     </button>
   </div>
 
@@ -277,7 +277,8 @@ async function confirmSell() {
 
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     try {
-      startPay(price)
+
+      startPay(0,stySell)
     } catch (e) {
       console.error('获取订单异常:', e)
       alert(e.message || '获取订单失败')
@@ -287,7 +288,7 @@ async function confirmSell() {
 
 
 // 触发支付
-async function startPay() {
+async function startPay(orderId,fun) {
   if (!ready.value || !payRef.value) {
     console.warn('PaymentWidget 未挂载完成')
     return
@@ -300,9 +301,10 @@ async function startPay() {
     amount: Number(sellAmount.value),
     token: "STYAI",   // 注意 .value
     WalletTP,
-    RequestOrder: stySell,         
+    RequestOrder: fun,         
     SubmitOrder,
-    checkTrxEarly: false
+    checkTrxEarly: false,
+    orderId
   })
   console.log('支付结果', res)
 
@@ -358,34 +360,42 @@ async function getShopList() {
 function filterShopList() {
   // orderType: 1=买入STY(求购), 2=卖出STY(出售)
   shopList.value = allOrders.value.filter(item => {
-    if (activePool.value === 'buy') return item.orderType === 2
-    if (activePool.value === 'sell') return item.orderType === 1
+    if (activePool.value === 'buy') return item.orderType === 1
+    if (activePool.value === 'sell') return item.orderType === 2
   })
 }
 
 // 买sty按钮方法
 function buyItem(item) {
   if (!item.id) {
-    alert('缺少订单ID')
-    return
-  }  
-  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
-    try {
-      const res = await styBuy({
-        orderId: item.id,                
-        twoPassword: pwdMd5
-      })
-      const body = res?.data
-      if (body?.code === 200) {
-        alert(`购买成功: 订单号 ${item.id}`)
-      } else {
-        alert(body?.message || '购买失败')
+    alert('缺少订单ID');
+    return;
+  }
+  if (item?.orderType == 2) {
+        CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+          sellAmount.value =item.styAmount
+           startPay(item.id,styBuy);
+    });
+  } else if(item?.orderType == 1){
+    CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+      try {
+        const res = await styBuy({
+          orderId: item.id,
+          twoPassword: pwdMd5
+        });
+        const body = res?.data;
+        if (body?.code === 200) {
+          alert(`购买成功: 订单号 ${item.id}`);
+        } else {
+          alert(body?.message || '购买失败');
+        }
+      } catch (e) {
+        console.error('购买异常:', e);
+        alert(e.message || '购买失败');
       }
-    } catch (e) {
-      console.error('购买异常:', e)
-      alert(e.message || '购买失败')
-    }
-  })
+    });
+  }
+
 }
 // 求购 STY
 const showPurchaseDialog = ref(false)

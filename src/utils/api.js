@@ -118,7 +118,9 @@ export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // �
 // ================== 平台流水 ==================
 export const userPlatformFlowSelect = (type, data) => request(1, `/api/UserPlatformFlow/select/${type}`, data)
 export const userCompany =  (data) => request(1, '/api/content-config/get', data)
-export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type', data)
+export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type/'+data.type, null)
+export const styOrdersBystatus = (data) => request(1, '/api/sty-exchange/my-orders/by-status/'+data.type, null)
+export const styOrdersDelete = (data) => request(1, '/api/sty-exchange/delete', null)
 // ================== 平台余额 ==================
 export const userPlatformBalance = (data) =>request(1, '/api/UserPlatformFlow/select/by-user/balance', data)
     

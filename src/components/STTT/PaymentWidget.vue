@@ -41,6 +41,7 @@ const props = defineProps({
   // 运行参数（可选，外部调用时也可覆盖）
   token: { type: String, default: 'USDT' },
   amount: { type: [String, Number], default: '' }, // 若你想由父组件直接控制金额
+  
 
   // UI 可选配置
   showBalance: { type: Boolean, default: true },
@@ -81,7 +82,8 @@ const { pay, runDepositFlow, closePay } = useDepositFlow({
   WalletTP: props.WalletTP,
   RequestOrder: props.RequestOrder,
   SubmitOrder: props.SubmitOrder,
-  defaultToken: tokenRef.value
+  defaultToken: tokenRef.value,
+  orderId:props.orderId
 })
 
 
@@ -103,7 +105,7 @@ function handleClose(){
  *     checkTrxEarly: true
  *   })
  */
-async function startExternal({ amount, token, WalletTP, RequestOrder, SubmitOrder, checkTrxEarly = true } = {}) {
+async function startExternal({ amount, token, WalletTP, RequestOrder, SubmitOrder, checkTrxEarly = true ,orderId} = {}) {
   if (token) tokenRef.value = token 
   const result = await runDepositFlow({
     amount,
@@ -111,7 +113,8 @@ async function startExternal({ amount, token, WalletTP, RequestOrder, SubmitOrde
     WalletTP: WalletTP ?? props.WalletTP,
     RequestOrder: RequestOrder ?? props.RequestOrder,
     SubmitOrder: SubmitOrder ?? props.SubmitOrder,
-    checkTrxEarly
+    checkTrxEarly,
+    orderId
   })
   emit('done', result)
   return result
