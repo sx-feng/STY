@@ -20,6 +20,10 @@
 
 
 <script setup>
+
+// ✅ 页面加载时清空浏览器存储
+localStorage.clear()
+sessionStorage.clear()
 import TopBar from '@/components/STTT/TopBar.vue'
 import { ref, computed, onMounted } from 'vue'  
 import { useRoute } from 'vue-router'
