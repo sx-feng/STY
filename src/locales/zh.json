@@ -18,11 +18,11 @@
     "totalIncome": "累计收益"
   },
   "exchange": {
-    "flash": "闪兑",
+    "flash": "sty 指导价",
     "balance": "账户余额",
     "all": "全部",
     "confirm": "确定闪兑",
-    "inputPlaceholder": "请输入内容"
+    "inputPlaceholder": "请输入数量"
   },
   "footer": {
   

@@ -18,11 +18,11 @@
     "totalIncome": "Total Income"
   },
   "exchange": {
-    "flash": "Flash Exchange",
+    "flash": "guide price",
     "balance": "Balance",
     "all": "All",
     "confirm": "Confirm",
-    "inputPlaceholder": "Please enter content"
+    "inputPlaceholder": "Please enter the quantity"
 
   },
   "footer": {

@@ -119,7 +119,7 @@ const team = ref({
   total: 1,
   direct: 1,
   indirect: 0,
-  usdt: 50.0,
+  usdt: 0,
   sty: 0,
   rights: 0,
   members: [

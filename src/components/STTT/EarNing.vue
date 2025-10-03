@@ -44,12 +44,10 @@ async function loadDetail(page = 1) {
   try {
     let res = await userMachineRecordList({  }) 
     res=res.data
-    console.log('收益详情全部',2222222222)
-    console.log("【收益详情接口返回】", res)
     if (res.code === 200 && res.data?.records) {
       list.value = res.data.records.map((item) => ({
         coin: item.currency || 'STYAI',       
-        type:'挖矿收益', 
+        type:item.remark, 
         amount: Number(item.profitAmount || 0), 
         time: item.profitTime || '-'       
       }))
