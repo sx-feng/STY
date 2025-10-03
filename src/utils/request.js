@@ -102,107 +102,123 @@ async function decryptResponseText(resp, bodyText, isInit) {
  * @param {object} jsonData
  * @param {boolean} isquery
  */
+/**
+ * 通用请求（自动处理初始化异常）
+ */
 export async function request(methodFlag, url, jsonData = {}, isquery = false) {
-  jsonData=JSON.stringify(jsonData)
-  const isGet = methodFlag === 0;
-  const isInit = !isGet && /^\/?api\/user\/init$/i.test(url);
+  async function doRequest() {
+    jsonData = JSON.stringify(jsonData)
+    const isGet = methodFlag === 0;
+    const isInit = !isGet && /^\/?api\/user\/init$/i.test(url);
 
-  // Content-Type
-  let contentType = 'application/custom-json';
-  if (isGet) contentType = 'application/data';
-  if (isInit) contentType = 'application/key-json';
+    // Content-Type
+    let contentType = 'application/custom-json';
+    if (isGet) contentType = 'application/data';
+    if (isInit) contentType = 'application/key-json';
 
-  // 头
-  const headers = new Headers();
-  headers.set(HDR.CONTENT_TYPE, contentType);
+    // 头
+    const headers = new Headers();
+    headers.set(HDR.CONTENT_TYPE, contentType);
 
-  // token（init 不带）
-  const token = getLocal(LS_KEYS.TOKEN);
-  console.log(token);
-  
-  if (!isInit) {
-    if (!token) return authErr();
-    headers.set(HDR.ACCOUNT_TOKEN, token);
-  }
-
-  let bodyToSend = null;
-  let finalUrl = baseURL + url.replace(/^\//, '');
-
-  try {
-    if (isGet) {
-      // GET：生成签名但不发 body
-      const { loadPlainKey } = await getKeyStore();
-      const keyPlain = loadPlainKey();
-      if (!keyPlain) return authErr();
-      const keyMd5 = md5Hex(keyPlain);
-
-      const { bizEncryptAndSign } = await getEncryptFns();
-      const { signPayloadB64 } = await bizEncryptAndSign(jsonData || {}, keyMd5);
-
-      headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
-      finalUrl = buildUrl(url, jsonData || {});
-    } else if (isInit) {
-      // INIT：KeyAPI 加密；Account-sign = signPayloadB64；body 只发 payloadB64（按你当前实现）
-      const { keyApiEncryptAndSign } = await getEncryptFns();
-      const { payloadB64, signPayloadB64 } = await keyApiEncryptAndSign(jsonData || {});
-      headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
-      if (isquery && jsonData && Object.keys(jsonData).length > 0) {
-        finalUrl = buildUrl(url, jsonData);
-      } else {
-        bodyToSend = payloadB64;
-      }
-    } else {
-      // 业务 POST：用“动态 KeyMd5”
-      const { loadPlainKey } = await getKeyStore();
-      const keyPlain = loadPlainKey();
-      if (!keyPlain) return authErr();
-      const key = keyPlain;
-      const { bizEncryptAndSign } = await getEncryptFns();
-      const { payloadB64, signPayloadB64 } = await bizEncryptAndSign(jsonData || {}, key);
-
-      headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
-      if (isquery && jsonData && Object.keys(jsonData).length > 0) {
-        finalUrl = buildUrl(url, jsonData);
-      } else {
-        bodyToSend = payloadB64;
-      }
+    // token（init 不带）
+    const token = getLocal(LS_KEYS.TOKEN);
+    if (!isInit) {
+      if (!token) return authErr();
+      headers.set(HDR.ACCOUNT_TOKEN, token);
     }
-  } catch {
-    return netErr();
-  }
 
-  const opts = { method: isGet ? 'GET' : 'POST', headers };
-  if (!isGet) opts.body = bodyToSend || JSON.stringify({});
+    let bodyToSend = null;
+    let finalUrl = baseURL + url.replace(/^\//, '');
 
-  try {
-    const resp = await fetch(finalUrl, opts);
-    if (!resp.ok) return netErr();
-    
-    // 先把响应头 token 落盘（首次 init 必须）
-    const headerToken = resp.headers.get(HDR.ACCOUNT_TOKEN);
-    if (headerToken) setLocal(LS_KEYS.TOKEN, headerToken);
+    try {
+      if (isGet) {
+        const { loadPlainKey } = await getKeyStore();
+        const keyPlain = loadPlainKey();
+        if (!keyPlain) return authErr();
+        const keyMd5 = md5Hex(keyPlain);
 
-    const text = await resp.text();
-    if (!text) return ok(null);
+        const { bizEncryptAndSign } = await getEncryptFns();
+        const { signPayloadB64 } = await bizEncryptAndSign(jsonData || {}, keyMd5);
 
-    const plain = await decryptResponseText(resp, text, isInit);
-    if (!plain) return netErr();
+        headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
+        finalUrl = buildUrl(url, jsonData || {});
+      } else if (isInit) {
+        const { keyApiEncryptAndSign } = await getEncryptFns();
+        const { payloadB64, signPayloadB64 } = await keyApiEncryptAndSign(jsonData || {});
+        headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
+        if (isquery && jsonData && Object.keys(jsonData).length > 0) {
+          finalUrl = buildUrl(url, jsonData);
+        } else {
+          bodyToSend = payloadB64;
+        }
+      } else {
+        const { loadPlainKey } = await getKeyStore();
+        const keyPlain = loadPlainKey();
+        if (!keyPlain) return authErr();
+        const { bizEncryptAndSign } = await getEncryptFns();
+        const { payloadB64, signPayloadB64 } = await bizEncryptAndSign(jsonData || {}, keyPlain);
 
-    let data = null;
-    try { data = JSON.parse(plain); } catch { return netErr(); }
-
-    // init：保存 token + 加密后的 Key（不再持久化 KeyMd5/Key 明文）
-    if (isInit) {
-      if (data?.token) setLocal(LS_KEYS.TOKEN, String(data.token));
-      if (data?.Key) {
-        const { saveEncryptedKey } = await getKeyStore();
-        try { saveEncryptedKey(String(data.Key)); } catch { return netErr(); }
+        headers.set(HDR.ACCOUNT_SIGN, String(signPayloadB64 || ''));
+        if (isquery && jsonData && Object.keys(jsonData).length > 0) {
+          finalUrl = buildUrl(url, jsonData);
+        } else {
+          bodyToSend = payloadB64;
+        }
       }
+    } catch {
+      return netErr();
     }
-    console.log({'请求':url,'参数':jsonData,'响应':data});
-    
-    return ok(data);
-  } catch {
-    return netErr();
+
+    const opts = { method: isGet ? 'GET' : 'POST', headers };
+    if (!isGet) opts.body = bodyToSend || JSON.stringify({});
+
+    try {
+      const resp = await fetch(finalUrl, opts);
+      if (!resp.ok) return netErr();
+
+      const headerToken = resp.headers.get(HDR.ACCOUNT_TOKEN);
+      if (headerToken) setLocal(LS_KEYS.TOKEN, headerToken);
+
+      const text = await resp.text();
+      if (!text) return ok(null);
+
+      const plain = await decryptResponseText(resp, text, isInit);
+      if (!plain) return netErr();
+
+      let data = null;
+      try { data = JSON.parse(plain); } catch { return netErr(); }
+
+      // init 成功后保存 key
+      if (isInit) {
+        if (data?.token) setLocal(LS_KEYS.TOKEN, String(data.token));
+        if (data?.Key) {
+          const { saveEncryptedKey } = await getKeyStore();
+          try { saveEncryptedKey(String(data.Key)); } catch { return netErr(); }
+        }
+      }
+
+      console.log({'请求':url,'参数':jsonData,'响应':data});
+      return ok(data);
+    } catch {
+      return netErr();
+    }
   }
+
+  // === 第一次请求 ===
+  let result = await doRequest();
+
+  // === 如果需要初始化，自动调用 /api/user/init 并重试 ===
+  if (result.code === 'AUTH_REQUIRED') {
+    console.warn('⚠️ 检测到未初始化，自动执行初始化...');
+
+    const initRes = await request(1, '/api/user/init', {}, false);
+    if (!initRes.ok) {
+      return authErr(); // 初始化失败
+    }
+
+    // 初始化成功，重试一次原始请求
+    result = await doRequest();
+  }
+
+  return result;
 }
