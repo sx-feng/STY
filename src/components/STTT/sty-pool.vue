@@ -146,7 +146,11 @@ function formatStatus(status) {
     default: return '未知'
   }
 }
+// 跳转各个页面
+function goBuyRecord() { router.push("/buy") }
+function goSellRecord() { router.push("/cell") }
 
+//=================
 // 出售
 function openSellDialog() { showSellDialog.value = true }
 async function confirmSell() {
@@ -930,6 +934,38 @@ onMounted(() => {
   padding-right: 6px;
 }
 
+/* ✅ 优化求购弹窗为上下布局 */
+.dialog-box.sell-box .sell-input.row {
+  flex-direction: column;        /* 改为上下排列 */
+  align-items: flex-start;       /* 左对齐内容 */
+  gap: 8px;                      /* 每组上下间距 */
+}
+
+.dialog-box.sell-box .sell-input.row label {
+  width: 100%;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.dialog-box.sell-box .sell-input.row input {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid #ccc;
+  margin: 0;
+}
+
+.dialog-box.sell-box .sell-input.row .unit {
+  align-self: flex-end;
+  font-size: 13px;
+  color: #777;
+  margin-top: -4px;
+  margin-bottom: 6px;
+}
 
 
 </style>
