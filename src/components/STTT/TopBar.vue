@@ -25,6 +25,7 @@
     <el-menu-item index="HomePage" :class="{ on: activeIndex === 'HomePage' }">首页</el-menu-item>
     <el-menu-item index="SpotlightMember" :class="{ on: activeIndex === 'SpotlightMember' }">会员与签到</el-menu-item>
     <el-menu-item index="StyFinance" :class="{ on: activeIndex === 'StyFinance' }">理财宝</el-menu-item>
+        <el-menu-item index="styPool" :class="{ on: activeIndex === 'styPool' }">会员交易</el-menu-item>
     <el-menu-item index="funds-deposit" :class="{ on: activeIndex === 'funds-deposit' }">资金管理</el-menu-item>
     <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">详情</el-menu-item>
     <el-menu-item index="register" :class="{ on: activeIndex === 'register' }">安全设置</el-menu-item>
@@ -199,6 +200,14 @@ provide('styaiBalance', styaiBalance)
 function handleSelect(key) {
   console.log('选中菜单：', key)
   drawerOpen.value = false   
+      // 如果没有连接钱包，限制只能停留在首页
+  if (!isConnected.value) {
+    if (key !== 'HomePage') {
+      Notify.inApp({ title: '提示', message: '请先连接钱包', type: 'warning' })
+      drawerOpen.value = false
+      return
+    }
+  }
   switch (key) {
     case 'HomePage':
       router.push('/')
@@ -218,6 +227,9 @@ function handleSelect(key) {
       break
           case 'register':
       router.push('/register')
+      break
+            case 'styPool':
+      router.push({ path: '/styPool'})
       break
       case 'fundsflow':
   router.push('/flows')
