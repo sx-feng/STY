@@ -38,7 +38,7 @@
               <div class="exchange-header">
                  <div class="guide-price-section">
       <span class="flash-label">{{ $t('exchange.flash') }}：</span>
-      <span class="price-tag">{{ styGuidePrice }} USDT</span>
+      <span class="price-tag">{{ styGuidePrice }}USDT</span>
     </div>
                 <div class="balance">{{ $t('exchange.balance') }}：{{ styaiBalance }}</div>
               </div>
@@ -100,7 +100,7 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { inject } from 'vue'
 import { useRouter } from 'vue-router'
-import {  userGet,userMachineRecordList,getSTYAIPrice } from "@/utils/api"
+import {  userGet,userMachineRecordList ,getSTYAIPrice} from "@/utils/api"
 
 import WalletTP from '@/utils/walletTP.js'
 import { Exchange, SubmitOrder ,teamMembersAll} from '@/utils/api.js'
@@ -186,12 +186,12 @@ const amount = ref('') // 输入框金额
 
 ///////////全局回调
 onMounted(() => {
-    updateGuidePrice()
+
   CallbackCenter.register('financeUpdate', (info) => {
     console.log("Finance 页面收到登录成功回调", info)
     // 在这里执行余额刷新逻辑
        refresh()
-             updateGuidePrice()
+           updateGuidePrice()
   });
   refresh();//封装刷新的方法
       updateGuidePrice()
@@ -410,7 +410,7 @@ async function updateGuidePrice (){
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-left: 5%;
+  padding: 20px;
   border: 1px #b9b9b9 solid;
   border-radius: 10px;
   /* 圆角 */
@@ -463,12 +463,11 @@ async function updateGuidePrice (){
 .input-row {
   display: flex;
   background: #fff;
-  width: 72%;
+  width: 82%;
   border-radius: 20px;
   overflow: hidden;
   margin-bottom: 12px;
   border: 1px solid #ddd;
-  
 }
 
 .input-text {
@@ -490,7 +489,7 @@ async function updateGuidePrice (){
 .btn-confirm {
   width: 50%;
   background: #f6c244;
-  margin-right: 27%;
+  margin-right: 16%;
   border: none;
   padding: 10px 0;
   border-radius: 20px;

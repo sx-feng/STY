@@ -18,7 +18,7 @@
     "totalIncome": "累计收益"
   },
   "exchange": {
-    "flash": "闪兑价格",
+    "flash": "指导价",
     "balance": "账户余额",
     "all": "全部",
     "confirm": "确定闪兑",
