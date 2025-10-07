@@ -56,6 +56,10 @@
           <button @click="confirmSell" class="sell-confirm">确认出售</button>
           <button @click="showSellDialog=false" class="sell-cancel">取消</button>
         </div>
+        <div class="min-price-tip">
+  最低价格不能低于 {{ minSellPrice }} USDT
+</div>
+
       </div>
     </div>
 
@@ -74,6 +78,10 @@
           <button @click="confirmPurchase" class="sell-confirm">确认求购</button>
           <button @click="showPurchaseDialog=false" class="sell-cancel">取消</button>
         </div>
+        <div class="min-price-tip">
+  最低价格不能低于 {{ minPrice }} USDT
+</div>
+
       </div>
     </div>
 
@@ -93,9 +101,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted ,onUnmounted} from "vue"
 import router from '@/router'
-import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder } from '@/utils/api'
+import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder,getSTYAIPrice } from '@/utils/api'
 import CallbackCenter from "@/utils/callbackCenter"
 import WalletTP from '@/utils/walletTP.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
@@ -219,11 +227,30 @@ async function startPay(orderId, fun) {
 
 function onPayDone(res) { console.log('done', res) }
 function onPayClose() { console.log('close') }
+async function updateGuidePrice (){
+  let res= await getSTYAIPrice();
+  if(res?.data?.data?.price){
+  sellPrice.value  = res.data.data.price
+  minSellPrice.value  = res.data.data.price
+  purchasePrice.value  = res.data.data.price
+  minPrice.value  = res.data.data.price
+  }
+}
 
-onMounted(() => {
+onMounted(async () => {
   getShopList()
+  await updateGuidePrice ();
   ready.value = true
+    const inputs = document.querySelectorAll("input, textarea")
+  inputs.forEach(input => {
+    input.addEventListener("focus", () => {
+      setTimeout(() => {
+        input.scrollIntoView({ behavior: "smooth", block: "center" })
+      }, 200)
+    })
+  })
 })
+
 </script>
 
 
@@ -476,215 +503,150 @@ onMounted(() => {
   transform: translateY(-1px);
   box-shadow: 0 0 6px rgba(246, 194, 68, 0.5);
 }
-
-/* 弹窗遮罩 */
+/* ==== 弹窗遮罩 ==== */
+/* ==== 弹窗遮罩（不再固定，允许键盘推动） ==== */
 .dialog-mask {
-  position: fixed;
+  position: absolute;  /* ✅ 改为 absolute，允许页面滚动 */
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
+  overflow-y: auto; /* ✅ 保证内容可以被顶上去 */
 }
 
-/* 弹窗内容 */
+/* ==== 弹窗主体 ==== */
 .dialog-box {
   background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  width: 80%;
-  max-width: 300px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  width: 82%;
+  max-width: 340px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 0.25s ease-out;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: 20vh auto; /* ✅ 弹窗垂直位置更自然 */
 }
 
-.dialog-box h3 {
-  margin-bottom: 14px;
+
+/* ==== 弹窗主体 ==== */
+.dialog-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px; /* ✅ 缩小上下内边距 */
+  width: 82%;
+  max-width: 340px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 0.25s ease-out;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==== 输入区域（紧凑布局） ==== */
+.sell-input.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px; /* ✅ 减少间距 */
+}
+
+.sell-input label {
+  font-size: 14px;
   color: #333;
+  width: 48px;
+  flex-shrink: 0;
 }
 
-.dialog-box input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 14px;
+.sell-input input {
+  flex: 1;
+  height: 28px; /* ✅ 更扁平 */
+  padding: 2px 6px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
+  text-align: right;
+  outline: none;
+  transition: border-color 0.25s;
 }
 
+.sell-input input:focus {
+  border-color: #f6c244;
+  box-shadow: 0 0 2px rgba(246, 194, 68, 0.3);
+}
+
+.sell-input .unit {
+  font-size: 12px;
+  color: #777;
+  flex-shrink: 0;
+}
+
+/* ==== 操作按钮区 ==== */
 .dialog-actions {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 8px;
 }
 
-.dialog-btn {
+.sell-confirm,
+.sell-cancel {
   flex: 1;
-  margin: 0 6px;
-  padding: 8px 0;
+  padding: 7px 0;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: 0.25s;
 }
 
-.dialog-btn.confirm {
+.sell-confirm {
   background: linear-gradient(90deg, #f6c244, #d6a520);
   color: #000;
-}
-
-.dialog-btn.cancel {
-  background: #ccc;
-  color: #000;
-}
-
-.price {
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: #666;
-}
-
-/* 弹窗内容整体 */
-.sell-box {
-  padding: 24px;
-  border-radius: 16px;
-  background: #fff;
-  width: 80%;
-  max-width: 360px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  animation: fadeInUp 0.25s ease-out;
-}
-
-/* 顶部单价 */
-.sell-header {
-  font-size: 14px;
-  margin-bottom: 16px;
-  color: #666;
-}
-
-.price-value {
-  font-weight: bold;
-  color: #000;
-}
-
-.unit {
-  color: #888;
-  margin-left: 4px;
-}
-
-/* 输入框区域 */
-.sell-input {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.sell-input label {
-  flex: 1;
-  font-size: 14px;
-  color: #444;
-}
-
-.sell-input input {
-  flex: 2;
-  padding: 8px;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin: 0 6px;
-}
-
-.max-btn {
-  color: #337ab7;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
-}
-
-.max-btn:hover {
-  color: #0056b3;
-  text-decoration: underline;
-}
-
-/* 信息区域 */
-.sell-info {
-  background: #f9f9f9;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.info-row:last-child {
-  margin-bottom: 0;
-}
-
-.info-row.highlight span:last-child {
-  color: #d65f20;
-  font-weight: bold;
-}
-
-/* 操作按钮 */
-.dialog-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sell-confirm {
-  background: #000;
-  color: #fff;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.sell-confirm:hover {
-  background: #222;
 }
 
 .sell-cancel {
   background: #eee;
   color: #333;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
+}
+
+.sell-confirm:hover {
+  background: #000;
+  color: #fff;
 }
 
 .sell-cancel:hover {
   background: #ddd;
 }
 
-/* 弹窗动画 */
+/* ==== 最低价提示 ==== */
+.min-price-tip {
+  margin-top: 4px; /* ✅ 更贴近按钮 */
+  text-align: right;
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+/* ==== 动画 ==== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .card {
   background: #fff;
   border-radius: 30px;

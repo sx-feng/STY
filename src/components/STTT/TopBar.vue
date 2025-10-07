@@ -55,9 +55,6 @@
     <el-button type="primary" @click="doRegister">确认注册</el-button>
   </template>
 </el-dialog>
-
-
-
   </div>
 </template>
 
@@ -297,27 +294,53 @@ onMounted(() => {
   margin-right: 20px;
 }
 
+
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
   justify-content: center;
+  gap: 6px;
   padding: 8px 14px;
   background: #919090;
   border: none;
- min-width: 120px;
+  min-width: 120px;
   border-radius: 20px;
   color: white;
-  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap; /* ✅ 禁止换行 */
+  overflow: hidden; /* ✅ 隐藏溢出 */
+  text-overflow: ellipsis; /* ✅ 超出部分显示省略号 */
 }
 
+/* 🔹 文本部分自适应字体大小 */
+.action-btn span:last-child {
+  display: inline-block;
+  max-width: 100%;
+  font-size: clamp(12px, 2.6vw, 14px); /* ✅ 字体自动缩放：在12~14px间变化 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 🔹 图标部分固定宽度，防止撑开按钮 */
 .action-btn .icon {
+  flex-shrink: 0;
   border: 1px solid gold;
   border-radius: 6px;
   padding: 2px 6px;
   font-size: 14px;
   color: gold;
+  min-width: 22px; /* ✅ 防止缩小时文字挤压图标 */
+  text-align: center;
 }
+
+/* 🔹 按钮 hover 效果 */
+.action-btn:hover {
+  background: #777;
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
 </style>

@@ -1,6 +1,6 @@
 // request.js
 // const baseURL = 'http://110.40.42.207:8088/';
-const baseURL = 'https://tronApi.steadyai.vip/';
+const baseURL = 'http://vi77o5x9c69l.xiaomiqiu.com/';
 
 
 /** 本地存储键位 */
