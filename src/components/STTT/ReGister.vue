@@ -132,7 +132,7 @@ const changePassword = async () => {
 .change-password-card {
   margin-top: 40px;
   background: rgba(25, 25, 25, 0.95);
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  border: 1px solid rgb(255, 255, 255);
   border-radius: 16px;
   padding: 30px 25px;
   width: 90%;

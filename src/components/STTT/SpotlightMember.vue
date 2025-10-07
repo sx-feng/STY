@@ -13,7 +13,8 @@
     </div>
 
     <div class="sign">
-      <SignCanLen/>
+      <div class="biao"> <SignCanLen/></div>
+     
     </div>
 
     <!-- 购买会员弹窗 -->
@@ -25,7 +26,7 @@
       class="custom-dialog"
     >
       <div class="dialog-content">
-        <p class="desc">{{ $t('dialog.buyMember.desc') }}</p>
+        <p class="desc">{{ $t('dialog.buyMember.desc') }}</p >
         <div class="btn-group">
           <el-button type="warning" @click="buyMember">
             {{ $t('dialog.buyMember.confirm') }}
@@ -138,7 +139,7 @@ onBeforeUnmount(() => {
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 20px;
+  margin-top: 50px;
  
 }
 
@@ -150,7 +151,7 @@ onBeforeUnmount(() => {
   width: 80%;                    
   margin-top: 40px;
   z-index: 2;
-  margin-right: 10%;
+
 }
 
 .top-btn {
@@ -193,17 +194,18 @@ onBeforeUnmount(() => {
 .sign {
   border: 1px solid #fff;   
   border-radius: 8px;       
-  padding: 20px;            
+       width: 90%;     
   margin-top: 20px;      
     padding-bottom: 20px;  
-  width: 86%;               
-  margin-right: 10%;
   height: 55%;
   color: #fff;         
   z-index: 22;     
 }
 
-
+.biao{
+  width: 90%;
+  padding: 3%;
+}
 
 /* 弹窗样式黑金化 */
 :deep(.custom-dialog .el-dialog__header) {

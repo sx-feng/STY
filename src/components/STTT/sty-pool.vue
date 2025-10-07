@@ -26,15 +26,16 @@
             <div class="shop-info">
               <div class="shop-header">
                 <span class="order-id">订单号：{{ item.id }}</span>
+                  <span>数量：<b>{{ item.styAmount }}</b> STY</span>
                 <span class="status" :class="'status-' + item.orderStatus">{{ formatStatus(item.orderStatus) }}</span>
               </div>
               <div class="shop-row">
-                <span>数量：<b>{{ item.styAmount }}</b> STY</span>
                 <span>金额：<b>{{ item.usdtAmount }}</b> USDT</span>
+                <button class="shop-buy" @click="buyItem(item)">{{ activePool==='buy' ? '购买' : '卖出' }}</button>
+          </div>
               </div>
             </div>
-            <button class="btn buy" @click="buyItem(item)">{{ activePool==='buy' ? '购买' : '卖出' }}</button>
-          </div>
+            
         </div>
       </div>
     </div>
@@ -253,21 +254,20 @@ onMounted(async () => {
 
 </script>
 
-
 <style>
+
 .finance-page {
   min-height: 100vh;
   background: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px;
+  margin-top: 50px;
   font-family: "Microsoft YaHei", sans-serif;
   position: relative;
   overflow: hidden;
 }
 
-/* 金色聚光灯背景 */
 .finance-page::before {
   content: "";
   position: absolute;
@@ -276,101 +276,23 @@ onMounted(async () => {
   transform: translateX(-50%) scaleY(0.55);
   width: 100%;
   height: 200%;
-  background: radial-gradient(ellipse at 50% 0%,
-      rgba(255, 215, 0, 0.6) 0%,
-      rgba(255, 193, 7, 0.35) 35%,
-      rgba(0, 0, 0, 0.95) 100%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.6) 0%, rgba(255, 193, 7, 0.35) 35%, rgba(0, 0, 0, 0.95) 100%);
   filter: blur(90px);
   pointer-events: none;
   z-index: 0;
 }
 
-
-
-.tab-btn {
-  background: #fff5d6;  
-  color: #b8860b;        
-  border: 1px solid #f6c244;
-  border-radius: 14px;   
-  padding: 8px 14px;     
-  font-size: 13px;       
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-
-.tab-btn.active {
-  background: linear-gradient(90deg, #f6c244, #d6a520);
-  color: #000;
-  box-shadow: 0 0 12px rgba(246, 194, 68, 0.6);
-}
-
-
-
-
-/* 白色卡片 */
 .card {
   background: #fff;
   border-radius: 20px;
   padding: 18px;
-  margin: 14px 0;
+  margin: 20px 0;
   width: 90%;
   max-width: 420px;
   z-index: 1;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  margin-top: 30px;
-
 }
 
-.dynamic-title,
-.static-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dynamic-title .detail,
-.static-title .detail {
-  margin-left: auto;
-}
-
-.dynamic-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.dynamic-row .rate {
-  color: #555;
-}
-
-.dynamic-row .detail {
-  color: #f6c244;
-}
-
-.divider {
-  border: none;
-  border-top: 1px solid #eee;
-  margin: 12px 0;
-}
-
-.static-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  font-size: 14px;
-  color: #444;
-}
-
-.static-row:not(:last-child) {
-  border-bottom: 1px dashed #ddd;
-}
-
-/* 买卖 STY */
 .card-actions .buy-sell {
   display: flex;
   justify-content: space-around;
@@ -388,27 +310,11 @@ onMounted(async () => {
   transition: .25s;
 }
 
-.btn.buy {
-  background: linear-gradient(90deg, #f6c244, #d6a520);
-  color: #000;
-}
-
 .btn.sell {
   background: linear-gradient(90deg, #ff8c42, #d65f20);
   color: #000;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 10px rgba(246, 194, 68, 0.5);
-}
-
-.card.card-actions {
-  max-width: 360px;
-  margin-bottom: 40px;
-}
-
-/* 记录 */
 .record {
   display: flex;
   justify-content: space-between;
@@ -427,86 +333,122 @@ onMounted(async () => {
   border-right: none;
 }
 
-.gold-divider {
-  height: 1px;
-  width: 100%;
-  margin: 10px 0 14px;
-  background-color: #ffed84;
-  border-radius: 1px;
-}
-
-.detail {
-  font-size: 13px;
-  font-weight: bold;
-  color: #f6c244;
-  text-decoration: none;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.detail:hover {
-  color: #ffd700;
-  text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
-}
-
-/* Shop 外层：竖向滑动区域 */
 .shop {
   margin-top: 20px;
   max-height: 240px;
   overflow-y: auto;
   padding-right: 6px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
 }
 
-/* 每个商品卡片 */
+.shop-tabs {
+  display: flex;
+  justify-content: space-around;
+  background: #fff8e1;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.shop-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 30px;
+  font-weight: 600;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.shop-tabs button.active {
+  background: linear-gradient(90deg, #f6c244, #d6a520);
+  color: #000;
+  box-shadow: 0 0 6px rgba(246, 194, 68, 0.4);
+}
+
+.shop-list {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
 .shop-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
+  background: #fafafa;
   border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .shop-info {
   flex: 1;
 }
 
-.shop-name {
-  font-weight: bold;
-  color: #333;
+.shop-header {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 6px;
+  font-size: 13px;
+  color: #555;
 }
-
-.shop-price {
-  color: #d4af37;
-  font-size: 14px;
+.shop-row{
+    display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #555;
 }
-
-/* 按钮 */
-.shop-item .btn.buy {
-  padding: 6px 10px;
-  font-size: 12px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, #f6c244, #d6a520);
-  border: none;
+.shop-buy {
+  width: 70px; /* 保持原大小 */
+  height: 26px;
+  background: linear-gradient(90deg, #f6d365, #fda085); /* 柔金到橙色渐变 */
   color: #000;
-  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: .25s;
-  width: fit-content;
-  max-width: 100px;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
 }
 
-.shop-item .btn.buy:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 6px rgba(246, 194, 68, 0.5);
+/* 悬停时稍微亮一点 */
+.shop-buy:hover {
+  background: linear-gradient(90deg, #ffe082, #ffc107);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
-/* ==== 弹窗遮罩 ==== */
-/* ==== 弹窗遮罩（不再固定，允许键盘推动） ==== */
+
+/* 点击时暗一点有按压感 */
+.shop-buy:active {
+  background: linear-gradient(90deg, #fbc02d, #f57c00);
+  transform: scale(0.96);
+}
+
+.order-id {
+  font-weight: 600;
+  color: #333;
+}
+
+.status {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.status-0 { background: #f6c244; }
+.status-1 { background: #4caf50; }
+.status-2 { background: #f44336; }
+
+
+
 .dialog-mask {
-  position: absolute;  /* ✅ 改为 absolute，允许页面滚动 */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -516,10 +458,9 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   z-index: 999;
-  overflow-y: auto; /* ✅ 保证内容可以被顶上去 */
+  overflow-y: auto;
 }
 
-/* ==== 弹窗主体 ==== */
 .dialog-box {
   background: #fff;
   border-radius: 14px;
@@ -528,52 +469,35 @@ onMounted(async () => {
   max-width: 340px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   animation: fadeInUp 0.25s ease-out;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  margin: 20vh auto; /* ✅ 弹窗垂直位置更自然 */
+  margin: 20vh auto;
 }
 
-
-/* ==== 弹窗主体 ==== */
-.dialog-box {
-  background: #fff;
-  border-radius: 14px;
-  padding: 14px 16px; /* ✅ 缩小上下内边距 */
-  width: 82%;
-  max-width: 340px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  animation: fadeInUp 0.25s ease-out;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ==== 输入区域（紧凑布局） ==== */
 .sell-input.row {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 2px; /* ✅ 减少间距 */
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .sell-input label {
   font-size: 14px;
   color: #333;
-  width: 48px;
-  flex-shrink: 0;
+  font-weight: 500;
 }
 
 .sell-input input {
-  flex: 1;
-  height: 28px; /* ✅ 更扁平 */
-  padding: 2px 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  text-align: right;
   outline: none;
   transition: border-color 0.25s;
+  text-align: left;
 }
 
 .sell-input input:focus {
@@ -582,12 +506,13 @@ onMounted(async () => {
 }
 
 .sell-input .unit {
-  font-size: 12px;
+  align-self: flex-end;
+  font-size: 13px;
   color: #777;
-  flex-shrink: 0;
+  margin-top: -4px;
+  margin-bottom: 6px;
 }
 
-/* ==== 操作按钮区 ==== */
 .dialog-actions {
   display: flex;
   justify-content: space-between;
@@ -617,25 +542,14 @@ onMounted(async () => {
   color: #333;
 }
 
-.sell-confirm:hover {
-  background: #000;
-  color: #fff;
-}
-
-.sell-cancel:hover {
-  background: #ddd;
-}
-
-/* ==== 最低价提示 ==== */
 .min-price-tip {
-  margin-top: 4px; /* ✅ 更贴近按钮 */
+  margin-top: 4px;
   text-align: right;
   font-size: 12px;
   color: #999;
   font-weight: 500;
 }
 
-/* ==== 动画 ==== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -647,287 +561,6 @@ onMounted(async () => {
   }
 }
 
-.card {
-  background: #fff;
-  border-radius: 30px;
-  padding: 16px;
-  width: 92%;
-  max-width: 520px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-/* 顶部说明按钮 */
-.tab-btn {
-  display: inline-block;
-  background: #fff;
-  color: #f6c244;
-  border: 1px solid #f6c244;
-  border-radius: 15px;
-  padding: 10px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.25s;
-}
-.tab-btn:hover {
-  background: #fff8e1;
-  box-shadow: 0 0 4px rgba(246,194,68,0.5);
-}
-.tab-btn.active {
-  background: linear-gradient(90deg, #f6c244, #d6a520);
-  color: #000;
-  border: none;
-}
-
-
-/* 动静理财切换 */
-/* 动静理财切换 */
-.sty-btn {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 12px 0;
-}
-
-.sty-btn button {
-  flex: none;
-  min-width: 90px;
-  padding: 6px 12px;
-  border-radius: 16px;
-  border: 1px solid #ddd;
-  background: #f9f9f9;
-  color: #555;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-/* 激活状态：淡金底 + 金色边框 + 深色文字 */
-.sty-btn button.active {
-  background: #fffbe6;            /* 柔和浅金色，而不是浓烈的渐变 */
-  border: 1px solid #f6c244;
-  color: #b8860b;                 /* 深金色文字 */
-  font-weight: 600;
-  box-shadow: 0 0 4px rgba(246,194,68,0.3);
-}
-
-
-/* 分割线 */
-.gold-divider {
-  height: 1px;
-  margin: 10px 0;
-  background: #ffed84;
-  border-radius: 2px;
-}
-
-/* 商品列表 */
-.product-list-wrapper {
-  display: flex;
-  flex-direction: column;
-  border-radius: 12px;
-  background: #fafafa;
-  overflow: hidden;
-}
-
-/* 商品滚动区 */
-.product-list {
-  max-height: 280px;
-  overflow-y: auto;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* 底部固定区域 */
-.list-footer {
-  padding: 8px;
-  text-align: center;
-  font-size: 16px;
-  color: #dab616;
-  background: #f0f0f0;
-  border-top: 1px solid #e0e0e0;
-  font-weight: 500;
-}
-
-.product {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fafafa;
-  padding: 10px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-.info{
-  flex: 1;
-  display: flex;
- margin-top: 15px;
-  gap: 16px;  
-}
-.product img {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  object-fit: cover;
-  
-}
-.product .name {
-  flex: 1;
-  color: #333;
-  font-size: 14px;
-  font-weight: 600;
-  margin-left: 10px;
-}
-.product .price {
-  margin-right: 10px;
-  color: #d6a520;
-  font-weight: bold;
-  font-size: 14px;
-}
-.product .buy-btn {
-  background: linear-gradient(90deg, #f6c244, #d6a520);
-  color: #000;
-  border: none;
-  border-radius: 10px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.25s;
-}
-.product .buy-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 6px rgba(246,194,68,0.6);
-}
-
-
-/* 商品池子 */
-.shop-item {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.shop-info {
-  flex: 1;
-}
-
-.shop-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: #555;
-}
-
-.order-id {
-  font-weight: 600;
-  color: #333;
-}
-
-.status {
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 6px;
-  color: #fff;
-}
-.status-0 { background: #f6c244; }  /* 待成交 - 黄色 */
-.status-1 { background: #4caf50; }  /* 已成交 - 绿色 */
-.status-2 { background: #f44336; }  /* 已取消 - 红色 */
-
-.shop-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.shop-row b {
-  color: #000;
-}
-
-.shop {
- 
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 顶部切换按钮（不滚动） */
-.shop-tabs {
-  display: flex;
-  justify-content: space-around;
-  background: #fff8e1;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.shop-tabs button {
-  flex: 1;
-  border: none;
-  background: transparent;
-  border-radius: 30px;
-  font-weight: 600;
-  padding: 6px 0;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.shop-tabs button.active {
-  background: linear-gradient(90deg, #f6c244, #d6a520);
-  color: #000;
-  box-shadow: 0 0 6px rgba(246, 194, 68, 0.4);
-}
-
-/* 商品列表单独滚动 */
-.shop-list {
-  max-height: 240px;   /* 控制滚动高度 */
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-/* ✅ 优化求购弹窗为上下布局 */
-.dialog-box.sell-box .sell-input.row {
-  flex-direction: column;        /* 改为上下排列 */
-  align-items: flex-start;       /* 左对齐内容 */
-  gap: 8px;                      /* 每组上下间距 */
-}
-
-.dialog-box.sell-box .sell-input.row label {
-  width: 100%;
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
-
-.dialog-box.sell-box .sell-input.row input {
-  width: 100%;
-  text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  border: 1px solid #ccc;
-  margin: 0;
-}
-
-.dialog-box.sell-box .sell-input.row .unit {
-  align-self: flex-end;
-  font-size: 13px;
-  color: #777;
-  margin-top: -4px;
-  margin-bottom: 6px;
-}
 
 
 </style>

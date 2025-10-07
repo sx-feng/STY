@@ -1,7 +1,7 @@
 <template>
 
     <div class="funds-page">
-      <div>
+      <div class="fund-heard">
       
       <div class="action-switch">
         <button
@@ -264,7 +264,7 @@ onBeforeUnmount(() => {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin: 6px 0 18px;
-  margin-top: 40px;
+  margin-top: 10px;
 }
 .pill{
   background: #fff;
@@ -504,6 +504,19 @@ onBeforeUnmount(() => {
   font-weight: 800;
   font-size: 18px;
   color: #fff;
+}
+/* 金色外框卡片（用于 fund-heard） */
+.fund-heard {
+  width: 94%;
+  max-width: 430px;
+  background: rgba(0, 0, 0, 0.7); /* 黑底半透明 */
+  border: 1px solid rgb(255, 255, 255); /* 金色边框 */
+  border-radius: 16px;
+  padding: 18px 14px 24px;
+  margin-top: 50px;
+  box-shadow: 0 0 18px rgba(255, 210, 77, 0.2); /* 外发光 */
+  position: relative;
+  z-index: 1;
 }
 
   </style>

@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed , watch} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
@@ -234,18 +234,24 @@ function handleSelect(key) {
     
   }
 }
-const activeIndex = computed(() => {
-  if (route.path.startsWith('/finance')) return 'StyFinance'
-  if (route.path.startsWith('/info')) return 'introPage'
-  if (route.path.startsWith('/funds')) {
-    if (route.query.tab === 'deposit') return 'funds-deposit'
-    if (route.query.tab === 'withdraw') return 'funds-withdraw'
-    return 'FundsPage'
+const activeIndex = ref('HomePage')
+
+// 每当路由变化时更新 activeIndex
+watch(() => route.fullPath, () => {
+  if (route.path.startsWith('/finance')) activeIndex.value = 'StyFinance'
+  else if (route.path.startsWith('/info')) activeIndex.value = 'introPage'
+  else if (route.path.startsWith('/funds')) {
+    if (route.query.tab === 'deposit') activeIndex.value = 'funds-deposit'
+    else if (route.query.tab === 'withdraw') activeIndex.value = 'funds-withdraw'
+    else activeIndex.value = 'FundsPage'
   }
-  if (route.path.startsWith('/spot')) return 'SpotlightMember'
-  if (route.path.startsWith('/change')) return 'changePass' 
-  return 'HomePage' // 默认首页
-})
+  else if (route.path.startsWith('/spot')) activeIndex.value = 'SpotlightMember'
+  else if (route.path.startsWith('/change')) activeIndex.value = 'changePass'
+  else if (route.path.startsWith('/styPool')) activeIndex.value = 'styPool'
+  else if (route.path.startsWith('/flows')) activeIndex.value = 'fundsflow'
+  else activeIndex.value = 'HomePage'
+}, { immediate: true })
+
 
 onMounted(() => {
  const token = localStorage.getItem("token")

@@ -115,7 +115,7 @@ onMounted(() => {
   margin-bottom: 25px; /* ✅ 下间距更紧凑 */
   width: 90%;
   max-width: 400px;
-  margin-top: 25px; /* ✅ 顶部更靠上 */
+  margin-top: 50px; /* ✅ 顶部更靠上 */
 }
 
 /* ===== 单个按钮 ===== */

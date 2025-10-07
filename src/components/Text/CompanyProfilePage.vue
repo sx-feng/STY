@@ -97,4 +97,34 @@ onMounted(async () => {
   color: #ffd700;
   text-align: center;
 }
+/* ===== 自适应视频大小 ===== */
+/* ✅ 使用 ::v-deep 让作用域穿透到 v-html 内容 */
+::v-deep(.info-card video),
+::v-deep(.info-card iframe) {
+  display: block;
+  width: 80%;
+  max-width: 480px;
+  height: auto;
+  margin: 10px auto;
+  border-radius: 12px;
+  border: 1px solid #d4af37;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* 悬停光效 */
+::v-deep(.info-card video:hover),
+::v-deep(.info-card iframe:hover) {
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.5);
+}
+
+/* 移动端 */
+@media (max-width: 480px) {
+  ::v-deep(.info-card video),
+  ::v-deep(.info-card iframe) {
+    width: 95%;
+    max-width: none;
+  }
+}
+
+
 </style>
