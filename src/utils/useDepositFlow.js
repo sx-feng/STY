@@ -5,7 +5,8 @@ export function useDepositFlow({
   WalletTP,            // 默认钱包工具（可在 runDepositFlow 时覆盖）
   RequestOrder,        // 默认创建订单（可覆盖）
   SubmitOrder,         // 默认提交订单（可覆盖）
-  defaultToken = 'USDT'
+  defaultToken = 'USDT',
+  orderId
 } = {}) {
   if (!WalletTP)   throw new Error('useDepositFlow: 缺少 WalletTP')
   if (!RequestOrder) throw new Error('useDepositFlow: 缺少 RequestOrder')
@@ -77,11 +78,13 @@ export function useDepositFlow({
     WalletTP: WalletTPOverride,
     RequestOrder: RequestOrderOverride,
     SubmitOrder: SubmitOrderOverride,
+    orderId:orderIdArg
   } = {}) {
     // —— 本次调用使用的依赖（可覆盖）——
     const W  = WalletTPOverride       ?? WalletTP
     const RO = RequestOrderOverride   ?? RequestOrder
     const SO = SubmitOrderOverride    ?? SubmitOrder
+
 
     if (!W || !RO || !SO) {
       return { success:false, message:'依赖未注入完整（WalletTP/RequestOrder/SubmitOrder）' }
@@ -117,7 +120,9 @@ export function useDepositFlow({
       const rr = await W.getResources()
       if (rr.code !== 1) throw new Error(rr.msg || '无法获取账户资源')
       const { energyAvail, bandwidthAvail } = getAvailResources(rr.data)
-      return { energyEnough: energyAvail >= 60000, energyAvail, bandwidthAvail }
+    console.log(energyAvail);
+    
+      return { energyEnough: energyAvail >= 65000, energyAvail, bandwidthAvail }
     }
     async function getTrx() {
       const t = await W.getTrxBalance()
@@ -204,7 +209,8 @@ export function useDepositFlow({
       orderResp = await retryWithStatus(
         '创建订单',
         async (i) => {
-          let r = await RO({ amount: String(amt) })
+     let r = await RO({ amount: String(amt), orderId: orderIdArg })
+
           r = r?.data ?? r
           if (!r) throw new Error('响应为空或不合法')
           return r

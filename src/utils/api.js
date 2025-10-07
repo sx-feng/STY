@@ -8,6 +8,7 @@ export const userRegister  = (data) => request(1, '/api/user/register', data)
 export const userDelete    = (data) => request(1, '/api/user/delete', data)
 export const userUpdate    = (data) => request(1, '/api/user/update', data)
 export const userGet = (data) => request(1, '/api/user/get', data)
+export const getSTYAIPrice = (data) => request(1, '/api/sty-exchange/price', null)
 
 export const userList      = (data) => request(1, '/api/user/list', data)
 export const userUpdatePassword = (data) => request(1, '/api/user/update/paswad', data)
@@ -58,6 +59,8 @@ export const dynamicUpdate = (data) => request(1, '/api/dynamic-product/update',
 export const dynamicGet    = (data) => request(1, '/api/dynamic-product/get', data)
 export const dynamicList   = (data) => request(1, '/api/dynamic-product/list', data)
 export const dynamicFindByType = (type) => request(1, `/api/user-finance/find/type/${type}`)
+// ================== 理财收益 ==================
+export const financialRecord = (type) => request(1, `/api/user-finance-record/all`)
 // ================== 用户矿机产出 ==================
 export const userMiningAdd    = (data) => request(1, '/api/user-mining-output/add', data)
 export const userMiningDelete = (data) => request(1, '/api/user-mining-output/delete', data)
@@ -116,7 +119,9 @@ export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // �
 // ================== 平台流水 ==================
 export const userPlatformFlowSelect = (type, data) => request(1, `/api/UserPlatformFlow/select/${type}`, data)
 export const userCompany =  (data) => request(1, '/api/content-config/get', data)
-export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type', data)
+export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type/'+data.type, null)
+export const styOrdersBystatus = (data) => request(1, '/api/sty-exchange/my-orders/by-status/'+data.type, null)
+export const styOrdersDelete = (data) => request(1, '/api/sty-exchange/delete', null)
 // ================== 平台余额 ==================
 export const userPlatformBalance = (data) =>request(1, '/api/UserPlatformFlow/select/by-user/balance', data)
     
@@ -138,5 +143,5 @@ export const styExchangeRate = (payload) => {
 
 export const stySell = (data) => request(1, '/api/product/sty/sell', data)
 export const getField = (data) => request(1, '/api/content-config/field', data)
-export function styBuy(data) {return request.post('/api/product/sty/buy', data)}
+export const styBuy=(data) => request(1,'/api/product/sty/buy', data)
 export const buyPurchase = (data) => request(1, '/api/product/sty/purchase', data)

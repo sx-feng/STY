@@ -9,10 +9,11 @@
     <div class="content-card">
       <h3>收益汇总</h3>
       <ul>
-        <li>总持有金额:</li>
-        <li>累计总收益:</li>
+        <li>总持有金额:{{ totalprice }}</li>
+        <li>累计总收益:{{ totalRevenue }}</li>
       </ul>
     </div>
+
 
 
     <div class="content-card">
@@ -27,9 +28,10 @@
       <div class="row" v-for="(item,i) in list" :key="i">
          <span>{{ item.id }}</span>
         <span>{{ item.createTime }}</span>
+        <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
         <span>{{ item.yieldRate }}</span>
-        <span>{{ item.cycleDays}}</span>
+        <span>{{ item.productCycle}}小时</span>
       </div>
     </div>   
     
@@ -44,10 +46,10 @@
       </div>
        <div class="row" v-for="(item,i) in incomeList" :key="i">
                  <span>{{ item.id }}</span>
-        <span>{{ item.creatTime }}</span>
-        <span>{{ item.price }} USDT</span>
-        <span>{{ item.cycleDays}}</span>
-        <span>{{ item.income }} USDT</span>
+        <span>{{ item.profitTime }}</span>
+        <span>{{ item.principalAmount }} USDT</span>
+        <span>{{ item.profitRate}}</span>
+        <span>{{ item.profitAmount }} USDT</span>
       </div>
     </div>
     
@@ -57,24 +59,42 @@
 <script setup>
 import { ref,onMounted } from "vue"
 import { useRouter } from "vue-router"
-import {staticFindByType} from '@/utils/api'
+import {staticFindByType,financialRecord} from '@/utils/api'
 const router = useRouter()
 function goBack(){ router.go(-1) }
 
 const list = ref([])
 const incomeList = ref([])
+const totalRevenue = ref(0)
+const totalprice = ref(0)
 async function loadStaticProducts() {
-  const res = await staticFindByType("0") 
-  if (res.ok &&res.data.code === 200 && Array.isArray(res.data.data)) {
-    console.log("静态记录:", res.data.data)
+  const res = await staticFindByType("2") 
+  if (res.data.code === 200 && Array.isArray(res.data.data)) {
      // 保持原始字段
     list.value = res.data.data       // 先用同一批数据当投资记录
-    console.log('sadjaspjfopq',list.value)
-   
+       totalprice.value = res.data.data.reduce((sum, item) => {
+      const profit = Number(item.price)
+      return sum + (isNaN(profit) ? 0 : profit)
+    }, 0)
+  }
+}
+async function _financialRecord() {
+  const res = await financialRecord("")
+  if (res.data.code === 200 && Array.isArray(res.data.data)) {
+    const filtered = (res.data?.data ?? []).filter(
+      item => Number(item.productType) === 2
+    )
+    incomeList.value = filtered       // 先用同一批数据当投资记录
+    // 计算 profitAmount 和 principalAmount 的总和（非法值当 0）
+    totalRevenue.value = filtered.reduce((sum, item) => {
+      const profit = Number(item.profitAmount)
+      return sum + (isNaN(profit) ? 0 : profit)
+    }, 0)
   }
 }
 onMounted(()=>{
   loadStaticProducts()
+  _financialRecord()
 })
 </script>
 

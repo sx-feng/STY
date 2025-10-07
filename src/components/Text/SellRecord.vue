@@ -11,18 +11,16 @@
       <span>{{ $t('records.type') }}</span>
       <span>{{ $t('records.amount') }}</span>
       <span>{{ $t('records.time') }}</span>
-      <span>{{ $t('records.status') }}</span>
     </div>
 
     <div class="table-body">
   <template v-if="list.length">
     <div v-for="(item,i) in list" :key="i" class="row">
       <span>{{ i+1 }}</span>
-      <span>{{ item.coin }}</span>
-      <span>{{ item.type }}</span>
-      <span>{{ item.amount }}</span>
-      <span>{{ item.time }}</span>
-      <span>{{ item.status }}</span>
+      <span>STYAI</span>
+      <span>出售</span>
+      <span>{{ item.styAmount }}</span>
+      <span>{{ item.createTime }}</span>
     </div>
   </template>
   <div v-else class="empty">{{ $t('records.empty') }}</div>
@@ -92,7 +90,7 @@ function goBack() {
 
 .thead {
   display: grid;
-  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr 1fr;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr ;
   font-weight: bold;
   padding: 10px;
     width: 94%;
@@ -107,7 +105,7 @@ function goBack() {
 
 .row {
   display: grid;
-  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr 1fr;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr;
   padding: 8px 10px;
   border-bottom: 1px dashed rgba(255,255,255,0.1);
 }

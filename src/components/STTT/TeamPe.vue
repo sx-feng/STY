@@ -4,6 +4,8 @@
     <div class="nav-bar">
       <button class="back-btn" @click="goBack">← </button>
       <span class="title">{{ $t('team.title') }}</span>
+            <!-- 分享按钮 -->
+      <button class="share-btn" @click="openShareDialog">📤 分享</button>
     </div>
 
     <div class="team-card">
@@ -51,8 +53,28 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
+
+  <!-- ✅ 新增：分享弹窗 -->
+<div v-if="share.visible" class="share-mask">
+  <div class="share-dialog">
+    <h3>🔗 分享信息</h3>
+    <div class="share-item">
+      <span>分享链接:</span>
+      <input v-model="share.link" readonly />
+      <button @click="copyText(share.link)">复制</button>
+    </div>
+    <div class="share-item">
+      <span>邀请码:</span>
+      <input v-model="share.code" readonly />
+      <button @click="copyText(share.code)">复制</button>
+    </div>
+    <button class="close-btn" @click="share.visible = false">关闭</button>
+  </div>
+</div>
+
 </template>
 
 
@@ -62,6 +84,32 @@ import { useRouter } from "vue-router"
 import { teamMembersAll} from "@/utils/api"
 import { columnAlignment } from "element-plus"
 const router = useRouter()
+// ✅ 新增：分享相关数据
+const share = ref({
+  visible: false,
+  link: "",
+  code: ""
+})
+// ✅ 新增：弹窗逻辑
+function openShareDialog() {
+  const baseUrl = window.location.origin
+  const code = localStorage.getItem("invitation_code") || "未设置"
+  share.value = {
+    visible: true,
+    // ✅ 修改：拼接邀请码到链接上
+    link: `${baseUrl}`,
+    code
+  }
+}
+// ✅ 新增：复制功能
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert("复制成功: " + text)
+  }).catch(() => {
+    alert("复制失败")
+  })
+}
+
 
 const goBack = () => {
   router.go(-1) // 返回上一个页面
@@ -91,8 +139,8 @@ const team = ref({
     direct: d.directPush,
     indirect: d.intervalPush,
     usdt: d.teamAllBuyKjTotalAmount,
-    sty: 0, // 后端没给
-    rights: d.teamIncome, 
+    sty: d.teamIncome,
+    rights: d.teamVip, 
     members: d.teamMembers.map(m => ({
       account: m.walletAddress,
       type: m.relation
@@ -127,7 +175,7 @@ const team = ref({
   max-width: 480px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding: 12px 16px;
   background: rgba(25, 25, 25, 0.95);
   border-bottom: 1px solid rgba(255, 215, 0, 0.3);
@@ -224,11 +272,88 @@ const team = ref({
   justify-content: space-between;
   padding: 8px 0;
   color: #fff;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .list-row:nth-child(odd) {
   background: rgba(255, 215, 0, 0.05);
+}
+/* ✅ 新增：分享按钮样式 */
+.share-btn {
+  background: transparent;
+  border: none;
+  color: #FFD700;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.share-btn:hover {
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.7);
+}
+
+/* ✅ 新增：分享弹窗样式 */
+.share-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.share-dialog {
+  background: #222;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  color: #fff;
+}
+
+.share-dialog h3 {
+  margin-bottom: 15px;
+  color: #FFD700;
+}
+
+.share-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.share-item span {
+  width: 70px;
+  color: #FFD700;
+}
+
+.share-item input {
+  flex: 1;
+  background: #111;
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 6px;
+  color: #fff;
+  padding: 4px 8px;
+  margin-right: 8px;
+}
+
+.share-item button {
+  background: #FFD700;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.close-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background: #444;
+  border: none;
+  color: #FFD700;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 

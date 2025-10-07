@@ -1,146 +1,232 @@
 <template>
   <div class="finance-page">
+    <div class="card card-actions">
 
-    <!-- 动态理财板块 -->
-    <div class="card">
-      <div class="dynamic-title">
-        <span>📊 动态理财</span>
-        <span class="detail" @click="goDynamicDetail">查看详情</span>
+      <!-- 出售 / 求购按钮 -->
+      <div class="buy-sell">
+        <button class="btn sell" @click="openSellDialog">出售 STY</button>
+        <button class="btn sell" @click="openPurchaseDialog">求购 STY</button>
       </div>
-      <div class="gold-divider"></div>
 
-      <!-- 动态产品列表 -->
-      <div class="product-list-wrapper">
-        <div class="product-list">
-          <div class="product" v-for="(item, i) in dynamicList" :key="i">
-            <img src="@/assets/动态理财.gif" alt="动态理财" />
+      <!-- 交易记录 -->
+      <div class="record">
+        <div class="record-box" @click="goBuyRecord">求购记录</div>
+        <div class="record-box" @click="goSellRecord">出售记录</div>
+      </div>
 
+      <!-- 商品池 -->
+      <div class="shop">
+        <div class="shop-tabs">
+          <button :class="{ active: activePool === 'buy' }" @click="activePool='buy'; getShopList()">我要求购</button>
+          <button :class="{ active: activePool === 'sell' }" @click="activePool='sell'; getShopList()">我要出售</button>
+        </div>
 
-            <div class="info grid2x2">
-              <!-- 第1行 -->
-              <span class="cell name">{{ item.name }}</span>
-              <span class="cell price">{{ item.price }} USDT</span>
-              <!-- 第2行 -->
-              <span class="cell cycleDays">{{ item.cycleDays }}小时</span>
-              <span class="cell yieldRate">
-                <span class="label">利率</span>
-                <span class="value">{{ (item.yieldRate * 100 - 100).toFixed(2) }}%</span>
-              </span>
-
+        <div class="shop-list">
+          <div class="shop-item" v-for="item in shopList" :key="item.id">
+            <div class="shop-info">
+              <div class="shop-header">
+                <span class="order-id">订单号：{{ item.id }}</span>
+                <span class="status" :class="'status-' + item.orderStatus">{{ formatStatus(item.orderStatus) }}</span>
+              </div>
+              <div class="shop-row">
+                <span>数量：<b>{{ item.styAmount }}</b> STY</span>
+                <span>金额：<b>{{ item.usdtAmount }}</b> USDT</span>
+              </div>
             </div>
-
-
-            <button class="buy-btn" @click="buyProductItem(item.id, 'dynamic')">购买</button>
+            <button class="btn buy" @click="buyItem(item)">{{ activePool==='buy' ? '购买' : '卖出' }}</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 静态理财板块 -->
-    <div class="card">
-      <div class="static-title">
-        <span>📊 静态理财</span>
-        <span class="detail" @click="goStaticDetail">查看详情</span>
-      </div>
-      <div class="gold-divider"></div>
-
-      <!-- 静态产品列表 -->
-      <div class="product-list-wrapper">
-        <div class="product-list">
-          <div class="product" v-for="(item, i) in staticList" :key="i">
-            <img src="@/assets/静态理财.gif" alt="静态理财" />
-
-            <div class="info grid2x2">
-              <!-- 第1行 -->
-              <span class="cell name">{{ item.name }}</span>
-              <span class="cell price">{{ item.price }} USDT</span>
-              <!-- 第2行 -->
-              <span class="cell cycleDays">{{ item.cycleDays }}天</span>
-              <span class="cell yieldRate">
-                <span class="label">利率</span>
-                <span class="value">{{ (item.yieldRate * 100 - 100).toFixed(2) }}%</span>
-              </span>
-            </div>
-
-
-            <button class="buy-btn" @click="buyProductItem(item.id, 'static')">购买</button>
-          </div>
+    <!-- 出售弹窗 -->
+    <div v-if="showSellDialog" class="dialog-mask">
+      <div class="dialog-box sell-box">
+        <div class="sell-input row">
+          <label>单价：</label>
+          <input type="number" v-model="sellPrice" :min="minSellPrice" />
+          <span class="unit">USDT</span>
+        </div>
+        <div class="sell-input row">
+          <label>数量：</label>
+          <input type="number" v-model="sellAmount" />
+          <span class="unit">STY</span>
+        </div>
+        <div class="dialog-actions">
+          <button @click="confirmSell" class="sell-confirm">确认出售</button>
+          <button @click="showSellDialog=false" class="sell-cancel">取消</button>
         </div>
       </div>
     </div>
 
-    <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
-    <PaymentWidget ref="payRef" :show-balance="true" :show-list="true" :show-builtin-input="false" :WalletTP="WalletTP"
-      :RequestOrder="stySell" :SubmitOrder="SubmitOrder" @done="onPayDone" @close="onPayClose" />
+    <!-- 求购弹窗 -->
+    <div v-if="showPurchaseDialog" class="dialog-mask">
+      <div class="dialog-box sell-box">
+        <div class="sell-input row">
+          <label>单价：</label>
+          <input type="number" v-model="purchasePrice" :min="minPrice" />
+          <span class="unit">USDT</span>
+          <label>数量：</label>
+          <input type="number" v-model="purchaseAmount" />
+          <span class="unit">STY</span>
+        </div>
+        <div class="dialog-actions">
+          <button @click="confirmPurchase" class="sell-confirm">确认求购</button>
+          <button @click="showPurchaseDialog=false" class="sell-cancel">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 支付组件 -->
+    <PaymentWidget
+      ref="payRef"
+      :show-balance="true"
+      :show-list="true"
+      :show-builtin-input="false"
+      :WalletTP="WalletTP"
+      :RequestOrder="stySell"
+      :SubmitOrder="SubmitOrder"
+      @done="onPayDone"
+      @close="onPayClose"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import router from '@/router'
-import { getProductAllStatic, getProductAllSynamic, buyProduct, stySell } from '@/utils/api'
-import CallbackCenter from "@/utils/callbackCenter";
+import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder } from '@/utils/api'
+import CallbackCenter from "@/utils/callbackCenter"
 import WalletTP from '@/utils/walletTP.js'
-import { SubmitOrder } from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 
-const dynamicList = ref([])
-const staticList = ref([])
+// === 核心交易池状态 ===
+const shopList = ref([])
+const allOrders = ref([])
+const activePool = ref('buy')
+
+// === 出售相关 ===
+const showSellDialog = ref(false)
+const sellAmount = ref(0)
+const sellPrice = ref(1.2)
+const minSellPrice = ref(1.2)
+
+// === 求购相关 ===
+const showPurchaseDialog = ref(false)
+const purchaseAmount = ref(0)
+const purchasePrice = ref(1.2)
+const minPrice = ref(1.2)
+
 const payRef = ref(null)
 const ready = ref(false)
 
-async function getSynamic() {
-  try {
-    let res = await getProductAllSynamic()
-    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
-      dynamicList.value = res.data.data
-    }
-  } catch (e) {
-    console.error("获取动态理财失败:", e)
+// 获取交易池
+async function getShopList() {
+  const res = await styGetAll({})
+  if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
+    allOrders.value = res.data.data
+  } else {
+    allOrders.value = []
   }
+  filterShopList()
 }
 
-async function getStatic() {
-  try {
-    let res = await getProductAllStatic()
-    if (res?.data?.code === 200 && Array.isArray(res.data.data)) {
-      staticList.value = res.data.data
-    }
-  } catch (e) {
-    console.error("获取静态理财失败:", e)
-  }
+function filterShopList() {
+  shopList.value = allOrders.value.filter(item => {
+    if (activePool.value === 'buy') return item.orderType === 1
+    if (activePool.value === 'sell') return item.orderType === 2
+  })
 }
 
-async function buyProductItem(id, type) {
+function formatStatus(status) {
+  switch (status) {
+    case 0: return '待成交'
+    case 1: return '已成交'
+    case 2: return '已取消'
+    default: return '未知'
+  }
+}
+// 跳转各个页面
+function goBuyRecord() { router.push("/buy") }
+function goSellRecord() { router.push("/cell") }
+
+//=================
+// 出售
+function openSellDialog() { showSellDialog.value = true }
+async function confirmSell() {
+  if (Number(sellAmount.value) <= 0) return alert('请输入数量')
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
-    try {
-      let _productType = type === "static" ? 0 : 1
-      const res = await buyProduct({ productType: _productType, twoPassword: pwdMd5, productId: id })
-      const body = res?.data
-      if (body?.code === 200) {
-        alert(body.message)
-      } else {
-        alert(body?.message || '购买失败')
-      }
-    } catch (e) {
-      console.error('购买异常:', e)
-      alert(e.message || '购买异常')
+    startPay(0, stySell)
+  })
+}
+
+// 求购
+function openPurchaseDialog() { showPurchaseDialog.value = true }
+async function confirmPurchase() {
+  if (Number(purchaseAmount.value) <= 0) return alert('请输入数量')
+  CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+    const res = await buyPurchase({
+      styAmount: String(purchaseAmount.value),
+      usdtAmount: String((purchaseAmount.value * purchasePrice.value).toFixed(2)),
+      price: String(purchasePrice.value),
+      paymentId: "1",
+      remark: "挂买单求购 STY",
+      twoPassword: pwdMd5
+    })
+    if (res?.data?.code === 200) {
+      alert("挂买单成功！")
+      showPurchaseDialog.value = false
+    } else {
+      alert(res?.data?.message || "挂买单失败")
     }
   })
 }
 
-function goDynamicDetail() { router.push("/dynamic") }
-function goStaticDetail() { router.push("/statuc") }
+// 买入/卖出订单
+function buyItem(item) {
+  if (!item.id) return alert('缺少订单ID')
+  if (item.orderType === 2) {
+    CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+      sellAmount.value = item.styAmount
+      startPay(item.id, styBuy)
+    })
+  } else {
+    CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+      const res = await styBuy({ orderId: item.id, twoPassword: pwdMd5 })
+      if (res?.data?.code === 200) {
+        alert(`购买成功: 订单号 ${item.id}`)
+      } else {
+        alert(res?.data?.message || '购买失败')
+      }
+    })
+  }
+}
+
+// 统一支付
+async function startPay(orderId, fun) {
+  if (!ready.value || !payRef.value) return
+  const res = await payRef.value.startExternal({
+    amount: Number(sellAmount.value),
+    token: "STYAI",
+    WalletTP,
+    RequestOrder: fun,
+    SubmitOrder,
+    checkTrxEarly: false,
+    orderId
+  })
+  console.log('支付结果', res)
+}
 
 function onPayDone(res) { console.log('done', res) }
 function onPayClose() { console.log('close') }
 
 onMounted(() => {
-  getSynamic()
-  getStatic()
+  getShopList()
   ready.value = true
 })
 </script>
+
+
 <style>
 .finance-page {
   min-height: 100vh;
@@ -175,12 +261,12 @@ onMounted(() => {
 
 
 .tab-btn {
-  background: #fff5d6;
-  color: #b8860b;
+  background: #fff5d6;  
+  color: #b8860b;        
   border: 1px solid #f6c244;
-  border-radius: 14px;
-  padding: 8px 14px;
-  font-size: 13px;
+  border-radius: 14px;   
+  padding: 8px 14px;     
+  font-size: 13px;       
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
@@ -198,6 +284,7 @@ onMounted(() => {
 /* 白色卡片 */
 .card {
   background: #fff;
+  border-radius: 20px;
   padding: 18px;
   margin: 14px 0;
   width: 90%;
@@ -313,13 +400,12 @@ onMounted(() => {
   border-right: none;
 }
 
-/* ========= 分割线美化 ========= */
 .gold-divider {
-  height: 2px;
-  margin: 12px 0 16px;
-  background: linear-gradient(90deg, #fff4a3, #f6c244, #fff4a3);
-  border-radius: 2px;
-  box-shadow: 0 0 4px rgba(246, 194, 68, 0.4);
+  height: 1px;
+  width: 100%;
+  margin: 10px 0 14px;
+  background-color: #ffed84;
+  border-radius: 1px;
 }
 
 .detail {
@@ -599,25 +685,13 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
-
 .card {
   background: #fff;
-  padding: 20px 18px;
+  border-radius: 30px;
+  padding: 16px;
   width: 92%;
   max-width: 520px;
-  border-radius: 20px;
-  /* ✅ 圆角更柔和 */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
-    0 0 10px rgba(255, 215, 0, 0.15);
-  /* ✅ 金色柔光阴影 */
-  margin-top: 30px;
-  transition: all 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2),
-    0 0 12px rgba(255, 215, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* 顶部说明按钮 */
@@ -633,12 +707,10 @@ onMounted(() => {
   cursor: pointer;
   transition: 0.25s;
 }
-
 .tab-btn:hover {
   background: #fff8e1;
-  box-shadow: 0 0 4px rgba(246, 194, 68, 0.5);
+  box-shadow: 0 0 4px rgba(246,194,68,0.5);
 }
-
 .tab-btn.active {
   background: linear-gradient(90deg, #f6c244, #d6a520);
   color: #000;
@@ -671,13 +743,11 @@ onMounted(() => {
 
 /* 激活状态：淡金底 + 金色边框 + 深色文字 */
 .sty-btn button.active {
-  background: #fffbe6;
-  /* 柔和浅金色，而不是浓烈的渐变 */
+  background: #fffbe6;            /* 柔和浅金色，而不是浓烈的渐变 */
   border: 1px solid #f6c244;
-  color: #b8860b;
-  /* 深金色文字 */
+  color: #b8860b;                 /* 深金色文字 */
   font-weight: 600;
-  box-shadow: 0 0 4px rgba(246, 194, 68, 0.3);
+  box-shadow: 0 0 4px rgba(246,194,68,0.3);
 }
 
 
@@ -689,15 +759,13 @@ onMounted(() => {
   border-radius: 2px;
 }
 
-/* ========= 商品列表容器 ========= */
+/* 商品列表 */
 .product-list-wrapper {
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
-  /* ✅ 内部圆角统一柔和 */
+  border-radius: 12px;
   background: #fafafa;
   overflow: hidden;
-  box-shadow: inset 0 0 4px rgba(255, 215, 0, 0.1);
 }
 
 /* 商品滚动区 */
@@ -721,44 +789,28 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* ========= 单个商品卡片 ========= */
 .product {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fffdf5;
-  padding: 12px 14px;
-  border-radius: 16px;
-  /* ✅ 圆角优化 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
-    0 0 6px rgba(255, 215, 0, 0.1);
-  /* ✅ 柔金阴影 */
-  transition: all 0.25s ease;
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
-
-.product:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12),
-    0 0 8px rgba(255, 215, 0, 0.2);
-}
-
-.info {
+.info{
   flex: 1;
   display: flex;
-  margin-top: 15px;
-  gap: 16px;
+ margin-top: 15px;
+  gap: 16px;  
 }
-
-/* ========= 图片样式 ========= */
 .product img {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  /* ✅ 配合整体圆角 */
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   object-fit: cover;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
 }
-
 .product .name {
   flex: 1;
   color: #333;
@@ -766,34 +818,28 @@ onMounted(() => {
   font-weight: 600;
   margin-left: 10px;
 }
-
 .product .price {
   margin-right: 10px;
   color: #d6a520;
   font-weight: bold;
   font-size: 14px;
 }
-
-/* ========= 购买按钮 ========= */
 .product .buy-btn {
-  background: linear-gradient(135deg, #f6c244, #d6a520);
+  background: linear-gradient(90deg, #f6c244, #d6a520);
   color: #000;
   border: none;
-  border-radius: 12px;
-  /* ✅ 与卡片呼应 */
-  padding: 8px 14px;
+  border-radius: 10px;
+  padding: 6px 12px;
   font-size: 13px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 4px rgba(246, 194, 68, 0.3);
+  transition: 0.25s;
 }
-
 .product .buy-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 8px rgba(246, 194, 68, 0.5);
-  background: linear-gradient(135deg, #ffea70, #ffc300);
+  box-shadow: 0 0 6px rgba(246,194,68,0.6);
 }
+
 
 /* 商品池子 */
 .shop-item {
@@ -801,7 +847,7 @@ onMounted(() => {
   border-radius: 12px;
   padding: 12px 16px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -830,22 +876,9 @@ onMounted(() => {
   border-radius: 6px;
   color: #fff;
 }
-
-.status-0 {
-  background: #f6c244;
-}
-
-/* 待成交 - 黄色 */
-.status-1 {
-  background: #4caf50;
-}
-
-/* 已成交 - 绿色 */
-.status-2 {
-  background: #f44336;
-}
-
-/* 已取消 - 红色 */
+.status-0 { background: #f6c244; }  /* 待成交 - 黄色 */
+.status-1 { background: #4caf50; }  /* 已成交 - 绿色 */
+.status-2 { background: #f44336; }  /* 已取消 - 红色 */
 
 .shop-row {
   display: flex;
@@ -860,7 +893,7 @@ onMounted(() => {
 }
 
 .shop {
-
+ 
   background: #fff;
   border-radius: 12px;
   padding: 12px;
@@ -896,95 +929,43 @@ onMounted(() => {
 
 /* 商品列表单独滚动 */
 .shop-list {
-  max-height: 240px;
-  /* 控制滚动高度 */
+  max-height: 240px;   /* 控制滚动高度 */
   overflow-y: auto;
   padding-right: 6px;
 }
 
-/* 2×2 网格：两列等宽，内容居中 */
-.info.grid2x2 {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  /* 两列等宽 */
-  grid-auto-rows: auto;
-  /* 两行高度自适应且一致 */
-  column-gap: 12px;
-  row-gap: 6px;
-  justify-items: center;
-  /* 水平居中每个单元格内容 */
-  align-items: center;
-  /* 垂直居中每个单元格内容 */
-  margin: 0 10px;
-  /* 和图片、按钮保持间距 */
+/* ✅ 优化求购弹窗为上下布局 */
+.dialog-box.sell-box .sell-input.row {
+  flex-direction: column;        /* 改为上下排列 */
+  align-items: flex-start;       /* 左对齐内容 */
+  gap: 8px;                      /* 每组上下间距 */
 }
 
-/* 单元格通用样式 */
-.info.grid2x2 .cell {
+.dialog-box.sell-box .sell-input.row label {
   width: 100%;
-  text-align: center;
-  /* 再加一层保险，居中对齐文字 */
-  font-size: 13px;
-}
-
-/* 细化视觉层级（可选） */
-.info.grid2x2 .name {
+  font-size: 14px;
   color: #333;
-  font-weight: 600;
-}
-
-.info.grid2x2 .price {
-  color: #d6a520;
-  font-weight: 700;
-}
-
-.info.grid2x2 .cycleDays {
-  color: #555;
-}
-
-.info.grid2x2 .yieldRate {
-  color: #4caf50;
-  font-weight: 700;
-}
-
-/* ======== 利率上下分布样式 ======== */
-.yieldRate {
-  display: flex;
-  flex-direction: column;
-  /* ✅ 垂直排列 */
-  align-items: center;
-  /* 居中对齐 */
-  justify-content: center;
-  line-height: 1.2;
-  margin-top: 4px;
-}
-
-/* 上面的小标题“利率” */
-.yieldRate .label {
-  font-size: 12px;
-  color: #999;
   font-weight: 500;
-  margin-bottom: 2px;
 }
 
-/* 下面的数值 */
-.yieldRate .value {
-  font-size: 15px;
-  font-weight: 700;
-  color: #4caf50;
-  /* ✅ 绿色数值（收益感） */
-  text-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+.dialog-box.sell-box .sell-input.row input {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid #ccc;
+  margin: 0;
 }
 
-/* 让整张卡片更好对齐按钮（可选增强） */
-.product {
-  align-items: center;
-  /* 图片/信息/按钮垂直对齐 */
+.dialog-box.sell-box .sell-input.row .unit {
+  align-self: flex-end;
+  font-size: 13px;
+  color: #777;
+  margin-top: -4px;
+  margin-bottom: 6px;
 }
 
-.info.grid2x2 {
-  min-height: 48px;
-  grid-auto-rows: 1fr;
-}
+
 </style>
