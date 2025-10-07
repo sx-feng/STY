@@ -201,6 +201,7 @@ async function refresh() {
   await nextTick()
   await loadStyaiBalance()
   await getUser();
+  await updateGuidePrice();
   ready.value = true
 }
 
@@ -571,6 +572,65 @@ function onPayClose() {
 
 .exchange {
   position: relative;
+}
+
+.exchange-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 整体左对齐 */
+  justify-content: center; /* 垂直居中 */
+  padding: 0 10px;
+}
+
+/* 内部 flash-label + price-tag 区域整体水平排列、垂直居中 */
+.guide-price-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 左对齐 */
+  gap: 6px; /* 标签与价格间距 */
+  width: 100%;
+}
+
+.flash-label {
+  font-weight: 600;
+  color: #000;
+}
+
+.price-tag {
+  color: #e6b422; /* 金色 */
+  font-weight: bold;
+}
+
+
+
+.exchange-header {
+  display: inline-flex; /* inline-flex让容器宽度自适应内容 */
+  flex-direction: column;
+  align-items: flex-start; /* 行内左对齐 */
+  justify-content: center;
+  margin: 0 auto; /* 整体居中 */
+  text-align: left;
+  gap: 6px;
+}
+
+/* 每一行内部内容左对齐 */
+.guide-price-section,
+.balance {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap; /* 防止换行，确保行宽取决于内容长度 */
+}
+
+.flash-label {
+  font-weight: 600;
+  color: #000;
+  margin-right: 6px;
+}
+
+.price-tag {
+  color: #e6b422; /* 金色 */
+  font-weight: bold;
 }
 
 

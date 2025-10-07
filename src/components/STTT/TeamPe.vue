@@ -61,19 +61,23 @@
 <div v-if="share.visible" class="share-mask">
   <div class="share-dialog">
     <h3>🔗 分享信息</h3>
+
     <div class="share-item">
       <span>分享链接:</span>
-      <input v-model="share.link" readonly />
+      <input v-model="share.link" readonly @focus="$event.target.select()" />
       <button @click="copyText(share.link)">复制</button>
     </div>
+
     <div class="share-item">
       <span>邀请码:</span>
-      <input v-model="share.code" readonly />
+      <input v-model="share.code" readonly @focus="$event.target.select()" />
       <button @click="copyText(share.code)">复制</button>
     </div>
+
     <button class="close-btn" @click="share.visible = false">关闭</button>
   </div>
 </div>
+
 
 </template>
 
@@ -101,14 +105,42 @@ function openShareDialog() {
     code
   }
 }
-// ✅ 新增：复制功能
+// ✅ 通用复制方法（多层兼容）
 function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert("复制成功: " + text)
-  }).catch(() => {
-    alert("复制失败")
-  })
+  if (!text) return alert("没有可复制的内容");
+
+  // 方法1：Clipboard API（现代浏览器）
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("✅ 已复制：" + text))
+      .catch(() => fallbackCopy(text));
+  } else {
+    // 方法2：旧版兼容方案
+    fallbackCopy(text);
+  }
 }
+
+// ✅ 旧版或移动端回退方案
+function fallbackCopy(text) {
+  try {
+    const input = document.createElement("input");
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    input.setSelectionRange(0, text.length);
+    const success = document.execCommand("copy");
+    document.body.removeChild(input);
+
+    if (success) {
+      alert("✅ 已复制：" + text);
+    } else {
+      throw new Error("复制失败");
+    }
+  } catch (err) {
+    alert("⚠️ 复制失败，请手动选择内容复制。");
+  }
+}
+
 
 
 const goBack = () => {
@@ -335,6 +367,13 @@ const team = ref({
   color: #fff;
   padding: 4px 8px;
   margin-right: 8px;
+  outline: none;
+  cursor: text; /* ✅ 鼠标显示为文本光标 */
+}
+
+.share-item input:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 5px rgba(255,215,0,0.4);
 }
 
 .share-item button {
