@@ -145,3 +145,8 @@ export const stySell = (data) => request(1, '/api/product/sty/sell', data)
 export const getField = (data) => request(1, '/api/content-config/field', data)
 export const styBuy=(data) => request(1,'/api/product/sty/buy', data)
 export const buyPurchase = (data) => request(1, '/api/product/sty/purchase', data)
+
+// ================== VIP 配置 ==================
+
+export const getVipConfig = (name = 'VIP') => 
+  request(1, `/api/sys/config/user/by-name?name=${encodeURIComponent(name)}`, null)
