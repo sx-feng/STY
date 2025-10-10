@@ -31,7 +31,7 @@
         <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
         <span>{{ item.yieldRate }}</span>
-        <span>{{ item.productCycle}}小时</span>
+        <span>{{ item.productCycle}}天</span>
       </div>
     </div>   
     
