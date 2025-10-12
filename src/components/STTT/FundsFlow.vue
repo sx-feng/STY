@@ -36,8 +36,8 @@
           <span class="ellipsis" @click="showFull(item.coin || item.currency || 'USDT')">
             {{ truncate(item.coin || item.currency || 'USDT') }}
           </span>
-          <span class="ellipsis" @click="showFull(item.fundType || '—')">
-            {{ truncate(item.fundType
+          <span class="ellipsis" @click="showFull(item.remark || '—')">
+            {{ truncate(item.remark
  || '—') }}
           </span>
           <span
@@ -56,9 +56,9 @@
 
         <!-- 底部提示 -->
         <div class="list-footer">
-          <span v-if="loadingMore">加载中…</span>
-          <span v-else-if="finished">没有更多了</span>
-        </div>
+  <span v-if="loadingMore">加载中…</span>
+  <span v-else-if="finished">没有更多了</span>
+</div>
       </template>
 
       <div v-else class="empty">暂无记录</div>
@@ -171,7 +171,7 @@ function onScroll(e) {
 
 onMounted(() => {
   load(true)
-  scrollEl.value?.addEventListener("scroll", onScroll, { passive: true })
+  // scrollEl.value?.addEventListener("scroll", onScroll, { passive: true })
   CallbackCenter.register("fundsUpdate", () => load(true))
 })
 onUnmounted(() => {
@@ -181,11 +181,19 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.table-body {
+  flex:1;
+  max-height: calc(100vh - 240px);
+  overflow-y:auto;
+  padding-right:6px;
+}
+
 .records-page {
   background:#000; min-height:100vh; color:#FFD700;
   padding:25px; margin-top:60px; display:flex; flex-direction:column;
 }
 .nav-bar {
+    position: sticky;
   display:flex; align-items:center; padding:12px;
   background:rgba(25,25,25,.95); border-bottom:1px solid rgba(255,215,0,.3);
   margin-bottom:10px; border-radius:0 0 12px 12px;
@@ -194,7 +202,8 @@ onUnmounted(() => {
 .title{ font-size:18px; font-weight:700; }
 
 /* 筛选 */
-.filter-bar{ display:flex; gap:10px; margin:8px 0 12px; flex-wrap:wrap; }
+.filter-bar{ display:flex;margin-top: 20px;
+    position: sticky;gap:10px; margin:8px 0 12px; flex-wrap:wrap; }
 .filter-btn{
   background:#1b1b1b; color:#ffd700; border:1px solid rgba(255,215,0,.3);
   padding:6px 12px; border-radius:999px; cursor:pointer;
@@ -205,12 +214,14 @@ onUnmounted(() => {
 /* ======= 表格结构保持一致 ======= */
 
 .thead {
+    position: sticky;
   display: grid;
   width: 94%;
   grid-template-columns: 0.4fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr;
   align-items: center;
   text-align: center;
   font-size: 13px;
+  
 
 }
 .row {

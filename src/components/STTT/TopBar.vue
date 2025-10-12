@@ -27,7 +27,7 @@
     <el-menu-item index="StyFinance" :class="{ on: activeIndex === 'StyFinance' }">理财宝</el-menu-item>
         <el-menu-item index="styPool" :class="{ on: activeIndex === 'styPool' }">会员交易</el-menu-item>
     <el-menu-item index="funds-deposit" :class="{ on: activeIndex === 'funds-deposit' }">资金管理</el-menu-item>
-    <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">详情</el-menu-item>
+    <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">公告详情</el-menu-item>
     <el-menu-item index="register" :class="{ on: activeIndex === 'register' }">安全设置</el-menu-item>
     <el-menu-item index="fundsflow" :class="{ on: activeIndex === 'register' }">资金流水</el-menu-item>
   </el-menu>

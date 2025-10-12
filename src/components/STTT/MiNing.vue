@@ -23,18 +23,23 @@
         <!-- 购买 tab -->
         <!-- 商品列表 -->
         <div v-if="currentTab === 'buy'" class="list">
-          <div class="machine-row" v-for="(item, i) in machines" :key="i">
-            <div class="left">
-              <div class="name">{{ item.name || $t('mining.unknown') }}</div>
-              <div class="bottom-info">
-                <span class="price">{{ $t('mining.price', { price: item.price }) }}</span>
-                <span class="time">{{ $t('mining.rentTime') }}：{{ item.days }}</span>
-              </div>
-            </div>
-            <button class="buy-btn" @click="buyMachine(item)">
-              {{ $t('mining.buyBtn') }}
-            </button>
-          </div>
+<div class="machine-row" v-for="(item, i) in machines" :key="i">
+  <!-- 左边 -->
+  <div class="left">
+    <div class="name">{{ item.name || $t('mining.unknown') }}</div>
+    <div class="time">{{ $t('mining.rentTime') }}：{{ item.days }}</div>
+  </div>
+
+  <!-- 右边 -->
+  <div class="right">
+    <div class="price">¥{{ item.price }}</div>
+    <button class="buy-btn" @click="buyMachine(item)">
+      {{ $t('mining.buyBtn') }}
+    </button>
+  </div>
+</div>
+
+
         </div>
 
         <!-- 已购列表 -->
@@ -276,21 +281,6 @@ onMounted(() => {
   color: #fff;
 }
 
-/* 左侧信息块 */
-.left {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-/* 产品名称（靠左上） */
-.name {
-  font-weight: bold;
-  color: #FFD700;
-  font-size: 15px;
-}
 
 /* 下方价格与时长一行显示 */
 .bottom-info {
@@ -326,10 +316,35 @@ onMounted(() => {
   color: #00e676;
   align-self: center;
 }
+
+
+/* 保持已有的 name 样式 */
+.name {
+  font-weight: bold;
+  color: #FFD700;
+  font-size: 15px;
+}
+
+/* 新增 price 样式（如果原来没有） */
 .price {
-    margin-bottom: 12px;
-    font-size: 14px;
-    color: #efc4c4;
+  font-size: 15px;
+  color: #FFD700;
+  font-weight: bold;
+  margin-right: 35%;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 左对齐 */
+  flex: 1; /* 占据剩余空间 */
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* 右对齐 */
+  gap: 6px;
 }
 
 </style>
