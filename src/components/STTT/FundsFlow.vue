@@ -36,8 +36,8 @@
           <span class="ellipsis" @click="showFull(item.coin || item.currency || 'USDT')">
             {{ truncate(item.coin || item.currency || 'USDT') }}
           </span>
-          <span class="ellipsis" @click="showFull(item.fundType || '—')">
-            {{ truncate(item.fundType
+          <span class="ellipsis" @click="showFull(item.remark || '—')">
+            {{ truncate(item.remark
  || '—') }}
           </span>
           <span
