@@ -261,23 +261,34 @@ onMounted(() => {
 
 .sign-head {
   display: flex;
+  flex-wrap: wrap;            /* ✅ 自动换行 */
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;    /* ✅ 改为顶部对齐 */
   margin-bottom: 12px;
+  gap: 6px;                   /* ✅ 行间距 */
 }
 
 .title {
   font-size: 16px;
   font-weight: 600;
   color: #ffd34d;
+  width: 100%;                /* ✅ 让标题单独一行 */
+  text-align: left;
 }
 
 .meta {
+  display: flex;
+  flex-wrap: wrap;            /* ✅ 元信息也能换行 */
+  gap: 6px;
   font-size: 13px;
   color: #bbb;
+  width: 100%;                /* ✅ 占满一行 */
+  justify-content: flex-start;
+  align-items: center;
 }
+
 .meta .dot {
-  margin: 0 8px;
+  margin: 0 6px;
   opacity: .5;
 }
 

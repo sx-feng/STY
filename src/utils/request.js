@@ -1,7 +1,7 @@
 // request.js
 // const baseURL = 'http://110.40.42.207:8088/';
-// const baseURL = 'https://tronApi.steadyai.vip/';
-const baseURL = 'http://192.168.110.101:8065/';
+//const baseURL = 'https://tronApi.steadyai.vip/';
+ const baseURL = 'http://192.168.110.101:8065/';
 
 
 /** 本地存储键位 */
@@ -11,7 +11,7 @@ const LS_KEYS = {
 };
 
 /** 头字段名 */
-const HDR = {
+const HDR = {       
   CONTENT_TYPE: 'Content-Type',
   ACCOUNT_TOKEN: 'Account-token',
   ACCOUNT_SIGN: 'Account-sign',

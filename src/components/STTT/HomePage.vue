@@ -139,13 +139,15 @@ async function loadUserInfo() {
 async function loadRecords(page = 1) {
   try {
     let res = await userMachineRecordList({ current: page, size: size.value })
-    res = res.data
+res=res.data
     console.log('收益明细111111', res)
     if (res.code === 200 && res.data?.records) {
-      records.value = res.data.records.map(item => ({
-        currency: item.currency || 'STYAI',   // 币种
-        profitAmount: item.profitAmount || 0,         // 支入
-        profitTime: item.profitTime || 0        // 支出
+      records.value = res.data.records
+     .filter(item => item.recordType !== '2')  // 过滤掉 recordType 为 2 的
+  .map(item => ({
+        currency: item.currency || 'STYAI',     // 币种
+        profitAmount: item.profitAmount || 0,  // 支入
+        profitTime: item.profitTime || 0       // 支出
       }))
         .slice(0, 3)
     } else {
