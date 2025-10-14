@@ -32,7 +32,7 @@
 
   <!-- 右边 -->
   <div class="right">
-    <div class="price">USDT{{ item.price }}</div>
+    <div class="price">¥{{ item.price }}</div>
     <button class="buy-btn" @click="buyMachine(item)">
       {{ $t('mining.buyBtn') }}
     </button>

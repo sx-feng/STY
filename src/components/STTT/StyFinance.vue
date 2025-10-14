@@ -67,7 +67,7 @@
           <!-- 3) 价格/购买列：上下两块，均水平/垂直居中、紧凑 -->
           <div class="col-cta">
             <div class="price">{{ item.price }} USDT</div>
-            <button class="buy-btn" @click="buyProductItem(item.id, 'dynamic')">购买</button>
+            <button class="buy-btn" @click="buyProductItem(item.id, 'static')">购买</button>
           </div>
 
 
