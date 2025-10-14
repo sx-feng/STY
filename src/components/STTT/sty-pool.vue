@@ -142,8 +142,8 @@ async function getShopList() {
 
 function filterShopList() {
   shopList.value = allOrders.value.filter(item => {
-    if (activePool.value === 'buy') return item.orderType === 1
-    if (activePool.value === 'sell') return item.orderType === 2
+    if (activePool.value === 'buy') return item.orderType === 2
+    if (activePool.value === 'sell') return item.orderType === 1
   })
 }
 
@@ -194,7 +194,8 @@ async function confirmPurchase() {
 // 买入/卖出订单
 function buyItem(item) {
   if (!item.id) return alert('缺少订单ID')
-  if (item.orderType === 2) {
+  console.log("买入/卖出订1111:"+item)
+  if (item.orderType === 1) {
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
       sellAmount.value = item.styAmount
       startPay(item.id, styBuy)
