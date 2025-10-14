@@ -40,7 +40,10 @@
                   <span class="flash-label">{{ $t('exchange.flash') }}：{{ styGuidePrice }}USDT</span>
                   
                 </div>
-                <div class="balance">{{ $t('exchange.balance') }}：{{ styaiBalance }}</div>
+               <div class="balance">
+  {{ $t('exchange.balance') }}：{{ Number(styaiBalance).toFixed(2) }}
+</div>
+
               </div>
               <div class="exchange-box">
                 <div class="input-row">

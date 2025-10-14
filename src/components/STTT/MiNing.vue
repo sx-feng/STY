@@ -28,11 +28,12 @@
   <div class="left">
     <div class="name">{{ item.name || $t('mining.unknown') }}</div>
     <div class="time">{{ $t('mining.rentTime') }}：{{ item.days }}</div>
+    <div class="day">{{ item.number }} sty/天</div>
   </div>
 
   <!-- 右边 -->
   <div class="right">
-    <div class="price">¥{{ item.price }}</div>
+    <div class="price">{{ item.price }} USDT</div>
     <button class="buy-btn" @click="buyMachine(item)">
       {{ $t('mining.buyBtn') }}
     </button>
@@ -151,11 +152,12 @@ const loadMachines = async () => {
         }
 
         return {
-          id: item.id,
-          name: item.name || "未知矿机",
-          days, // 已经拼接好
-          price: item.price ?? 0,
-          yieldRate: item.yieldRate
+           id: item.id,
+    name: item.name || "未知矿机",
+    days, // 租期
+    price: (Number(item.price) || 0).toFixed(2),
+    yieldRate: item.yieldRate,
+    number: (Number(item.number) || 0) 
         }
       })
     } else {
@@ -330,9 +332,9 @@ onMounted(() => {
   font-size: 15px;
   color: #FFD700;
   font-weight: bold;
-  margin-right: 35%;
+  margin: 0; /* ❌ 删掉原来的 margin-right */
+  text-align: right;
 }
-
 .left {
   display: flex;
   flex-direction: column;
