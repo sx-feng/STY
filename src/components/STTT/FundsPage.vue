@@ -87,6 +87,7 @@ import Notify from '@/utils/notifyInApp'
 // 基础状态
 import { ElLoading } from 'element-plus'
 import CallbackCenter from "@/utils/callbackCenter"
+
 const mode = ref('deposit')
 const listType = ref('recharge')
 const amount = ref('') // 输入框金额
@@ -108,41 +109,51 @@ onMounted(async () => {
 
 // 币种（也可以做成下拉切换）
 const wantedToken = ref('USDT')
+
 async function startWithdraw() {
-  // 打开 loading 遮罩
-  const loading = ElLoading.service({
-    lock: true,
-    text: '正在提交提现请求...',
-    background: 'rgba(0, 0, 0, 0.5)'
-  })
+  // 🔒 先触发全局二级密码验证
+  return CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+    // 打开 loading 遮罩
+    const loading = ElLoading.service({
+      lock: true,
+      text: '正在提交提现请求...',
+      background: 'rgba(0, 0, 0, 0.5)'
+    })
 
-  try {
-    let re = await Withdraw({ amount: amount.value });
-
-    if (re?.data?.code == 200 && re?.data?.data?.status == 5) {
-      Notify.inApp({
-        title: '成功',
-        message: '提现成功 请注意查收',
-        type: 'success'
+    try {
+      // ✅ 带上加密二级密码提交
+      const re = await Withdraw({
+        amount: amount.value,
+        twoPassword: pwdMd5
       })
-    } else {
+      console.log(re, '提现结果')
+
+      if (re?.data?.code == 200 && re?.data?.data?.status == 5) {
+        Notify.inApp({
+          title: '成功',
+          message: '提现成功，请注意查收',
+          type: 'success'
+        })
+        amount.value = ''
+      } else {
+        Notify.inApp({
+          title: '失败',
+          message: re?.data?.data?.message || re?.data?.message || '提现失败，请稍后重试',
+          type: 'error'
+        })
+      }
+    } catch (err) {
       Notify.inApp({
-        title: '失败',
-        message: re?.data?.data?.message || re?.data?.message || "提现异常 可能是网络问题",
+        title: '错误',
+        message: err.message || '系统错误，请稍后重试',
         type: 'error'
       })
+    } finally {
+      loading.close()
     }
-  } catch (err) {
-    Notify.inApp({
-      title: '错误',
-      message: err.message || "系统错误，请稍后重试",
-      type: 'error'
-    })
-  } finally {
-    // 关闭 loading 遮罩
-    loading.close()
-  }
+  })
 }
+
 // 触发支付
 async function startPay(){
   if (!ready.value || !payRef.value) {
