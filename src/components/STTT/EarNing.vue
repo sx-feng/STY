@@ -49,7 +49,7 @@ async function loadDetail(page = 1) {
     if (res.code === 200 && res.data?.records) {
       list.value = res.data.records.map((item) => ({
         coin: item.currency || 'STYAI',       
-        type:'挖矿收益', 
+       type:item.remark || "矿机收益",
         amount: Number(item.profitAmount || 0), 
         time: item.profitTime || '-'       
       }))

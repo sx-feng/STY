@@ -36,13 +36,16 @@
           <div class="card-body">
             <div class="exchange">
               <div class="exchange-header">
-                {{ $t('exchange.flash') }}：
+                <div class="guide-price-section">
+                  <span class="flash-label">{{ $t('exchange.flash') }}：{{ styGuidePrice }}USDT</span>
+                  
+                </div>
                 <div class="balance">{{ $t('exchange.balance') }}：{{ styaiBalance }}</div>
               </div>
               <div class="exchange-box">
                 <div class="input-row">
-                  <input type="number" :placeholder="$t('exchange.inputPlaceholder')" class="input-text" 
-                  v-model.trim="amount"/>
+                  <input type="number" :placeholder="$t('exchange.inputPlaceholder')" class="input-text"
+                    v-model.trim="amount" />
                   <button class="btn-all">{{ $t('exchange.all') }}</button>
                 </div>
                 <button class="btn-confirm" @click="startPay">{{ $t('exchange.confirm') }}</button>
@@ -63,43 +66,34 @@
 
         </div>
         <!-- 只显示前三条数据 -->
-         <div v-if="records.length > 0" >
-        <div v-for="(rec, i) in records" :key="i" class="row" >
-          <span>{{ rec.currency }}</span>
-          <span>{{ rec.profitAmount }}</span>
-          <span>{{ rec.profitTime }}</span>
-        </div>
+        <div v-if="records.length > 0">
+          <div v-for="(rec, i) in records" :key="i" class="row">
+            <span>{{ rec.currency }}</span>
+            <span>{{ rec.profitAmount }}</span>
+            <span>{{ rec.profitTime }}</span>
+          </div>
         </div>
         <div v-else class="row no-data">
-         <span style="grid-column: 1 / span 3; text-align: center;">暂无收益记录</span>
+          <span style="grid-column: 1 / span 3; text-align: center;">暂无收益记录</span>
         </div>
       </div>
     </div>
   </el-config-provider>
-      <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
-    <PaymentWidget
-      ref="payRef"
-      :show-balance="true"
-      :show-list="true"
-      :show-builtin-input="false"
-      :WalletTP="WalletTP"
-      :RequestOrder="Exchange"
-      :SubmitOrder="SubmitOrder"
-      @done="onPayDone"
-      @close="onPayClose"
-    />
+  <!-- 作为“弹窗+状态机”使用：隐藏其内置输入 -->
+  <PaymentWidget ref="payRef" :show-balance="true" :show-list="true" :show-builtin-input="false" :WalletTP="WalletTP"
+    :RequestOrder="Exchange" :SubmitOrder="SubmitOrder" @done="onPayDone" @close="onPayClose" />
 </template>
 <script setup>
-import { ref, computed, onMounted ,nextTick ,onUnmounted} from 'vue'
+import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import enUS from 'element-plus/dist/locale/en.mjs'
 import { inject } from 'vue'
 import { useRouter } from 'vue-router'
-import {  userGet,userMachineRecordList } from "@/utils/api"
+import { userGet, userMachineRecordList ,getSTYAIPrice} from "@/utils/api"
 
 import WalletTP from '@/utils/walletTP.js'
-import { Exchange, SubmitOrder ,teamMembersAll} from '@/utils/api.js'
+import { Exchange, SubmitOrder, teamMembersAll } from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import CallbackCenter from '@/utils/callbackCenter.js'
 
@@ -127,14 +121,14 @@ async function loadUserInfo() {
     console.log("userGet 返回:", res)
 
     // 注意：你的返回格式是 { ok: true, data: { code: 200, data: {...} } }
-if (res.data.code === 200) {
-  const data = res.data.data
-userTeamKjYesterdayIncome.value = Number(data.userAllReward || 0).toFixed(2)
-userSumIncomeKj.value            = Number(data.userSumIncomeKj || 0).toFixed(2)
-userKjYesterdayIncome.value      = Number(data.userKjYesterdayIncome || 0).toFixed(2)
-yesterdayReward.value            = Number(data.userYesterdayReward || 0).toFixed(2)
+    if (res.data.code === 200) {
+      const data = res.data.data
+      userTeamKjYesterdayIncome.value = Number(data.userAllReward || 0).toFixed(2)
+      userSumIncomeKj.value = Number(data.userSumIncomeKj || 0).toFixed(2)
+      userKjYesterdayIncome.value = Number(data.userKjYesterdayIncome || 0).toFixed(2)
+      yesterdayReward.value = Number(data.userYesterdayReward || 0).toFixed(2)
 
-}
+    }
 
   } catch (err) {
     console.error("加载用户信息失败:", err)
@@ -145,7 +139,7 @@ yesterdayReward.value            = Number(data.userYesterdayReward || 0).toFixed
 async function loadRecords(page = 1) {
   try {
     let res = await userMachineRecordList({ current: page, size: size.value })
-    res=res.data
+    res = res.data
     console.log('收益明细111111', res)
     if (res.code === 200 && res.data?.records) {
       records.value = res.data.records.map(item => ({
@@ -159,6 +153,16 @@ async function loadRecords(page = 1) {
     }
   } catch (err) {
     console.error("加载失败", err)
+  }
+}
+
+////////////===========================
+// 指导价数据
+const styGuidePrice = ref(0.1)
+async function updateGuidePrice (){
+  let res= await getSTYAIPrice();
+  if(res?.data?.data?.price){
+  styGuidePrice.value = res.data.data.price
   }
 }
 
@@ -185,19 +189,40 @@ onMounted(() => {
   CallbackCenter.register('financeUpdate', (info) => {
     console.log("Finance 页面收到登录成功回调", info)
     // 在这里执行余额刷新逻辑
-       refresh()
+    refresh()
   });
   refresh();//封装刷新的方法
 })
 /////////////////
 
-async function refresh(){
-      loadRecords()
-    loadUserInfo() 
+async function refresh() {
+  loadRecords()
+  loadUserInfo()
   await nextTick()
   await loadStyaiBalance()
+  await getUser();
+  await updateGuidePrice();
   ready.value = true
 }
+
+async function getUser() {
+  try {
+    const res = await userGet({})
+    console.log("用户信息:", res)
+
+    if (res && res.data.code === 200 && res.data.data) {
+      const code = res.data.data.invitationCodeId
+      if (code) {
+        localStorage.setItem("invitation_code", code)
+        console.log("邀请码已保存:", code)
+      }
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("获取用户信息失败:", err)
+  }
+}
+
 
 onUnmounted(() => {
   CallbackCenter.unregister('financeUpdate')
@@ -225,7 +250,7 @@ async function loadStyaiBalance() {
 const wantedToken = ref('STYAI')
 
 // 触发支付
-async function startPay(){
+async function startPay() {
   if (!ready.value || !payRef.value) {
     console.warn('PaymentWidget 未挂载完成')
     return
@@ -241,7 +266,8 @@ async function startPay(){
     WalletTP,
     RequestOrder: Exchange,
     SubmitOrder,
-    checkTrxEarly: false
+    checkTrxEarly: false,
+    OrdrId: 0
   })
   console.log('支付结果', res)
 
@@ -251,11 +277,11 @@ async function startPay(){
   }
 }
 
-function onPayDone(res){
+function onPayDone(res) {
   console.log('done', res)
   // 可在这里统一刷新数据
 }
-function onPayClose(){
+function onPayClose() {
   console.log('close')
 }
 
@@ -547,4 +573,68 @@ function onPayClose(){
 .exchange {
   position: relative;
 }
+
+.exchange-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 整体左对齐 */
+  justify-content: center; /* 垂直居中 */
+  padding: 0 10px;
+}
+
+/* 内部 flash-label + price-tag 区域整体水平排列、垂直居中 */
+.guide-price-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 左对齐 */
+  gap: 6px; /* 标签与价格间距 */
+  width: 100%;
+}
+
+.flash-label {
+  font-weight: 600;
+  color: #000;
+}
+
+.price-tag {
+  color: #e6b422; /* 金色 */
+  font-weight: bold;
+}
+
+
+
+.exchange-header {
+  display: inline-flex; /* inline-flex让容器宽度自适应内容 */
+  flex-direction: column;
+  align-items: flex-start; /* 行内左对齐 */
+  justify-content: center;
+  margin: 0 auto; /* 整体居中 */
+  text-align: left;
+  gap: 6px;
+}
+
+/* 每一行内部内容左对齐 */
+.guide-price-section,
+.balance {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap; /* 防止换行，确保行宽取决于内容长度 */
+  font-weight: 600;
+  color: #000;
+}
+
+.flash-label {
+  font-weight: 600;
+  color: #000;
+  margin-right: 6px;
+}
+
+.price-tag {
+  color: #e6b422; /* 金色 */
+  font-weight: bold;
+}
+
+
+
 </style>

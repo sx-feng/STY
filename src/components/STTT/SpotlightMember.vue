@@ -13,29 +13,40 @@
     </div>
 
     <div class="sign">
-      <SignCanLen/>
+      <div class="biao"> <SignCanLen/></div>
+     
     </div>
 
     <!-- 购买会员弹窗 -->
-    <el-dialog
-      v-model="showDialog"
-      :title="$t('light.memberBuy')"
-      width="400px"
-      align-center
-      class="custom-dialog"
-    >
-      <div class="dialog-content">
-        <p class="desc">{{ $t('dialog.buyMember.desc') }}</p>
-        <div class="btn-group">
-          <el-button type="warning" @click="buyMember">
-            {{ $t('dialog.buyMember.confirm') }}
-          </el-button>
-          <el-button @click="showDialog = false">
-            {{ $t('dialog.buyMember.cancel') }}
-          </el-button>
-        </div>
+      <el-dialog
+    v-model="showDialog"
+    :title="$t('light.memberBuy')"
+    width="400px"
+    align-center
+    class="custom-dialog"
+  >
+    <div class="dialog-content">
+      <!-- 描述 -->
+      <p class="desc">{{ $t('dialog.buyMember.desc') }}</p>
+
+      <!-- VIP价格显示 -->
+      <p class="vip-price" v-if="vipPrice !== null">
+        💎 当前 VIP 价格：
+        <span class="price">{{ vipPrice }} USDT</span>
+      </p>
+      <p class="vip-price" v-else>正在获取价格...</p>
+
+      <!-- 按钮 -->
+      <div class="btn-group">
+        <el-button type="warning" @click="buyMember">
+          {{ $t('dialog.buyMember.confirm') }}
+        </el-button>
+        <el-button @click="showDialog = false">
+          {{ $t('dialog.buyMember.cancel') }}
+        </el-button>
       </div>
-    </el-dialog>
+    </div>
+  </el-dialog>
 
     <!-- 光效 -->
     <div class="light-effect"></div>
@@ -43,18 +54,18 @@
 </template>
 
 <script setup>
-import { ref ,onMounted,onBeforeUnmount} from "vue"
+import { ref ,onMounted,onBeforeUnmount,watch} from "vue"
 import SignCanLen from './SignCanLen.vue'
 import { useRouter } from "vue-router"
 import { ElMessage } from 'element-plus'
 import CallbackCenter from '@/utils/callbackCenter'
 // 引入接口
-import { productVip, vipUserStatus } from "@/utils/api"
+import { productVip, vipUserStatus,getVipConfig } from "@/utils/api"
 
 const vipStatus = ref(false)   // 是否是 VIP
 const showDialog = ref(false)
 const router = useRouter()
-
+const vipPrice = ref(null)
 // 购买会员
 // 购买会员
 async function buyMember() {
@@ -121,6 +132,23 @@ onMounted(async () => {
     checkVip()
   })
 })
+// 监听弹窗打开时加载价格
+watch(showDialog, async (val) => {
+  if (val) {
+    try {
+      const res = await getVipConfig('VIP')
+      console.log(res.data.data.configValue,"ppppppppppppppp")
+      if (res.data.code === 200 && res.data.data?.configValue?.VIP_PRICE != null) {
+        vipPrice.value = res.data.data.configValue.VIP_PRICE
+      } else {
+        vipPrice.value = '加载失败'
+      }
+    } catch (e) {
+      console.error('获取VIP配置失败：', e)
+      vipPrice.value = '加载失败'
+    }
+  }
+})
 
 onBeforeUnmount(() => {
   CallbackCenter.unregister('vipUpdate')
@@ -138,7 +166,7 @@ onBeforeUnmount(() => {
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 20px;
+  margin-top: 50px;
  
 }
 
@@ -150,7 +178,7 @@ onBeforeUnmount(() => {
   width: 80%;                    
   margin-top: 40px;
   z-index: 2;
-  margin-right: 10%;
+
 }
 
 .top-btn {
@@ -193,17 +221,18 @@ onBeforeUnmount(() => {
 .sign {
   border: 1px solid #fff;   
   border-radius: 8px;       
-  padding: 20px;            
+       width: 90%;     
   margin-top: 20px;      
     padding-bottom: 20px;  
-  width: 86%;               
-  margin-right: 10%;
   height: 55%;
   color: #fff;         
   z-index: 22;     
 }
 
-
+.biao{
+  width: 90%;
+  padding: 3%;
+}
 
 /* 弹窗样式黑金化 */
 :deep(.custom-dialog .el-dialog__header) {

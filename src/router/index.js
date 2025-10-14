@@ -23,6 +23,7 @@ import FundsFlow  from '@/components/STTT/FundsFlow.vue'
 import TwoPasswordDialog from '@/components/Text/TwoPasswordDialog.vue'
 import FinanceIntro from '@/components/Text/FinanceIntro.vue'
 import VipIncome from '@/components/STTT/VipIncome.vue'
+import styPool from '@/components/STTT/sty-pool.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -150,6 +151,7 @@ const router = createRouter({
         meta: { hideTopBar: true }
         
        },
+        { path: '/styPool',name:'styPool',component:styPool },
         {
         path:'/vip',
         name:'VipIncome',

@@ -25,8 +25,9 @@
     <el-menu-item index="HomePage" :class="{ on: activeIndex === 'HomePage' }">首页</el-menu-item>
     <el-menu-item index="SpotlightMember" :class="{ on: activeIndex === 'SpotlightMember' }">会员与签到</el-menu-item>
     <el-menu-item index="StyFinance" :class="{ on: activeIndex === 'StyFinance' }">理财宝</el-menu-item>
+        <el-menu-item index="styPool" :class="{ on: activeIndex === 'styPool' }">会员交易</el-menu-item>
     <el-menu-item index="funds-deposit" :class="{ on: activeIndex === 'funds-deposit' }">资金管理</el-menu-item>
-    <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">详情</el-menu-item>
+    <el-menu-item index="introPage" :class="{ on: activeIndex === 'introPage' }">公告详情</el-menu-item>
     <el-menu-item index="register" :class="{ on: activeIndex === 'register' }">安全设置</el-menu-item>
     <el-menu-item index="fundsflow" :class="{ on: activeIndex === 'register' }">资金流水</el-menu-item>
   </el-menu>
@@ -54,14 +55,11 @@
     <el-button type="primary" @click="doRegister">确认注册</el-button>
   </template>
 </el-dialog>
-
-
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed , watch} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
@@ -98,10 +96,7 @@ const btnText = computed(() => {
   return t('btn.connect', '连接')
 })
 
-// 初始化时读取
-if (localStorage.getItem("isConnected") === "1") {
-  isConnected.value = true
-}
+
 
 function handleLoginSuccess(token) {
   isConnected.value = true
@@ -202,6 +197,14 @@ provide('styaiBalance', styaiBalance)
 function handleSelect(key) {
   console.log('选中菜单：', key)
   drawerOpen.value = false   
+      // 如果没有连接钱包，限制只能停留在首页
+  if (!isConnected.value) {
+    if (key !== 'HomePage') {
+      Notify.inApp({ title: '提示', message: '请先连接钱包', type: 'warning' })
+      drawerOpen.value = false
+      return
+    }
+  }
   switch (key) {
     case 'HomePage':
       router.push('/')
@@ -222,24 +225,33 @@ function handleSelect(key) {
           case 'register':
       router.push('/register')
       break
+            case 'styPool':
+      router.push({ path: '/styPool'})
+      break
       case 'fundsflow':
   router.push('/flows')
   break
     
   }
 }
-const activeIndex = computed(() => {
-  if (route.path.startsWith('/finance')) return 'StyFinance'
-  if (route.path.startsWith('/info')) return 'introPage'
-  if (route.path.startsWith('/funds')) {
-    if (route.query.tab === 'deposit') return 'funds-deposit'
-    if (route.query.tab === 'withdraw') return 'funds-withdraw'
-    return 'FundsPage'
+const activeIndex = ref('HomePage')
+
+// 每当路由变化时更新 activeIndex
+watch(() => route.fullPath, () => {
+  if (route.path.startsWith('/finance')) activeIndex.value = 'StyFinance'
+  else if (route.path.startsWith('/info')) activeIndex.value = 'introPage'
+  else if (route.path.startsWith('/funds')) {
+    if (route.query.tab === 'deposit') activeIndex.value = 'funds-deposit'
+    else if (route.query.tab === 'withdraw') activeIndex.value = 'funds-withdraw'
+    else activeIndex.value = 'FundsPage'
   }
-  if (route.path.startsWith('/spot')) return 'SpotlightMember'
-  if (route.path.startsWith('/change')) return 'changePass' 
-  return 'HomePage' // 默认首页
-})
+  else if (route.path.startsWith('/spot')) activeIndex.value = 'SpotlightMember'
+  else if (route.path.startsWith('/change')) activeIndex.value = 'changePass'
+  else if (route.path.startsWith('/styPool')) activeIndex.value = 'styPool'
+  else if (route.path.startsWith('/flows')) activeIndex.value = 'fundsflow'
+  else activeIndex.value = 'HomePage'
+}, { immediate: true })
+
 
 onMounted(() => {
  const token = localStorage.getItem("token")
@@ -288,27 +300,53 @@ onMounted(() => {
   margin-right: 20px;
 }
 
+
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
   justify-content: center;
+  gap: 6px;
   padding: 8px 14px;
   background: #919090;
   border: none;
- min-width: 120px;
+  min-width: 120px;
   border-radius: 20px;
   color: white;
-  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap; /* ✅ 禁止换行 */
+  overflow: hidden; /* ✅ 隐藏溢出 */
+  text-overflow: ellipsis; /* ✅ 超出部分显示省略号 */
 }
 
+/* 🔹 文本部分自适应字体大小 */
+.action-btn span:last-child {
+  display: inline-block;
+  max-width: 100%;
+  font-size: clamp(12px, 2.6vw, 14px); /* ✅ 字体自动缩放：在12~14px间变化 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 🔹 图标部分固定宽度，防止撑开按钮 */
 .action-btn .icon {
+  flex-shrink: 0;
   border: 1px solid gold;
   border-radius: 6px;
   padding: 2px 6px;
   font-size: 14px;
   color: gold;
+  min-width: 22px; /* ✅ 防止缩小时文字挤压图标 */
+  text-align: center;
 }
+
+/* 🔹 按钮 hover 效果 */
+.action-btn:hover {
+  background: #777;
+  transform: translateY(-2px);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
 </style>

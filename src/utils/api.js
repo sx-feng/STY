@@ -8,6 +8,7 @@ export const userRegister  = (data) => request(1, '/api/user/register', data)
 export const userDelete    = (data) => request(1, '/api/user/delete', data)
 export const userUpdate    = (data) => request(1, '/api/user/update', data)
 export const userGet = (data) => request(1, '/api/user/get', data)
+export const getSTYAIPrice = (data) => request(1, '/api/sty-exchange/price', null)
 
 export const userList      = (data) => request(1, '/api/user/list', data)
 export const userUpdatePassword = (data) => request(1, '/api/user/update/paswad', data)
@@ -118,7 +119,9 @@ export const vipUserStatus = (data) => request(1, '/api/vip/user', data)   // �
 // ================== 平台流水 ==================
 export const userPlatformFlowSelect = (type, data) => request(1, `/api/UserPlatformFlow/select/${type}`, data)
 export const userCompany =  (data) => request(1, '/api/content-config/get', data)
-export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type', data)
+export const styOrdersByType = (data) => request(1, '/api/sty-exchange/my-orders/by-type/'+data.type, null)
+export const styOrdersBystatus = (data) => request(1, '/api/sty-exchange/my-orders/by-status/'+data.type, null)
+export const styOrdersDelete = (data) => request(1, '/api/sty-exchange/delete', null)
 // ================== 平台余额 ==================
 export const userPlatformBalance = (data) =>request(1, '/api/UserPlatformFlow/select/by-user/balance', data)
     
@@ -142,3 +145,8 @@ export const stySell = (data) => request(1, '/api/product/sty/sell', data)
 export const getField = (data) => request(1, '/api/content-config/field', data)
 export const styBuy=(data) => request(1,'/api/product/sty/buy', data)
 export const buyPurchase = (data) => request(1, '/api/product/sty/purchase', data)
+
+// ================== VIP 配置 ==================
+
+export const getVipConfig = (name = 'VIP') => 
+  request(1, `/api/sys/config/user/by-name?name=${encodeURIComponent(name)}`, null)

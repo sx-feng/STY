@@ -21,32 +21,41 @@
       <!-- tab 内容 -->
       <div class="tab-content">
         <!-- 购买 tab -->
+        <!-- 商品列表 -->
         <div v-if="currentTab === 'buy'" class="list">
-          <div class="machine-row" v-for="(item, i) in machines" :key="i">
-            <div class="info">
-              <div class="name">{{ item.name || $t('mining.unknown') }}</div>
-              <div class="time">{{ $t('mining.rentTime') }}：{{ item.days }}</div>
-              <div class="price">{{ $t('mining.price', { price: item.price }) }}</div>
+<div class="machine-row" v-for="(item, i) in machines" :key="i">
+  <!-- 左边 -->
+  <div class="left">
+    <div class="name">{{ item.name || $t('mining.unknown') }}</div>
+    <div class="time">{{ $t('mining.rentTime') }}：{{ item.days }}</div>
+  </div>
+
+  <!-- 右边 -->
+  <div class="right">
+    <div class="price">{{ item.price }}USDT</div>
+    <button class="buy-btn" @click="buyMachine(item)">
+      {{ $t('mining.buyBtn') }}
+    </button>
+  </div>
+</div>
+
+
+        </div>
+
+        <!-- 已购列表 -->
+        <div v-else-if="currentTab === 'owned'" class="list">
+          <div class="machine-row" v-for="(item, i) in ownedMachines" :key="i">
+            <div class="left">
+              <div class="name">{{ item.name }}</div>
+              <div class="bottom-info">
+                <span class="price">投入：{{ item.amount }}</span>
+                <span class="time">创建：{{ item.createTime }}</span>
+              </div>
             </div>
-            <button class="buy-btn" @click="buyMachine(item)">{{ $t('mining.buyBtn') }}</button>
+            <span class="status">{{ $t(item.status) }}</span>
           </div>
         </div>
 
-        <!-- 已购 tab -->
-        <div v-else-if="currentTab === 'owned'" class="list">
-        <div class="machine-row" v-for="(item, i) in ownedMachines" :key="i">
-<div class="info">
-  <div class="name">{{ item.name }}</div>
- <div class="time">
-  投入: {{ item.amount }} ｜ 创建时间: {{ item.createTime }}
-</div>
-</div>
-<span class="status">{{ $t(item.status) }}</span>
-
-
-</div>
-
-        </div>
       </div>
     </div>
   </div>
@@ -107,12 +116,12 @@ const loadOwnedMachines = async () => {
 
     if (res.data.code === 200) {
       ownedMachines.value = (res.data.data || []).map(item => ({
-         name: item.machineName || "未知矿机",
-          remaining: item.remaining ?? "-", 
+        name: item.machineName || "未知矿机",
+        remaining: item.remaining ?? "-",
         // ✅ 这里安全取值
-          status: statusTextMap[item.status] ?? "未知状态",
-          amount:item.amount,
-          createTime:item.createTime
+        status: statusTextMap[item.status] ?? "未知状态",
+        amount: item.amount,
+        createTime: item.createTime
       }))
     } else if (res.data.code === 400) {
       ownedMachines.value = []
@@ -272,26 +281,27 @@ onMounted(() => {
   color: #fff;
 }
 
-.info .name {
-  font-weight: bold;
-  color: #FFD700;
-}
 
-.info .time {
+/* 下方价格与时长一行显示 */
+.bottom-info {
+  display: flex;
+  gap: 12px;
   font-size: 13px;
   color: #ccc;
 }
 
+/* 购买按钮靠右垂直居中 */
 .buy-btn {
   background: linear-gradient(135deg, #FFD700, #FFB700);
   border: none;
-  padding: 6px 14px;
+  padding: 8px 18px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: bold;
   color: #000;
   cursor: pointer;
   transition: 0.3s;
+  align-self: center;
 }
 
 .buy-btn:hover {
@@ -299,10 +309,42 @@ onMounted(() => {
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
 }
 
+/* 状态样式（右对齐居中） */
 .status {
   font-size: 14px;
   font-weight: bold;
   color: #00e676;
-  /* 绿色表示使用中 */
+  align-self: center;
 }
+
+
+/* 保持已有的 name 样式 */
+.name {
+  font-weight: bold;
+  color: #FFD700;
+  font-size: 15px;
+}
+
+/* 新增 price 样式（如果原来没有） */
+.price {
+  font-size: 15px;
+  color: #FFD700;
+  font-weight: bold;
+  margin-right: 35%;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 左对齐 */
+  flex: 1; /* 占据剩余空间 */
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* 右对齐 */
+  gap: 6px;
+}
+
 </style>

@@ -18,7 +18,7 @@
     "totalIncome": "累计收益"
   },
   "exchange": {
-    "flash": "闪兑",
+    "flash": "闪兑价格",
     "balance": "账户余额",
     "all": "全部",
     "confirm": "确定闪兑",
@@ -87,8 +87,8 @@
     "static": "静态理财",
     "currentRate": "当前收益率",
     "detail": "查看详情 >>",
-    "buy": "求购STY",
-    "sell": "出售STY",
+    "buy": "挂单求购STY",
+    "sell": "挂单出售STY",
     "buyRecord": "求购STY记录",
     "sellRecord": "出售STY记录",
     "period1": "3天周期",
