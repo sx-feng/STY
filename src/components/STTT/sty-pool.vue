@@ -53,6 +53,12 @@
           <input type="number" v-model="sellAmount" />
           <span class="unit">STY</span>
         </div>
+         <div class="fee-info" v-if="Number(sellAmount)>0">
+  💰 手续费：
+  <span class="fee-amount">{{ sellFee.toFixed(2) }}</span>
+  <span class="fee-rate">（{{ (sellFeeRate * 100).toFixed(2) }}%）</span>
+</div>
+
         <div class="dialog-actions">
           <button @click="confirmSell" class="sell-confirm">确认出售</button>
           <button @click="showSellDialog=false" class="sell-cancel">取消</button>
@@ -75,6 +81,11 @@
           <input type="number" v-model="purchaseAmount" />
           <span class="unit">STY</span>
         </div>
+        <div class="fee-info" v-if="Number(purchaseAmount) > 0">
+  💰 手续费：
+  <span class="fee-amount">{{ buyFee.toFixed(2) }}</span>
+  <span class="fee-rate">（{{ (buyFeeRate * 100).toFixed(2) }}%）</span>
+</div>
         <div class="dialog-actions">
           <button @click="confirmPurchase" class="sell-confirm">确认求购</button>
           <button @click="showPurchaseDialog=false" class="sell-cancel">取消</button>
@@ -108,7 +119,13 @@ import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder,g
 import CallbackCenter from "@/utils/callbackCenter"
 import WalletTP from '@/utils/walletTP.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
-
+import { useFee } from '@/composable/useFee'
+// 出售手续费：基于 sellAmount
+const sellAmount = ref(0)
+const { feeRate: sellFeeRate, fee: sellFee } = useFee(sellAmount)
+// 求购手续费：基于 purchaseAmount
+const purchaseAmount = ref(0)
+const { feeRate: buyFeeRate, fee: buyFee } = useFee(purchaseAmount)
 // === 核心交易池状态 ===
 const shopList = ref([])
 const allOrders = ref([])
@@ -116,13 +133,13 @@ const activePool = ref('buy')
 
 // === 出售相关 ===
 const showSellDialog = ref(false)
-const sellAmount = ref(0)
+
 const sellPrice = ref(1.2)
 const minSellPrice = ref(1.2)
 
 // === 求购相关 ===
 const showPurchaseDialog = ref(false)
-const purchaseAmount = ref(0)
+
 const purchasePrice = ref(1.2)
 const minPrice = ref(1.2)
 
@@ -560,6 +577,15 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+.fee-info .fee-amount {
+  color: #d4a017;
+  font-weight: 600;
+}
+
+.fee-info .fee-rate {
+  color: #888;
+  font-size: 12px;
 }
 
 

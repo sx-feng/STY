@@ -52,6 +52,12 @@
                   <button class="btn-all">{{ $t('exchange.all') }}</button>
                 </div>
                 <button class="btn-confirm" @click="startPay">{{ $t('exchange.confirm') }}</button>
+                <div class="fee-info" v-if="Number(amount) > 0">
+  💰 手续费：
+  <span class="fee-amount">{{ fee.toFixed(2) }}</span>
+  <span class="fee-rate">（{{ (feeRate * 100).toFixed(2) }}%）</span>
+</div>
+
               </div>
             </div>
           </div>
@@ -99,11 +105,13 @@ import WalletTP from '@/utils/walletTP.js'
 import { Exchange, SubmitOrder, teamMembersAll } from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import CallbackCenter from '@/utils/callbackCenter.js'
-
+import { useFee } from '@/composable/useFee'
+// 页面原本已有金额变量
+const amount = ref('') // 输入框金额
+const { feeRate, fee, netAmount } = useFee(amount)
 const router = useRouter()
 const styaiBalance = inject('styaiBalance', ref(0))
 const { t, locale } = useI18n()
-const balance = ref(0)  // 初始余额0
 const currentTab = ref('mine')
 const epLocale = computed(() => (locale.value === 'zh' ? zhCn : enUS))
 // 用户信息里的关键字段
@@ -187,7 +195,7 @@ function goDetail() {
 // 支付组件引用 & 就绪标记
 const payRef = ref(null)
 const ready = ref(false)
-const amount = ref('') // 输入框金额
+
 
 ///////////全局回调
 onMounted(() => {
@@ -488,6 +496,23 @@ function onPayClose() {
   color: #333;
   font-weight: bold;
   cursor: pointer;
+}
+
+.fee-info {
+  width: 82%;
+  margin: 8px auto 0;
+  text-align: left;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Fallback for current markup where the fee div has no class */
+.exchange-box > div:last-child {
+  width: 82%;
+  margin: 8px auto 0;
+  text-align: left;
+  font-size: 12px;
+  color: #666;
 }
 
 .footer {

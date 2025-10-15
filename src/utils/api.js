@@ -150,3 +150,7 @@ export const buyPurchase = (data) => request(1, '/api/product/sty/purchase', dat
 
 export const getVipConfig = (name = 'VIP') => 
   request(1, `/api/sys/config/user/by-name?name=${encodeURIComponent(name)}`, null)
+
+// ================== 手续费 ==================
+export const userFeeRate = (data) => request(1, '/api/user/get/free', data)
+

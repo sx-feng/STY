@@ -31,6 +31,11 @@
         <button class="confirm-btn" @click="startPay">
           {{ $t('funds.confirm') }}
         </button>
+                        <div class="fee-info" v-if="Number(amount) > 0">
+  💰 手续费：
+  <span class="fee-amount">{{ fee.toFixed(2) }}</span>
+  <span class="fee-rate">（{{ (feeRate * 100).toFixed(2) }}%）</span>
+</div>
       </div>
 
       <div class="list-card">
@@ -87,10 +92,13 @@ import Notify from '@/utils/notifyInApp'
 // 基础状态
 import { ElLoading } from 'element-plus'
 import CallbackCenter from "@/utils/callbackCenter"
-
+import { useFee } from '@/composable/useFee'
+// 页面原本已有金额变量
+const amount = ref('') // 输入框金额
+const { feeRate, fee, netAmount } = useFee(amount)
 const mode = ref('deposit')
 const listType = ref('recharge')
-const amount = ref('') // 输入框金额
+
 
 // 记录列表
 const rechargeList = ref([])
@@ -528,6 +536,17 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 18px rgba(255, 210, 77, 0.2); /* 外发光 */
   position: relative;
   z-index: 1;
+}
+
+
+.fee-info .fee-amount {
+  color: #d4a017;
+  font-weight: 600;
+}
+
+.fee-info .fee-rate {
+  color: #888;
+  font-size: 12px;
 }
 
   </style>
