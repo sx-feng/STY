@@ -1,6 +1,7 @@
-<template>
-  <div class="finance-page">
-    <div class="card card-actions">
+﻿<template>
+  <div class="sty-page">
+  <div class="uni"></div>
+    <div class=" sty-actions">
 
       <!-- 出售 / 求购按钮 -->
       <div class="buy-sell">
@@ -11,9 +12,13 @@
       <!-- 交易记录 -->
       <div class="record">
         <div class="record-box" @click="goBuyRecord">求购记录</div>
+       
         <div class="record-box" @click="goSellRecord">出售记录</div>
       </div>
-
+      <div>
+         <div class="re-box" @click="openCancelSell">取消出售</div>
+      </div>
+<div class="uin"></div>
       <!-- 商品池 -->
       <div class="shop">
         <div class="shop-tabs">
@@ -97,6 +102,15 @@
       </div>
     </div>
 
+  
+<CancelSellDialog
+  v-model:show="showCancelDialog"
+  @refresh="getShopList"
+/>
+
+
+
+
     <!-- 支付组件 -->
     <PaymentWidget
       ref="payRef"
@@ -120,6 +134,13 @@ import CallbackCenter from "@/utils/callbackCenter"
 import WalletTP from '@/utils/walletTP.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import { useFee } from '@/composable/useFee'
+import CancelSellDialog from "@/components/STTT/CancelSellDialog.vue";
+const showCancelDialog = ref(false);
+
+function openCancelSell() {
+  showCancelDialog.value = true;
+}
+
 // 出售手续费：基于 sellAmount
 const sellAmount = ref(0)
 const { feeRate: sellFeeRate, fee: sellFee } = useFee(sellAmount)
@@ -181,10 +202,15 @@ function goSellRecord() { router.push("/cell") }
 function openSellDialog() { showSellDialog.value = true }
 async function confirmSell() {
   if (Number(sellAmount.value) <= 0) return alert('请输入数量')
+  if (Number(sellPrice.value) < minSellPrice.value) return alert(`最低价格不能低于 ${minSellPrice.value} USDT`)
+  
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
-    startPay(0, stySell,pwdMd5)
+    startPay(0, stySell, pwdMd5)
   })
 }
+
+
+
 
 // 求购
 function openPurchaseDialog() { showPurchaseDialog.value = true }
@@ -192,14 +218,13 @@ async function confirmPurchase() {
   if (Number(purchaseAmount.value) <= 0) return alert('请输入数量')
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     const res = await buyPurchase({
-      styAmount: String(purchaseAmount.value),
-      usdtAmount: String((purchaseAmount.value * purchasePrice.value).toFixed(2)),
-      price: String(purchasePrice.value),
-      paymentId: "1",
-      remark: "挂买单求购 STY",
+   amount: String(sellAmount.value), // ✅ 改为 amount
+  price: String(sellPrice.value),
+  remark: "挂单出售 STY",
       twoPassword: pwdMd5
     })
     if (res?.data?.code === 200) {
+      console.log(res.data)
       alert("挂买单成功！")
       showPurchaseDialog.value = false
     } else {
@@ -215,7 +240,7 @@ function buyItem(item) {
   if (item.orderType === 1) {
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
       sellAmount.value = item.styAmount
-      startPay(item.id, styBuy)
+      startPay(item.id, styBuy,)
     })
   } else {
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
@@ -232,16 +257,24 @@ function buyItem(item) {
 // 统一支付
 async function startPay(orderId, fun, pwdMd5 = '') {
   if (!ready.value || !payRef.value) return
+
+  const data = {
+    amount: String(sellAmount.value),
+    price: String(sellPrice.value),
+    remark: "挂单出售 STY",
+    twoPassword: pwdMd5
+  }
+
   const res = await payRef.value.startExternal({
     amount: Number(sellAmount.value),
     token: "STYAI",
     WalletTP,
-    RequestOrder: fun,
+    RequestOrder: () => fun(data), // ✅ 传入完整参数
     SubmitOrder,
     checkTrxEarly: false,
-    orderId,
-    twoPassword: pwdMd5 
+    orderId
   })
+
   console.log('支付结果', res)
 }
 
@@ -256,6 +289,7 @@ async function updateGuidePrice (){
   minPrice.value  = res.data.data.price
   }
 }
+
 
 onMounted(async () => {
   getShopList()
@@ -274,21 +308,23 @@ onMounted(async () => {
 </script>
 
 <style>
-
-
-.finance-page {
+/* ====== 页面整体 ====== */
+.sty-page {
   min-height: 100vh;
   background: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
   font-family: "Microsoft YaHei", sans-serif;
   position: relative;
   overflow: hidden;
 }
 
-.finance-page::before {
+.uni {
+  height: 100px;
+}
+
+.sty-page::before {
   content: "";
   position: absolute;
   top: -20%;
@@ -296,30 +332,38 @@ onMounted(async () => {
   transform: translateX(-50%) scaleY(0.55);
   width: 100%;
   height: 200%;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.6) 0%, rgba(255, 193, 7, 0.35) 35%, rgba(0, 0, 0, 0.95) 100%);
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 215, 0, 0.6) 0%,
+    rgba(255, 193, 7, 0.35) 35%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
   filter: blur(90px);
   pointer-events: none;
   z-index: 0;
 }
 
-.card {
+/* ====== 外层容器 ====== */
+.sty-actions {
+  margin-top: 50px;
   background: #fff;
-  border-radius: 20px;
   padding: 18px;
-  margin: 20px 0;
-  width: 90%;
-  max-width: 420px;
+  width: 82%;
+  max-width: 520px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 0 8px rgba(255, 215, 0, 0.15);
+  transition: all 0.25s ease;
   z-index: 1;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.card-actions .buy-sell {
+/* ====== 出售 / 求购按钮 ====== */
+.sty-actions .buy-sell {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
-.card-actions .btn {
+.sty-actions .btn {
   flex: 1;
   margin: 0 8px;
   padding: 10px 0;
@@ -327,7 +371,7 @@ onMounted(async () => {
   border-radius: 20px;
   font-weight: bold;
   cursor: pointer;
-  transition: .25s;
+  transition: 0.25s;
 }
 
 .btn.sell {
@@ -335,16 +379,18 @@ onMounted(async () => {
   color: #000;
 }
 
+/* ====== 交易记录 ====== */
 .record {
   display: flex;
   justify-content: space-between;
-  margin-top: 12px;
+  margin-top: 20px; /* ✅ 增大记录与下方求购按钮之间的间距 */
+  margin-bottom: 24px; /* ✅ 下方间距更宽松 */
 }
 
 .record-box {
   flex: 1;
-  text-align: center;
-  padding: 8px;
+    text-align: center;
+  padding: 8px 12px; 
   font-size: 13px;
   border-right: 1px solid #ddd;
 }
@@ -352,23 +398,49 @@ onMounted(async () => {
 .record-box:last-child {
   border-right: none;
 }
-
-.shop {
-  margin-top: 20px;
-  max-height: 240px;
-  overflow-y: auto;
-  padding-right: 6px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px;
+.re-box {
+  text-align: right;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #444;
+  cursor: pointer;
+  border: none; /* 去除多余边框 */
+  background: transparent;
+  transition: color 0.25s, transform 0.25s;
+  user-select: none;
 }
 
+/* 悬停与点击反馈 */
+.re-box:hover {
+  color: #d6a520; /* 金色高亮 */
+}
+
+.re-box:active {
+  color: #a37d1d;
+  transform: scale(0.97);
+}
+/* ====== 商品区（重点） ====== */
+.shop {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 340px; /* 可视区域高度 */
+}
+
+/* ====== 固定顶部的按钮栏 ====== */
 .shop-tabs {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-around;
   background: #fff8e1;
   border-radius: 10px;
   margin-bottom: 10px;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .shop-tabs button {
@@ -388,12 +460,14 @@ onMounted(async () => {
   box-shadow: 0 0 6px rgba(246, 194, 68, 0.4);
 }
 
+/* ====== 商品列表滚动区 ====== */
 .shop-list {
-  max-height: 240px;
+  flex: 1;
   overflow-y: auto;
   padding-right: 6px;
 }
 
+/* ====== 单个商品样式 ====== */
 .shop-item {
   display: flex;
   justify-content: space-between;
@@ -402,7 +476,7 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 12px 16px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .shop-info {
@@ -416,17 +490,19 @@ onMounted(async () => {
   font-size: 13px;
   color: #555;
 }
-.shop-row{
-    display: flex;
+
+.shop-row {
+  display: flex;
   justify-content: space-between;
   margin-bottom: 6px;
   font-size: 13px;
   color: #555;
 }
+
 .shop-buy {
-  width: 70px; /* 保持原大小 */
+  width: 70px;
   height: 26px;
-  background: linear-gradient(90deg, #f6d365, #fda085); /* 柔金到橙色渐变 */
+  background: linear-gradient(90deg, #f6d365, #fda085);
   color: #000;
   border: none;
   border-radius: 8px;
@@ -437,18 +513,17 @@ onMounted(async () => {
   box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
 }
 
-/* 悬停时稍微亮一点 */
 .shop-buy:hover {
   background: linear-gradient(90deg, #ffe082, #ffc107);
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
-/* 点击时暗一点有按压感 */
 .shop-buy:active {
   background: linear-gradient(90deg, #fbc02d, #f57c00);
   transform: scale(0.96);
 }
 
+/* ====== 状态与文字 ====== */
 .order-id {
   font-weight: 600;
   color: #333;
@@ -461,12 +536,17 @@ onMounted(async () => {
   color: #fff;
 }
 
-.status-0 { background: #f6c244; }
-.status-1 { background: #4caf50; }
-.status-2 { background: #f44336; }
+.status-0 {
+  background: #f6c244;
+}
+.status-1 {
+  background: #4caf50;
+}
+.status-2 {
+  background: #f44336;
+}
 
-
-
+/* ====== 弹窗样式保持不变 ====== */
 .dialog-mask {
   position: absolute;
   top: 0;
@@ -494,6 +574,7 @@ onMounted(async () => {
   margin: 20vh auto;
 }
 
+/* ====== 其余原样保持 ====== */
 .sell-input.row {
   display: flex;
   flex-direction: column;
@@ -535,8 +616,8 @@ onMounted(async () => {
 
 .dialog-actions {
   display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  justify-content: flex-end; /* 右对齐 */
+  margin-top: auto;          /* 贴近弹窗底部 */
   gap: 8px;
 }
 
@@ -551,6 +632,10 @@ onMounted(async () => {
   cursor: pointer;
   transition: 0.25s;
 }
+
+/* 确保“确认出售”在右侧，“取消”在其左侧 */
+.dialog-actions .sell-cancel { order: 1; flex: 0 0 auto; }
+.dialog-actions .sell-confirm { order: 2; flex: 0 0 auto; }
 
 .sell-confirm {
   background: linear-gradient(90deg, #f6c244, #d6a520);
@@ -580,6 +665,7 @@ onMounted(async () => {
     transform: translateY(0);
   }
 }
+
 .fee-info .fee-amount {
   color: #d4a017;
   font-weight: 600;
@@ -589,7 +675,5 @@ onMounted(async () => {
   color: #888;
   font-size: 12px;
 }
-
-
 
 </style>

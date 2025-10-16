@@ -154,3 +154,16 @@ export const getVipConfig = (name = 'VIP') =>
 // ================== 手续费 ==================
 export const userFeeRate = (data) => request(1, '/api/user/get/free', data)
 
+// ============================
+// ============================
+// 🧾 STY 交易相关接口
+// ============================
+
+// 根据类型获取当前登录用户正在进行中的 STY 交易订单
+export const styMyOrdersByType = (type) =>
+  request(1, `/api/sty-exchange/my-orders/status/by-type/${type}`, null)
+
+// 取消 STY 交易订单
+export const styCancel = (data) =>
+  request(1, '/api/product/sty/cancel', data)
+
