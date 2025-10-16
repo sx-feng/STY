@@ -182,7 +182,7 @@ function openSellDialog() { showSellDialog.value = true }
 async function confirmSell() {
   if (Number(sellAmount.value) <= 0) return alert('请输入数量')
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
-    startPay(0, stySell)
+    startPay(0, stySell,pwdMd5)
   })
 }
 
@@ -230,7 +230,7 @@ function buyItem(item) {
 }
 
 // 统一支付
-async function startPay(orderId, fun) {
+async function startPay(orderId, fun, pwdMd5 = '') {
   if (!ready.value || !payRef.value) return
   const res = await payRef.value.startExternal({
     amount: Number(sellAmount.value),
@@ -239,7 +239,8 @@ async function startPay(orderId, fun) {
     RequestOrder: fun,
     SubmitOrder,
     checkTrxEarly: false,
-    orderId
+    orderId,
+    twoPassword: pwdMd5 
   })
   console.log('支付结果', res)
 }
@@ -273,6 +274,7 @@ onMounted(async () => {
 </script>
 
 <style>
+
 
 .finance-page {
   min-height: 100vh;

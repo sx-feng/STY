@@ -28,7 +28,7 @@
         <span>{{ item.id }}</span>
         <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
-        <span>{{ item.productCycle }}</span>
+        <span>{{ item.yieldRate }}</span>
         <span>{{ item.productCycle }}小时</span>
       </div>
     </div>
@@ -83,12 +83,17 @@ async function _financialRecord() {
     const filtered = (res.data?.data ?? []).filter(
       item => Number(item.productType) === 1
     )
-    incomeList.value = filtered       // 先用同一批数据当投资记录
-    // 计算 profitAmount 和 principalAmount 的总和（非法值当 0）
-    totalRevenue.value = filtered.reduce((sum, item) => {
-      const profit = Number(item.profitAmount)
-      return sum + (isNaN(profit) ? 0 : profit)
-    }, 0)
+    incomeList.value = filtered; // 先用同一批数据当投资记录
+
+// 计算 profitAmount 的总和（非法值当 0）
+const total = filtered.reduce((sum, item) => {
+  // 使用 parseFloat 会更稳妥一些，用于解析字符串中的浮点数
+  const profit = parseFloat(item.profitAmount); 
+  return sum + (isNaN(profit) ? 0 : profit);
+}, 0);
+
+// 将计算结果保留两位小数
+totalRevenue.value = total.toFixed(2);
   }
 }
 onMounted(() => {
