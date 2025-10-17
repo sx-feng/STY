@@ -6,7 +6,7 @@
     </div>
 
     <div class="thead">
-      <span>{{ $t('records.index') }}</span>
+      
       <span>{{ $t('records.coin') }}</span>
       <span>{{ $t('records.type') }}</span>
       <span>{{ $t('records.amount') }}</span>
@@ -16,7 +16,7 @@
     <div class="table-body">
   <template v-if="list.length">
     <div v-for="(item,i) in list" :key="i" class="row">
-      <span>{{ i+1 }}</span>
+      
       <span>STYAI</span>
       <span>购买</span>
       <span>{{ item.styAmount }}</span>
@@ -91,7 +91,7 @@ function goBack() {
 .thead {
     width: 94%;
   display: grid;
-  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr ;
+  grid-template-columns: 1fr 1fr 1fr 1.5fr ;
   font-weight: bold;
   padding: 10px;
   background: rgba(255,255,255,0.05);
@@ -105,7 +105,7 @@ function goBack() {
 
 .row {
   display: grid;
-  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr ;
+  grid-template-columns: 1fr 1fr 1fr 1.5fr ;
   padding: 8px 10px;
   border-bottom: 1px dashed rgba(255,255,255,0.1);
 }

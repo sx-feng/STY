@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
   align-items: center;
   position: relative;
   overflow: hidden;
-  margin-top: 50px;
+  margin-top: 60px;
  
 }
 

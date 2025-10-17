@@ -329,7 +329,7 @@ onMounted(async () => {
 }
 
 .uni {
-  height: 100px;
+  height: 80px;
 }
 
 .sty-page::before {

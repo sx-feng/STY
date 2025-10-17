@@ -8,9 +8,9 @@
 
     <!-- 表头 -->
     <div class="thead">
-      <span>{{ $t('detail.thead.index') }}</span>
+      
       <span>{{ $t('detail.thead.coin') }}</span>
-      <span>{{ $t('detail.thead.type') }}</span>
+      <span >{{ $t('detail.thead.type') }}</span>
       <span>{{ $t('detail.thead.amount') }}</span>
       <span>{{ $t('detail.thead.time') }}</span>
     </div>
@@ -18,7 +18,7 @@
     <!-- 滚动数据容器 -->
     <div class="table-body">
       <div v-for="(item, i) in list" :key="i" class="row">
-        <span>{{ i + 1 }}</span>
+        
         <span>{{ item.coin }}</span>
         <span>{{ item.type }}</span>
         <span :class="item.amount > 0 ? 'income' : 'expense'">
@@ -128,7 +128,7 @@ function goBack() {
   margin-left: 2%;
   width: 90%;
   display: grid;
-  grid-template-columns: 0.6fr 1fr 1.2fr 0.8fr 2.6fr;
+  grid-template-columns: 0.6fr  0.6fr 0.8fr 0.6fr;
   gap: 8px;
   padding: 12px;
   color: #FFD700;
@@ -141,7 +141,7 @@ function goBack() {
 
 .row {
   display: grid;
-  grid-template-columns: 0.6fr 1fr 1.2fr 0.8fr 2.6fr ;
+  grid-template-columns: 0.6fr  0.6fr 0.8fr 0.6fr ;
   gap: 8px;
   padding: 10px 12px;
   font-size: 13px;

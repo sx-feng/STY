@@ -18,14 +18,14 @@
     <div class="content-card">
       <h3>持有理财</h3>
       <div class="thead">
-        <span>ID</span>
+ 
         <span>时间</span>
         <span>金额</span>
         <span>利率</span>
         <span>周期</span>
       </div>
       <div class="row" v-for="(item, i) in list" :key="i">
-        <span>{{ item.id }}</span>
+  
         <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
         <span>{{ item.yieldRate }}</span>
@@ -36,14 +36,14 @@
     <div class="content-card">
       <h3>收益记录</h3>
       <div class="thead">
-        <span>ID</span>
+        
         <span>时间</span>
         <span>金额</span>
         <span>利率</span>
         <span>收益</span>
       </div>
       <div class="row" v-for="(item, i) in incomeList" :key="i">
-        <span>{{ item.id }}</span>
+       
         <span>{{ item.profitTime }}</span>
         <span>{{ item.principalAmount }} USDT</span>
         <span>{{ item.profitRate }}</span>
@@ -157,7 +157,7 @@ ul {
 .thead,
 .row {
   display: grid;
-  grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns:  1.5fr 1fr 1fr 1fr;
   padding: 8px 0;
 }
 

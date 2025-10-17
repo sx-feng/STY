@@ -161,6 +161,8 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   font-size: 13px;
+  
+  padding-top: 60px;
   /* ✅ 全局字体略小 */
 }
 
@@ -184,8 +186,9 @@ onMounted(() => {
 
 /* ========== 卡片通用 ========== */
 .card {
+  
   background: #fff;
-  padding: 18px;
+  padding: 20px 20px 18px 18px;
   margin: 16px 0;
   width: 90%;
   max-width: 520px;

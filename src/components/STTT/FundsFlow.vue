@@ -20,19 +20,19 @@
 
     <!-- 表头 -->
     <div class="thead sticky">
-      <span>序号</span>
+   
       <span>币种</span>
       <span>资金类型</span>
       <span>数量</span>
       <span class="col-time">记录时间</span>
-      <span>状态</span>
+     
     </div>
 
     <!-- 表体 -->
     <div class="table-body" ref="scrollEl">
       <template v-if="list.length">
         <div v-for="(item, i) in list" :key="i" class="row">
-          <span class="muted">{{ (page-1)*pageSize + i + 1 }}</span>
+          
           <span class="ellipsis" @click="showFull(item.coin || item.currency || 'USDT')">
             {{ truncate(item.coin || item.currency || 'USDT') }}
           </span>
@@ -49,9 +49,7 @@
           <span class="col-time ellipsis" @click="showFull(formatTime(item.transactionTime ?? item.createdAt))">
             {{ formatTime(item.transactionTime ?? item.createdAt) }}
           </span>
-          <span class="ellipsis" @click="showFull(item.status ?? '—')">
-            {{ truncate(item.status ?? '—') }}
-          </span>
+          
         </div>
 
         <!-- 底部提示 -->
@@ -217,7 +215,7 @@ onUnmounted(() => {
     position: sticky;
   display: grid;
   width: 94%;
-  grid-template-columns: 0.4fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr;
+  grid-template-columns:  0.6fr 0.8fr 0.6fr 0.6fr ;
   align-items: center;
   text-align: center;
   font-size: 13px;
@@ -226,7 +224,7 @@ onUnmounted(() => {
 }
 .row {
    display: grid;
-  grid-template-columns: 0.4fr 0.6fr 0.8fr 0.6fr 0.6fr 0.6fr;
+  grid-template-columns:  0.6fr 0.8fr 0.6fr 0.6fr ;
   align-items: center;
   text-align: center;
   font-size: 13px;
