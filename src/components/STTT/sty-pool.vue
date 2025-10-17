@@ -208,6 +208,28 @@ async function confirmSell() {
     startPay(0, stySell, pwdMd5)
   })
 }
+async function startPay(orderId, fun, pwdMd5 = '', dataObj = {}) {
+  if (!ready.value || !payRef.value) return
+
+  const data = {
+    amount: String(dataObj.amount ?? sellAmount.value),
+    price: String(dataObj.price ?? sellPrice.value),
+    remark: dataObj.remark || "挂单出售 STY",
+    twoPassword: pwdMd5
+  }
+
+  const res = await payRef.value.startExternal({
+    amount: Number(data.amount),
+    token: "STYAI",
+    WalletTP,
+    RequestOrder: () => fun(data),
+    SubmitOrder,
+    checkTrxEarly: false,
+    orderId
+  })
+
+  console.log('支付结果', res)
+}
 
 
 
@@ -216,67 +238,56 @@ async function confirmSell() {
 function openPurchaseDialog() { showPurchaseDialog.value = true }
 async function confirmPurchase() {
   if (Number(purchaseAmount.value) <= 0) return alert('请输入数量')
+  if (Number(purchasePrice.value) < minPrice.value) return alert(`最低价格不能低于 ${minPrice.value} USDT`)
+
   CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
     const res = await buyPurchase({
-   amount: String(sellAmount.value), // ✅ 改为 amount
-  price: String(sellPrice.value),
-  remark: "挂单出售 STY",
+      styAmount: String(purchaseAmount.value), // ✅ 求购数量
+      remark: "挂单求购 STY",
       twoPassword: pwdMd5
     })
-    if (res?.data?.code === 200) {
-      console.log(res.data)
+    if (res.data.code === 200) {
       alert("挂买单成功！")
       showPurchaseDialog.value = false
+      getShopList()
     } else {
       alert(res?.data?.message || "挂买单失败")
     }
   })
 }
 
-// 买入/卖出订单
+
+// =================== 购买 / 卖出订单 ===================
 function buyItem(item) {
   if (!item.id) return alert('缺少订单ID')
-  console.log("买入/卖出订1111:"+item)
+
+  // orderType=1：出售单 → 用户购买
+  // orderType=2：求购单 → 用户卖出
   if (item.orderType === 1) {
-    CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
-      sellAmount.value = item.styAmount
-      startPay(item.id, styBuy,)
-    })
-  } else {
+    // 用户买入别人挂的卖单
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
       const res = await styBuy({ orderId: item.id, twoPassword: pwdMd5 })
       if (res?.data?.code === 200) {
-        alert(`购买成功: 订单号 ${item.id}`)
+        alert(`购买成功：订单号 ${item.id}`)
+        getShopList()
       } else {
         alert(res?.data?.message || '购买失败')
       }
     })
+  } else {
+    // 用户卖出给别人挂的求购单
+    CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
+      sellAmount.value = item.styAmount
+      sellPrice.value = item.price || minSellPrice.value
+      startPay(item.id, stySell, pwdMd5, {
+        amount: sellAmount.value,
+        price: sellPrice.value,
+        remark: `卖出给求购单 ${item.id}`
+      })
+    })
   }
 }
 
-// 统一支付
-async function startPay(orderId, fun, pwdMd5 = '') {
-  if (!ready.value || !payRef.value) return
-
-  const data = {
-    amount: String(sellAmount.value),
-    price: String(sellPrice.value),
-    remark: "挂单出售 STY",
-    twoPassword: pwdMd5
-  }
-
-  const res = await payRef.value.startExternal({
-    amount: Number(sellAmount.value),
-    token: "STYAI",
-    WalletTP,
-    RequestOrder: () => fun(data), // ✅ 传入完整参数
-    SubmitOrder,
-    checkTrxEarly: false,
-    orderId
-  })
-
-  console.log('支付结果', res)
-}
 
 function onPayDone(res) { console.log('done', res) }
 function onPayClose() { console.log('close') }
