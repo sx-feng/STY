@@ -129,7 +129,7 @@
 <script setup>
 import { ref, onMounted ,onUnmounted} from "vue"
 import router from '@/router'
-import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder,getSTYAIPrice } from '@/utils/api'
+import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder,getSTYAIPrice,styTake } from '@/utils/api'
 import CallbackCenter from "@/utils/callbackCenter"
 import WalletTP from '@/utils/walletTP.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
@@ -276,7 +276,7 @@ function buyItem(item) {
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
       sellAmount.value = item.styAmount
       sellPrice.value = item.price || minSellPrice.value
-      startPay(item.id, stySell, pwdMd5, {
+      startPay(item.id, styTake, pwdMd5, {
         amount: sellAmount.value,
         price: sellPrice.value,
         remark: `卖出给求购单 ${item.id}`
