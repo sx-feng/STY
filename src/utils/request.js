@@ -9,7 +9,7 @@ const LS_KEYS = {
 };
 
 /** 头字段名 */
-const HDR = {       
+const HDR = {                                                                                           
   CONTENT_TYPE: 'Content-Type',
   ACCOUNT_TOKEN: 'Account-token',
   ACCOUNT_SIGN: 'Account-sign',

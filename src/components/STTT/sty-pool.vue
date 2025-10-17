@@ -260,10 +260,7 @@ async function confirmPurchase() {
 // =================== 购买 / 卖出订单 ===================
 function buyItem(item) {
   if (!item.id) return alert('缺少订单ID')
-
-  // orderType=1：出售单 → 用户购买
-  // orderType=2：求购单 → 用户卖出
-  if (item.orderType === 1) {
+  if (item.orderType === 2) {
     // 用户买入别人挂的卖单
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
       const res = await styBuy({ orderId: item.id, twoPassword: pwdMd5 })
