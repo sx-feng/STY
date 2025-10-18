@@ -92,6 +92,7 @@ export const styGet        = (data) => request(1, '/api/sty-exchange/get', data)
 export const styList       = (data) => request(1, '/api/sty-exchange/list', data)
 export const styTrade = (data) => request(1, '/api/sty-exchange/trade', data)
 export const styGetAll     = (data) => request(1, '/api/sty-exchange/get/all', data) 
+export const styTake    = (data) => request(1, '/api/product/sty/take', data) 
 // ================== 签到 ==================
 export const signDo        = (data) => request(1, '/sign/do', data)
 export const signStatus    = (data) => request(1, '/sign/status', data)

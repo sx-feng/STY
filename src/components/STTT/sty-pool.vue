@@ -129,12 +129,13 @@
 <script setup>
 import { ref, onMounted ,onUnmounted} from "vue"
 import router from '@/router'
-import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder,getSTYAIPrice } from '@/utils/api'
+import { styGetAll, stySell, styBuy, buyPurchase, styExchangeRate, SubmitOrder,getSTYAIPrice,styTake } from '@/utils/api'
 import CallbackCenter from "@/utils/callbackCenter"
 import WalletTP from '@/utils/walletTP.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import { useFee } from '@/composable/useFee'
 import CancelSellDialog from "@/components/STTT/CancelSellDialog.vue";
+import { ElMessageBox } from 'element-plus'
 const showCancelDialog = ref(false);
 
 function openCancelSell() {
@@ -147,6 +148,7 @@ const { feeRate: sellFeeRate, fee: sellFee } = useFee(sellAmount)
 // 求购手续费：基于 purchaseAmount
 const purchaseAmount = ref(0)
 const { feeRate: buyFeeRate, fee: buyFee } = useFee(purchaseAmount)
+
 // === 核心交易池状态 ===
 const shopList = ref([])
 const allOrders = ref([])
@@ -208,29 +210,55 @@ async function confirmSell() {
     startPay(0, stySell, pwdMd5)
   })
 }
-async function startPay(orderId, fun, pwdMd5 = '', dataObj = {}) {
+
+async function startPay(orderIds, fun, pwdMd5 = '', dataObj = {}) {
   if (!ready.value || !payRef.value) return
 
   const data = {
     amount: String(dataObj.amount ?? sellAmount.value),
     price: String(dataObj.price ?? sellPrice.value),
     remark: dataObj.remark || "挂单出售 STY",
-    twoPassword: pwdMd5
+    twoPassword: pwdMd5,
+    orderId: orderIds
+  }
+
+  const amountRef = ref(Number(data.amount))
+  const { fee, fetchFeeRate } = useFee(amountRef)
+  await fetchFeeRate()
+
+  const totalAmount = Number(safeAdd(amountRef.value, fee.value)) // ✅ 保证是数字
+
+  const message = `
+    <div style="text-align:left;line-height:1.8">
+      <b>原始金额：</b>${amountRef.value}<br>
+      <b>手续费：</b>${fee.value.toFixed(6)}<br>
+      <b>实际支付：</b><span style="color:#e6a23c;font-weight:bold">${totalAmount.toFixed(6)}</span>
+    </div>
+  `
+
+  try {
+    await ElMessageBox.confirm(message, '确认支付', {
+      confirmButtonText: '确认支付',
+      cancelButtonText: '取消',
+      type: 'warning',
+      dangerouslyUseHTMLString: true
+    })
+  } catch {
+    console.log('用户取消支付')
+    return
   }
 
   const res = await payRef.value.startExternal({
-    amount: Number(data.amount),
+    amount: totalAmount,
     token: "STYAI",
     WalletTP,
     RequestOrder: () => fun(data),
     SubmitOrder,
-    checkTrxEarly: false,
-    orderId
+    checkTrxEarly: false
   })
 
   console.log('支付结果', res)
 }
-
 
 
 
@@ -276,13 +304,18 @@ function buyItem(item) {
     CallbackCenter.trigger('openTwoPasswordDialog', async (pwdMd5) => {
       sellAmount.value = item.styAmount
       sellPrice.value = item.price || minSellPrice.value
-      startPay(item.id, stySell, pwdMd5, {
+      startPay(item.id, styTake, pwdMd5, {
         amount: sellAmount.value,
         price: sellPrice.value,
-        remark: `卖出给求购单 ${item.id}`
+        remark: `卖出给求购单 ${item.id}`,
+        order: item.id
       })
     })
   }
+}
+//
+function safeAdd(a, b) {
+  return (parseFloat(a) + parseFloat(b)).toFixed(8) // 保留8位小数
 }
 
 
