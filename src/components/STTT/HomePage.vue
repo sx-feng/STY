@@ -53,7 +53,7 @@
                 </div>
                 <button class="btn-confirm" @click="startPay">{{ $t('exchange.confirm') }}</button>
                 <div class="fee-info" v-if="Number(amount) > 0">
-  💰 手续费：
+  💰 STY：
   <span class="fee-amount">{{ fee.toFixed(2) }}</span>
   <span class="fee-rate">（{{ (feeRate * 100).toFixed(2) }}%）</span>
 </div>

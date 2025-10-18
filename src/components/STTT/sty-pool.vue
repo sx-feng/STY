@@ -59,7 +59,7 @@
           <span class="unit">STY</span>
         </div>
          <div class="fee-info" v-if="Number(sellAmount)>0">
-  💰 手续费：
+  💰 STY：
   <span class="fee-amount">{{ sellFee.toFixed(2) }}</span>
   <span class="fee-rate">（{{ (sellFeeRate * 100).toFixed(2) }}%）</span>
 </div>
@@ -87,7 +87,7 @@
           <span class="unit">STY</span>
         </div>
         <div class="fee-info" v-if="Number(purchaseAmount) > 0">
-  💰 手续费：
+  💰 STY：
   <span class="fee-amount">{{ buyFee.toFixed(2) }}</span>
   <span class="fee-rate">（{{ (buyFeeRate * 100).toFixed(2) }}%）</span>
 </div>

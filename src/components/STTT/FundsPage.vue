@@ -31,8 +31,8 @@
         <button class="confirm-btn" @click="startPay">
           {{ $t('funds.confirm') }}
         </button>
-                        <div class="fee-info" v-if="Number(amount) > 0">
-  💰 手续费：
+                        <div class="fee-info"  v-if="mode === 'withdraw' && Number(amount) > 0">
+  💰STY：
   <span class="fee-amount">{{ fee.toFixed(2) }}</span>
   <span class="fee-rate">（{{ (feeRate * 100).toFixed(2) }}%）</span>
 </div>
