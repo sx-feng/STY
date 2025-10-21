@@ -37,7 +37,7 @@
             <div class="exchange">
               <div class="exchange-header">
                 <div class="guide-price-section">
-                  <span class="flash-label">{{ $t('exchange.flash') }}：{{ styGuidePrice }}USDT</span>
+                  <span class="flash-label">{{ $t('exchange.flash') }}：{{ styGuidePrice }}&nbsp;<sapn class="us">USDT</sapn></span>
                   
                 </div>
                <div class="balance">
@@ -664,7 +664,10 @@ function onPayClose() {
   color: #e6b422; /* 金色 */
   font-weight: bold;
 }
-
+.us{
+  font-size: 12px;
+  font-weight: 300;
+}
 
 
 </style>
