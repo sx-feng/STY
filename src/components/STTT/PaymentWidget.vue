@@ -53,14 +53,11 @@ const props = defineProps({
   defaultRechargeList: {
     type: Array,
     default: () => ([
-      { amount: '100.00', date: '2025-09-10 12:20' },
-      { amount: '58.50',  date: '2025-09-09 09:05' }
     ])
   },
   defaultWithdrawList: {
     type: Array,
     default: () => ([
-      { amount: '20.00',  date: '2025-09-08 18:33' }
     ])
   }
 })

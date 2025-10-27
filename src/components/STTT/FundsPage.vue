@@ -136,7 +136,7 @@ async function startWithdraw() {
       })
       console.log(re, '提现结果')
 
-      if (re?.data?.code == 200 && re?.data?.data?.status == 5) {
+      if (re?.data?.code == 200 && re?.data?.data?.status == -1) {
         Notify.inApp({
           title: '成功',
           message: '提现成功，请注意查收',
