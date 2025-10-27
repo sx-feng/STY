@@ -292,7 +292,7 @@ onUnmounted(() => {
   cursor: pointer; font-weight: 600; color: #000;
 }
 @media (max-width:420px){
-  .thead,.row{ grid-template-columns:.6fr 1fr 1fr 1fr 1fr; }
+  .thead,.row{ grid-template-columns:.6fr 1fr 1fr; }
   .col-time{ display:none; }
 }
 </style>
