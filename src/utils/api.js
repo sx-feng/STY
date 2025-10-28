@@ -76,7 +76,7 @@ export const contract = (data) => request(1, '/api/capital/contract', data)
 export const SubmitOrder = (data) => request(1, '/api/capital/SubmitOrder', data)
 export const Exchange = (data) => request(1, '/api/capital/Exchange', data)
 export const Withdraw = (data) => request(1, '/api/capital/Withdraw', data)
-
+export const publicRequestOrder = (data) => request(1, '/api/capital/public/RequestOrder', data)
 // ================== 支付 ==================
 export const paymentAdd    = (data) => request(1, '/api/payment/add', data)
 export const paymentDelete = (data) => request(1, '/api/payment/delete', data)
@@ -167,4 +167,6 @@ export const styMyOrdersByType = (type) =>
 // 取消 STY 交易订单
 export const styCancel = (data) =>
   request(1, '/api/product/sty/cancel', data)
+
+
 

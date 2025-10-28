@@ -376,7 +376,7 @@ export function useDepositFlow({
     }
 
     if (success) {
-      setProgress('充值成功，请查收')
+      setProgress('成功')
       setTip(`订单号：${orderNo}\n交易哈希：${payHash}`)
       pay.closable = true
       return { success:true, orderNo, txid: payHash }
