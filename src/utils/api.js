@@ -13,7 +13,9 @@ export const getSTYAIPrice = (data) => request(1, '/api/sty-exchange/price', nul
 export const userList      = (data) => request(1, '/api/user/list', data)
 export const userUpdatePassword = (data) => request(1, '/api/user/update/paswad', data)
 export const buyFinancialProduct = (data) =>request(1, '/api/user-machine/buy', data)
-
+// ✅ 二级密码验证（购买矿机时使用）
+export const verifyTwoPasswordForBuy = (data) =>
+  request(1, '/api/product/check/user', data)
 // ================== 钱包 ==================
 export const walletAdd     = (data) => request(1, '/api/wallet/add', data)
 export const walletDelete  = (data) => request(1, '/api/wallet/delete', data)

@@ -62,7 +62,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, onBeforeUnmount } from 'vue'
 import WalletTP from '@/utils/walletTP.js'
-import { RequestOrder, SubmitOrder, userPlatformFlowSelect, userPlatformBalance, Withdraw, getSTYAIPrice, publicRequestOrder } from '@/utils/api.js'
+import { RequestOrder, SubmitOrder, userPlatformFlowSelect, userPlatformBalance, Withdraw, getSTYAIPrice, publicRequestOrder ,verifyTwoPasswordForBuy} from '@/utils/api.js'
 import PaymentWidget from '@/components/STTT/PaymentWidget.vue'
 import Notify from '@/utils/notifyInApp'
 // 基础状态
@@ -115,6 +115,17 @@ async function startWithdraw() {
     const feeInSTY = styGuidePrice.value ? (fee.value / styGuidePrice.value) : 0
     const confirmMessage = `出金需要先支付 ${feeInSTY.toFixed(2)} STYAI 手续费`
     //!!!!!!!!加一个单独验证密码的接口
+            // ✅ 第一步：单独验证密码
+    const verify = await verifyTwoPasswordForBuy({ twoPassword: pwdMd5 })
+    if (verify?.data?.code !== 200) {
+      Notify.inApp({
+        title: '验证失败',
+        message: verify?.data?.message || '二级密码错误',
+        type: 'error'
+      })
+      return
+    }
+    loading.close()
     if (typeof window !== 'undefined' && !window.confirm(confirmMessage)) {
       return
     }
