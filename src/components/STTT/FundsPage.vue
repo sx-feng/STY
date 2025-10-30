@@ -25,7 +25,7 @@
       </button>
       <div class="fee-info" v-if="mode === 'withdraw' && Number(amount) > 0">
         💰STY：
-        <span class="fee-amount">{{ (fee / styGuidePrice).toFixed(2) }}</span>
+        <span class="fee-amount">{{ fee .toFixed(2) }}</span>
         <span class="fee-rate">（{{ (feeRate * 100).toFixed(2) }}%）</span>
       </div>
     </div>
@@ -113,7 +113,7 @@ async function startWithdraw() {
       text: '正在提交提现请求...',
       background: 'rgba(0, 0, 0, 0.5)'
     })
-    const feeInSTY = styGuidePrice.value ? (fee.value / styGuidePrice.value) : 0
+    const feeInSTY = fee.value 
     const confirmMessage = `出金需要先支付 ${feeInSTY.toFixed(2)} STYAI 手续费`
     //!!!!!!!!加一个单独验证密码的接口
             // ✅ 第一步：单独验证密码
