@@ -19,7 +19,7 @@
   },
   "exchange": {
     "flash": "闪兑价格",
-    "balance": "账户余额",
+    "balance": "STY余额",
     "all": "全部",
     "confirm": "确定闪兑",
     "inputPlaceholder": "请输入内容"

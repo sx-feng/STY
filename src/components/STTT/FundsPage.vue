@@ -12,7 +12,8 @@
       </div>
       <div class="platform-balance-inline">
         <span class="label">💰 {{ $t('funds.balance') }}:</span>
-        <span class="value">{{ platformBalance }}</span>
+        <span class="value">{{ platformBalance }} <span class="values">USDT</span></span>
+       
       </div>
 
       <input class="amount-input" type="number" inputmode="decimal"
@@ -618,8 +619,14 @@ onBeforeUnmount(() => {
   font-weight: 800;
   font-size: 18px;
   color: #fff;
+  margin-right: 5%;
+ 
 }
-
+.platform-balance-inline .values{
+  font-size: 12px;
+  font-weight: normal;
+  color: #d4a017;
+}
 /* 金色外框卡片（用于 fund-heard） */
 .fund-heard {
   width: 94%;
