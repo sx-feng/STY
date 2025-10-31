@@ -203,7 +203,7 @@ async function startPay() {
 }
 // 触发支付
 async function startPaySTY() {
-  const feeInSTY = styGuidePrice.value ? (fee.value / styGuidePrice.value).toFixed(2) : 0
+  const feeInSTY =fee.value 
   if (!ready.value || !payRef.value) {
     console.warn('PaymentWidget 未挂载完成')
     return
