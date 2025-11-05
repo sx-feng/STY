@@ -29,7 +29,7 @@
         
         <span>{{ item.createTime }}</span>
         <span>{{ item.price }} USDT</span>
-        <span>{{ item.yieldRate }}</span>
+        <span>{{(item.yieldRate/item.productCycle*100).toFixed(3)}}%</span>
         <span>{{ item.productCycle}}天</span>
       </div>
     </div>   
@@ -47,7 +47,7 @@
                  
         <span>{{ item.profitTime }}</span>
         <span>{{ item.principalAmount }} USDT</span>
-        <span>{{ item.profitRate}}</span>
+        <span>{{ (item.profitRate/item.profitAmount*100).toFixed(3)}}%</span>
         <span>{{ item.profitAmount }} USDT</span>
       </div>
     </div>

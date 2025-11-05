@@ -59,7 +59,7 @@
             <div class="detail-bottom">
               <span class="cycle">{{ item.cycleDays }}天</span>
               <span class="yield">
-                <span class="value">收益率{{ (item.yieldRate * 100 ).toFixed(2) }}%</span>
+                <span class="value">收益率{{(((item.yieldRate/item.cycleDays) * 100 )).toFixed(2) }}%</span>
               </span>
             </div>
           </div>
